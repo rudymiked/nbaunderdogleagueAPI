@@ -1,11 +1,12 @@
 ﻿namespace nbaunderdogleagueAPI.DataAccess
 {
-    public interface IGetUserDataAccess
+    public interface IUserDataAccess
     {
         List<User> GetUserData();
     }
-    public class UserDataAccess : IGetUserDataAccess
+    public class UserDataAccess : IUserDataAccess
     {
+        public UserDataAccess() { }
         public List<User> GetUserData()
         {
             List<User> userData = new()

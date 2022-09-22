@@ -2,18 +2,21 @@
 
 namespace nbaunderdogleagueAPI.Business
 {
-    public interface IUserLogic
+    public interface IUserBusinessLogic
     {
         List<User> GetUsers();
     }
 
-    public class UserBusinessLogic : IUserLogic
+    public class UserBusinessLogic : IUserBusinessLogic
     {
+        private readonly IUserDataAccess _userDataAccess;
+        public UserBusinessLogic()
+        {
+            _userDataAccess = new UserDataAccess();
+        }
         public List<User> GetUsers()
         {
-            UserDataAccess userDataAccess = new();
-
-            return userDataAccess.GetUserData();
+            return _userDataAccess.GetUserData();
         }
     }
 }
