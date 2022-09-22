@@ -16,7 +16,7 @@ namespace nbaunderdogleagueAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet("GetUsers")]
         public IEnumerable<User> Get()
         {
             return _userService.GetUsers();
