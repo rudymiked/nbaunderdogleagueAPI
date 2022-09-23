@@ -7,10 +7,10 @@ namespace nbaunderdogleagueAPI.Business
         List<User> GetUsers();
     }
 
-    public class UserBusinessLogic : IUserBusinessLogic
+    public class UserRepository : IUserBusinessLogic
     {
         private readonly IUserDataAccess _userDataAccess;
-        public UserBusinessLogic()
+        public UserRepository()
         {
             _userDataAccess = new UserDataAccess();
         }

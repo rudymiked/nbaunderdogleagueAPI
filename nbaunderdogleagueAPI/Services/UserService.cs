@@ -11,7 +11,7 @@ namespace nbaunderdogleagueAPI.Services
         private readonly IUserBusinessLogic _userBusinessLogic;
         public UserService()
         {
-            _userBusinessLogic = new UserBusinessLogic();
+            _userBusinessLogic = new UserRepository();
         }
         public List<User> GetUsers()
         {
