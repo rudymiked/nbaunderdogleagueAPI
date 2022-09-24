@@ -1,40 +1,81 @@
-﻿public class Startup
+﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+using nbaunderdogleagueAPI.Business;
+using nbaunderdogleagueAPI.DataAccess;
+using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Services;
+using System.Security.Principal;
+
+public class Startup
 {
+    public IConfiguration Configuration { get; }
+    public IHttpContextAccessor HttpContextAccessor { get; }
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
-
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+        try {
+            services.AddTransient<IPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
+            services.AddHttpContextAccessor();
+            services.AddControllers();
+            services.AddLogging(configure => {
+                configure.AddApplicationInsights(Configuration[AppConstants.NBAAppInsights]);
+                configure.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information)
+                .AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Error);
+            });
 
-        services.AddCors();
+            services.AddCors();
+            services.AddMvc();
+            services.AddAzureAppConfiguration();
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            services.AddEndpointsApiExplorer();
+
+            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IUserDataAccess, UserDataAccess>();
+
+            services.AddSingleton<ITeamService, TeamService>();
+            services.AddSingleton<ITeamRepository, TeamRepository>();
+            services.AddSingleton<ITeamDataAccess, TeamDataAccess>();
+
+            services.AddSwaggerGen();
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    public void Configure(WebApplication app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        try {
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
-        app.UseHttpsRedirection();
-        app.UseAuthorization(); 
-        app.MapControllers();
+            app.UseRouting();
+            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseAzureAppConfiguration();
 
-        app.UseCors(p => {
-            p
-            .WithOrigins("http://localhost:3000", "https://localhost:7161")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-        });
+            app.UseCors(p => {
+                p
+                .WithOrigins("http://localhost:3000", "https://localhost:7161")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+            });
 
-        app.Run();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
+            });
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+        }
     }
 }

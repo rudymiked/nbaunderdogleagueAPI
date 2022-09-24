@@ -1,4 +1,6 @@
-﻿using nbaunderdogleagueAPI.Services;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using nbaunderdogleagueAPI.Services;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -10,7 +12,14 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         [TestInitialize]
         public void SetUp()
         {
-            _userService = new UserService();
+            var application = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder => {
+                builder.ConfigureAppConfiguration((hostingContext, config) => {
+
+                });
+            });
+
+            _userService = application.Services.GetService<IUserService>();
         }
 
         [TestMethod]

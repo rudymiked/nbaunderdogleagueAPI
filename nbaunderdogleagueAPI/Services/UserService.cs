@@ -8,14 +8,14 @@ namespace nbaunderdogleagueAPI.Services
     }
     public class UserService : IUserService
     {
-        private readonly IUserBusinessLogic _userBusinessLogic;
-        public UserService()
+        private readonly IUserRepository _userRepository;
+        public UserService(IUserRepository userRepository)
         {
-            _userBusinessLogic = new UserRepository();
+            _userRepository = userRepository;
         }
         public List<User> GetUsers()
         {
-            return _userBusinessLogic.GetUsers();
+            return _userRepository.GetUsers();
         }
     }
 }

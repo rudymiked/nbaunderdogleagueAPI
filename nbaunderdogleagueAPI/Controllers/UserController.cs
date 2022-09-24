@@ -10,9 +10,9 @@ namespace nbaunderdogleagueAPI.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IUserService _userService;  
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(ILogger<UserController> logger, IUserService userService)
         {
-            _userService = new UserService();
+            _userService = userService;
             _logger = logger;
         }
 

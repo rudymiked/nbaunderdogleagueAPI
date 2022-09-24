@@ -10,9 +10,9 @@ namespace nbaunderdogleagueAPI.Services
     public class TeamService : ITeamService
     {
         private readonly ITeamRepository _teamRepository;
-        public TeamService()
+        public TeamService(ITeamRepository teamRepository)
         {
-            _teamRepository = new TeamRepository();
+            _teamRepository = teamRepository;
         }
         public List<Team> GetTeams()
         {

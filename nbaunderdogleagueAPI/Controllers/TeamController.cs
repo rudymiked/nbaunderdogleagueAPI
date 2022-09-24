@@ -11,9 +11,9 @@ namespace nbaunderdogleagueAPI.Controllers
         private readonly ILogger<TeamController> _logger;
         private readonly ITeamService _teamService;  
 
-        public TeamController(ILogger<TeamController> logger)
+        public TeamController(ILogger<TeamController> logger, ITeamService teamService)
         {
-            _teamService = new TeamService();
+            _teamService = teamService;
             _logger = logger;
         }
 

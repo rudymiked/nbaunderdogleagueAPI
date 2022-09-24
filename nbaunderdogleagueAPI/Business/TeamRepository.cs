@@ -11,9 +11,9 @@ namespace nbaunderdogleagueAPI.Business
     public class TeamRepository : ITeamRepository
     {
         private readonly ITeamDataAccess _teamDataAccess;
-        public TeamRepository()
+        public TeamRepository(ITeamDataAccess teamDataAccess)
         {
-            _teamDataAccess = new TeamDataAccess();
+            _teamDataAccess = teamDataAccess;
         }
         public List<Team> GetTeams()
         {
