@@ -74,14 +74,11 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TableClient tableClient = new(_appConfig.TableConnection, AppConstants.TeamsTable);
                 await tableClient.CreateIfNotExistsAsync();
 
-                foreach (TeamsEntity team in teamsEntities) {
+                List<TableTransactionAction> addTeamsBatch = new List<TableTransactionAction>();
 
-                    var response = tableClient.AddEntityAsync(team).Result;
+                addTeamsBatch.AddRange(teamsEntities.Select(f => new TableTransactionAction(TableTransactionActionType.UpsertMerge, f)));
 
-                    if (response.IsError) {
-                        _logger.LogError(response.ReasonPhrase);
-                    }
-                }
+                Response<IReadOnlyList<Response>> response = await tableClient.SubmitTransactionAsync(addTeamsBatch);
 
                 return teamsEntities;
 

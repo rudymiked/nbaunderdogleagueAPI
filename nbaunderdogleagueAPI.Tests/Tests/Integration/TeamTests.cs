@@ -57,21 +57,32 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_teamService != null) {
                 List<TeamsEntity> teamsEntities = new() { new TeamsEntity() {
                     PartitionKey = "Team",
-                    RowKey = Guid.NewGuid().ToString(),
-                    Name = "Sun",
+                    RowKey = "Suns",
+                    Name = "Suns",
                     City = "Pheonix",
-                    ProjectedWin = 80,
-                    ProjectedLoss = 2,
+                    ProjectedWin = 64,
+                    ProjectedLoss = 18,
                     ETag = ETag.All,
                     Timestamp = DateTime.UtcNow
                 },
                 new TeamsEntity() {
                     PartitionKey = "Team",
-                    RowKey = Guid.NewGuid().ToString(),
+                    RowKey = "Clippers",
                     Name = "Clippers",
                     City = "Los Angeles",
                     ProjectedWin = 40,
                     ProjectedLoss = 42,
+                    ETag = ETag.All,
+                    Timestamp = DateTime.UtcNow
+                }
+                ,
+                new TeamsEntity() {
+                    PartitionKey = "Team",
+                    RowKey = "Lakers",
+                    Name = "Lakers",
+                    City = "Los Angeles",
+                    ProjectedWin = 20,
+                    ProjectedLoss = 62,
                     ETag = ETag.All,
                     Timestamp = DateTime.UtcNow
                 }
