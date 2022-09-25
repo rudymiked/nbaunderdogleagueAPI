@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
     [TestClass]
     public class UserTests
     {
-        private IUserService? _userService;
+        private IUserService _userService;
 
         [TestInitialize]
         public void SetUp()

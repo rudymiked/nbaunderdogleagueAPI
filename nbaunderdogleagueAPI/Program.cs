@@ -29,7 +29,7 @@ namespace nbaunderdogleagueAPI
 
                     string connection = settings.GetConnectionString(AppConstants.NBAFantasyConfig);
 
-#if DEBUG
+#if DEBUG   
                     connection = settings[AppConstants.NBAFantasyConfigLocal];
 #endif
 

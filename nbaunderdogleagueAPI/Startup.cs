@@ -30,8 +30,15 @@ public class Startup
             services.AddMvc();
             services.AddAzureAppConfiguration();
 
+            services.AddHttpClient(AppConstants.AppName, client => {
+                client.BaseAddress = new Uri(AppConstants.ApiUrl);
+                client.DefaultRequestHeaders.Add("ContentType", "application/json");
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
+
+            services.Configure<AppConfig>(Configuration);
 
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IUserRepository, UserRepository>();

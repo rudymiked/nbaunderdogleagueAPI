@@ -6,6 +6,7 @@ namespace nbaunderdogleagueAPI.Business
     public interface ITeamRepository
     {
         List<Team> GetTeams();
+        List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities);
     }
 
     public class TeamRepository : ITeamRepository
@@ -18,6 +19,11 @@ namespace nbaunderdogleagueAPI.Business
         public List<Team> GetTeams()
         {
             return _teamDataAccess.GetTeamData();
+        }
+
+        public List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities)
+        {
+            return _teamDataAccess.AddTeamsAsync(teamsEntities).Result;
         }
     }
 }

@@ -22,5 +22,11 @@ namespace nbaunderdogleagueAPI.Controllers
         {
             return _teamService.GetTeams();
         }
+
+        [HttpPost("AddTeams")]
+        public IEnumerable<TeamsEntity> AddTeams(TeamsEntity[] teams)
+        {
+            return _teamService.AddTeams(teams.ToList());
+        }
     }
 }
