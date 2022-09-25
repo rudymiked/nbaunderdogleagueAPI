@@ -40,12 +40,24 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
+        public void GetTeamsEntityTest()
+        {
+            if (_teamService != null) {
+                List<TeamsEntity> teams = _teamService.GetTeamsEntity();
+
+                Assert.AreNotEqual(0, teams.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void AddTeamsTest()
         {
             if (_teamService != null) {
                 List<TeamsEntity> teamsEntities = new() { new TeamsEntity() {
-                    PartitionKey = Guid.NewGuid().ToString(),
-                    RowKey = "Team",
+                    PartitionKey = "Team",
+                    RowKey = Guid.NewGuid().ToString(),
                     Name = "Sun",
                     City = "Pheonix",
                     ProjectedWin = 80,
@@ -54,8 +66,8 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     Timestamp = DateTime.UtcNow
                 },
                 new TeamsEntity() {
-                    PartitionKey = Guid.NewGuid().ToString(),
-                    RowKey = "Team",
+                    PartitionKey = "Team",
+                    RowKey = Guid.NewGuid().ToString(),
                     Name = "Clippers",
                     City = "Los Angeles",
                     ProjectedWin = 40,

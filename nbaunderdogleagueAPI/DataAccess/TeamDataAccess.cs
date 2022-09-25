@@ -8,6 +8,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface ITeamDataAccess
     {
         List<Team> GetTeamData();
+        Task<List<TeamsEntity>> GetTeamsAsync();
         Task<List<TeamsEntity>> AddTeamsAsync(List<TeamsEntity> teamsEntities);
     }
     public class TeamDataAccess : ITeamDataAccess
@@ -51,10 +52,26 @@ namespace nbaunderdogleagueAPI.DataAccess
             return teamData;
         }
 
+        public async Task<List<TeamsEntity>> GetTeamsAsync()
+        {
+            try {
+                TableClient tableClient = new(_appConfig.TableConnection, AppConstants.TeamsTable);
+                await tableClient.CreateIfNotExistsAsync();
+
+                var response = tableClient.Query<TeamsEntity>();
+
+                return response.ToList();
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new List<TeamsEntity>();
+        }
+
         public async Task<List<TeamsEntity>> AddTeamsAsync(List<TeamsEntity> teamsEntities)
         {
             try {
-                TableClient tableClient = new TableClient(_appConfig.TableConnection, AppConstants.TeamsTable);
+                TableClient tableClient = new(_appConfig.TableConnection, AppConstants.TeamsTable);
                 await tableClient.CreateIfNotExistsAsync();
 
                 foreach (TeamsEntity team in teamsEntities) {

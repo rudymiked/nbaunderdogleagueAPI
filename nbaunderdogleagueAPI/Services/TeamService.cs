@@ -6,6 +6,7 @@ namespace nbaunderdogleagueAPI.Services
     public interface ITeamService
     {
         List<Team> GetTeams();
+        List<TeamsEntity> GetTeamsEntity();
         List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities);
     }
     public class TeamService : ITeamService
@@ -18,6 +19,11 @@ namespace nbaunderdogleagueAPI.Services
         public List<Team> GetTeams()
         {
             return _teamRepository.GetTeams();
+        }
+
+        public List<TeamsEntity> GetTeamsEntity()
+        {
+            return _teamRepository.GetTeamsEntity();
         }
 
         public List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities)
