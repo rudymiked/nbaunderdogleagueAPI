@@ -44,7 +44,7 @@ public class Startup
             services.AddSwaggerGen();
         }
         catch (Exception ex) {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Startup Configure Services: " + ex.Message);
         }
     }
 
@@ -75,7 +75,7 @@ public class Startup
             });
         }
         catch (Exception ex) {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Startup Configure: " + ex.Message);
         }
     }
 }
