@@ -42,8 +42,10 @@ namespace nbaunderdogleagueAPI
                         });
                     });
 
+                    var env = hostContext.HostingEnvironment;
+
                     config.AddJsonFile("application/json", optional: true, reloadOnChange: true)
-                    .AddJsonFile("$appsettings.json", optional: true, reloadOnChange: true);
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                 }).UseStartup<Startup>());
         }
     }
