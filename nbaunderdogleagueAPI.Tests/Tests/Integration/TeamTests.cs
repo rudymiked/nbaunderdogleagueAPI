@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using Newtonsoft.Json;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -31,9 +32,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetStandingsTest()
         {
             if (_teamService != null) {
-                List<Standings> users = _teamService.GetStandings();
+                List<Standings> standings = _teamService.GetStandings();
 
-                Assert.AreNotEqual(0, users.Count);
+                Assert.AreNotEqual(0, standings.Count);
             } else {
                 Assert.Fail();
             }
@@ -43,7 +44,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetCurrentNBAStandingsTest()
         {
             if (_teamService != null) {
-                List<CurrentNBAStandings> currentNBAStandings = _teamService.GetCurrentNBAStandings();
+                List<CurrentNBAStanding> currentNBAStandings = _teamService.GetCurrentNBAStandings();
 
                 Assert.AreNotEqual(0, currentNBAStandings.Count);
             } else {
@@ -63,49 +64,24 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
-        [TestMethod]
-        public void AddTeamsTest()
-        {
-            if (_teamService != null) {
-                List<TeamEntity> teamsEntities = new() { new TeamEntity() {
-                    PartitionKey = "Team",
-                    RowKey = "Suns",
-                    Name = "Suns",
-                    City = "Pheonix",
-                    ProjectedWin = 64,
-                    ProjectedLoss = 18,
-                    ETag = ETag.All,
-                    Timestamp = DateTime.UtcNow
-                },
-                new TeamEntity() {
-                    PartitionKey = "Team",
-                    RowKey = "Clippers",
-                    Name = "Clippers",
-                    City = "Los Angeles",
-                    ProjectedWin = 40,
-                    ProjectedLoss = 42,
-                    ETag = ETag.All,
-                    Timestamp = DateTime.UtcNow
-                }
-                ,
-                new TeamEntity() {
-                    PartitionKey = "Team",
-                    RowKey = "Lakers",
-                    Name = "Lakers",
-                    City = "Los Angeles",
-                    ProjectedWin = 20,
-                    ProjectedLoss = 62,
-                    ETag = ETag.All,
-                    Timestamp = DateTime.UtcNow
-                }
-            };
+        // do not use, only for testing purposes
+        //[TestMethod]
+        //public void AddTeamsTest()
+        //{
+        //    if (_teamService != null) {
+        //        List<TeamEntity> teamsEntities = new();
+        //        StreamReader r = new StreamReader(@"C:\Users\rudym\source\repos\nbaunderdogleagueAPI\nbaunderdogleagueAPI\Data\NBA2023ODDS.json");
 
-                List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
+        //        string jsonString = r.ReadToEnd();
 
-                Assert.AreNotEqual(0, teams.Count);
-            } else {
-                Assert.Fail();
-            }
-        }
+        //        var data = JsonConvert.DeserializeObject<TeamEntity[]>(jsonString);
+
+        //        List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
+
+        //        Assert.AreNotEqual(0, teams.Count);
+        //    } else {
+        //        Assert.Fail();
+        //    }
+        //}
     }
 }

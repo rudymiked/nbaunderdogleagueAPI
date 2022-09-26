@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }        
 
         [HttpGet("GetCurrentNBAStandings")]
-        public IEnumerable<CurrentNBAStandings> GetCurrentNBAStandings()
+        public IEnumerable<CurrentNBAStanding> GetCurrentNBAStandings()
         {
             return _teamService.GetCurrentNBAStandings();
         }

@@ -1,6 +1,6 @@
 ﻿namespace nbaunderdogleagueAPI.Models
 {
-    public class CurrentNBAStandings
+    public class CurrentNBAStanding
     {
         public string TeamName { get; set; }
         public string TeamCity { get; set; }
