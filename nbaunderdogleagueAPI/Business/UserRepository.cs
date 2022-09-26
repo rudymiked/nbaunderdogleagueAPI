@@ -4,19 +4,24 @@ namespace nbaunderdogleagueAPI.Business
 {
     public interface IUserRepository
     {
-        List<User> GetUsers();
+        List<UserEntity> GetUsers();
+        List<UserEntity> AddUsers(List<UserEntity> userEntities);
     }
 
     public class UserRepository : IUserRepository
     {
         private readonly IUserDataAccess _userDataAccess;
-        public UserRepository()
+        public UserRepository(IUserDataAccess userDataAccess)
         {
-            _userDataAccess = new UserDataAccess();
+            _userDataAccess = userDataAccess;
         }
-        public List<User> GetUsers()
+        public List<UserEntity> GetUsers()
         {
-            return _userDataAccess.GetUserData();
+            return _userDataAccess.GetUsers();
+        }        
+        public List<UserEntity> AddUsers(List<UserEntity> userEntities)
+        {
+            return _userDataAccess.AddUsers(userEntities);
         }
     }
 }

@@ -5,9 +5,9 @@ namespace nbaunderdogleagueAPI.Business
 {
     public interface ITeamRepository
     {
-        List<Team> GetTeams();
-        List<TeamsEntity> GetTeamsEntity();
-        List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities);
+        List<Standings> GetStandings();
+        List<TeamEntity> GetTeamsEntity();
+        List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
 
     public class TeamRepository : ITeamRepository
@@ -17,19 +17,19 @@ namespace nbaunderdogleagueAPI.Business
         {
             _teamDataAccess = teamDataAccess;
         }
-        public List<Team> GetTeams()
+        public List<Standings> GetStandings()
         {
-            return _teamDataAccess.GetTeamData();
+            return _teamDataAccess.GetStandingsData();
         }
 
-        public List<TeamsEntity> GetTeamsEntity()
+        public List<TeamEntity> GetTeamsEntity()
         {
-            return _teamDataAccess.GetTeamsAsync().Result;
+            return _teamDataAccess.GetTeams();
         }
 
-        public List<TeamsEntity> AddTeams(List<TeamsEntity> teamsEntities)
+        public List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities)
         {
-            return _teamDataAccess.AddTeamsAsync(teamsEntities).Result;
+            return _teamDataAccess.AddTeams(teamsEntities);
         }
     }
 }

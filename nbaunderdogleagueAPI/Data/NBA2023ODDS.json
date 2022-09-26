@@ -1,0 +1,302 @@
+[
+    {
+      "partitionKey": "Team",
+      "rowKey": "Celtics",
+      "name": "Celtics",
+      "city": "Boston",
+      "projectedWin": 53,
+      "projectedLoss": 29,
+      "timestamp": "2022-09-26T18:28:21.961Z",
+      "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Suns",
+        "name": "Suns",
+        "city": "Pheonix",
+        "projectedWin": 52,
+        "projectedLoss": 30,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Bucks",
+        "name": "Bucks",
+        "city": "Milwaukee",
+        "projectedWin": 52,
+        "projectedLoss": 30,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Clippers",
+        "name": "Clippers",
+        "city": "Los Angeles",
+        "projectedWin": 52,
+        "projectedLoss": 30,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Warriors",
+        "name": "Warriors",
+        "city": "Golden State",
+        "projectedWin": 51,
+        "projectedLoss": 31,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "76ers",
+        "name": "76ers",
+        "city": "Philadelphia",
+        "projectedWin": 50,
+        "projectedLoss": 32,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Nuggets",
+        "name": "Nuggets",
+        "city": "Denver",
+        "projectedWin": 49,
+        "projectedLoss": 33,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Nets",
+        "name": "Nets",
+        "city": "Brooklyn",
+        "projectedWin": 50,
+        "projectedLoss": 32,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Grizzlies",
+        "name": "Grizzlies",
+        "city": "Memphis",
+        "projectedWin": 48,
+        "projectedLoss": 34,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Heat",
+        "name": "Heat",
+        "city": "Miami",
+        "projectedWin": 48,
+        "projectedLoss": 34,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Timberwolves",
+        "name": "Timberwolves",
+        "city": "Minnesota",
+        "projectedWin": 48,
+        "projectedLoss": 34,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Mavericks",
+        "name": "Mavericks",
+        "city": "Dallas",
+        "projectedWin": 48,
+        "projectedLoss": 34,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Cavaliers",
+        "name": "Cavaliers",
+        "city": "Cleveland",
+        "projectedWin": 47,
+        "projectedLoss": 35,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Raptors",
+        "name": "Raptors",
+        "city": "Toronto",
+        "projectedWin": 45,
+        "projectedLoss": 37,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Hawks",
+        "name": "Hawks",
+        "city": "Atlanta",
+        "projectedWin": 45,
+        "projectedLoss": 37,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Lakers",
+        "name": "Lakers",
+        "city": "Los Angeles",
+        "projectedWin": 45,
+        "projectedLoss": 37,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Pelicans",
+        "name": "Pelicans",
+        "city": "New Orleans",
+        "projectedWin": 44,
+        "projectedLoss": 38,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Bulls",
+        "name": "Bulls",
+        "city": "Chicago",
+        "projectedWin": 42,
+        "projectedLoss": 40,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Trail Blazers",
+        "name": "Trail Blazers",
+        "city": "Portland",
+        "projectedWin": 39,
+        "projectedLoss": 43,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Knicks",
+        "name": "Knicks",
+        "city": "New York",
+        "projectedWin": 39,
+        "projectedLoss": 43,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Hornets",
+        "name": "Hornets",
+        "city": "Charlotte",
+        "projectedWin": 39,
+        "projectedLoss": 43,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Wizards",
+        "name": "Wizards",
+        "city": "Washington",
+        "projectedWin": 35,
+        "projectedLoss": 47,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Kings",
+        "name": "Kings",
+        "city": "Sacramento",
+        "projectedWin": 33,
+        "projectedLoss": 49,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Pistons",
+        "name": "Pistons",
+        "city": "Detroit",
+        "projectedWin": 29,
+        "projectedLoss": 53,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Magic",
+        "name": "Magic",
+        "city": "Orlando",
+        "projectedWin": 26,
+        "projectedLoss": 56,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Jazz",
+        "name": "Jazz",
+        "city": "Utah",
+        "projectedWin": 24,
+        "projectedLoss": 58,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Thunder",
+        "name": "Thunder",
+        "city": "Oklahoma City",
+        "projectedWin": 23,
+        "projectedLoss": 59,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Pacers",
+        "name": "Pacers",
+        "city": "Indiana",
+        "projectedWin": 23,
+        "projectedLoss": 59,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Rockets",
+        "name": "Rockets",
+        "city": "Houston",
+        "projectedWin": 23,
+        "projectedLoss": 59,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    },
+    {
+        "partitionKey": "Team",
+        "rowKey": "Spurs",
+        "name": "Spurs",
+        "city": "San Antonio",
+        "projectedWin": 22,
+        "projectedLoss": 60,
+        "timestamp": "2022-09-26T18:28:21.961Z",
+        "eTag": "*"
+    }
+  ]

@@ -7,19 +7,22 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
         private readonly IUserService _userService;  
 
-        public UserController(ILogger<UserController> logger, IUserService userService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _logger = logger;
         }
 
         [HttpGet("GetUsers")]
-        public IEnumerable<User> Get()
+        public IEnumerable<UserEntity> Get()
         {
             return _userService.GetUsers();
+        }        
+        [HttpPost("AddUsers")]
+        public IEnumerable<UserEntity> AddUsers(List<UserEntity> userEntities)
+        {
+            return _userService.AddUsers(userEntities);
         }
     }
 }

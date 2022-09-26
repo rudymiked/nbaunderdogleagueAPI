@@ -28,10 +28,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetTeamsTest()
+        public void GetStandingsTest()
         {
             if (_teamService != null) {
-                List<Team> users = _teamService.GetTeams();
+                List<Standings> users = _teamService.GetStandings();
 
                 Assert.AreNotEqual(0, users.Count);
             } else {
@@ -43,7 +43,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetTeamsEntityTest()
         {
             if (_teamService != null) {
-                List<TeamsEntity> teams = _teamService.GetTeamsEntity();
+                List<TeamEntity> teams = _teamService.GetTeamsEntity();
 
                 Assert.AreNotEqual(0, teams.Count);
             } else {
@@ -55,7 +55,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void AddTeamsTest()
         {
             if (_teamService != null) {
-                List<TeamsEntity> teamsEntities = new() { new TeamsEntity() {
+                List<TeamEntity> teamsEntities = new() { new TeamEntity() {
                     PartitionKey = "Team",
                     RowKey = "Suns",
                     Name = "Suns",
@@ -65,7 +65,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     ETag = ETag.All,
                     Timestamp = DateTime.UtcNow
                 },
-                new TeamsEntity() {
+                new TeamEntity() {
                     PartitionKey = "Team",
                     RowKey = "Clippers",
                     Name = "Clippers",
@@ -76,7 +76,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     Timestamp = DateTime.UtcNow
                 }
                 ,
-                new TeamsEntity() {
+                new TeamEntity() {
                     PartitionKey = "Team",
                     RowKey = "Lakers",
                     Name = "Lakers",
@@ -88,7 +88,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 }
             };
 
-                List<TeamsEntity> teams = _teamService.AddTeams(teamsEntities);
+                List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
 
                 Assert.AreNotEqual(0, teams.Count);
             } else {

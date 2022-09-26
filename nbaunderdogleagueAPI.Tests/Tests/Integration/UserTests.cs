@@ -23,10 +23,35 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
+        public void UpdateDraftOrder()
+        {
+            if (_userService != null) {
+                List<UserEntity> users = _userService.GetUsers();
+
+                Assert.AreNotEqual(0, users.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void AddUsers()
+        {
+            if (_userService != null) {
+                List<UserEntity> userEntities = new();
+                List<UserEntity> users = _userService.AddUsers(userEntities);
+
+                Assert.AreNotEqual(0, users.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void GetUsersTest()
         {
             if (_userService != null) {
-                List<User> users = _userService.GetUsers();
+                List<UserEntity> users = _userService.GetUsers();
 
                 Assert.AreNotEqual(0, users.Count);
             } else {

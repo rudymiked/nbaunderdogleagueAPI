@@ -2,91 +2,53 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Services;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        List<Team> GetTeamData();
-        Task<List<TeamsEntity>> GetTeamsAsync();
-        Task<List<TeamsEntity>> AddTeamsAsync(List<TeamsEntity> teamsEntities);
+        List<Standings> GetStandingsData();
+        List<TeamEntity> GetTeams();
+        List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
     public class TeamDataAccess : ITeamDataAccess
     {
         private readonly AppConfig _appConfig;
         private readonly ILogger _logger;
-        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger) 
+        private readonly IUserService _userService;
+        private readonly ITableStorageHelper _tableStorageHelper;
+        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITableStorageHelper tableStorageHelper) 
         {
             _appConfig = options.Value;
             _logger = logger;
+            _userService = userService;
+            _tableStorageHelper = tableStorageHelper;
         }
-        public List<Team> GetTeamData()
+        public List<Standings> GetStandingsData()
         {
-            List<Team> teamData = new()
-            {
-                new Team()
-                {
-                    TeamId = 001,
-                    TeamName = "Lakers",
-                    TeamCity = "Los Angeles",
-                    ProjectedWin = 41,
-                    ProjectedLoss = 41,
-                    Win = 20,
-                    Loss = 10,
-                    Playoffs = "C"
-                    
-                },
-                new Team()
-                {
-                    TeamId = 002,
-                    TeamName = "Suns",
-                    TeamCity = "Pheonix",
-                    ProjectedWin = 25,
-                    ProjectedLoss = 30,
-                    Win = 15,
-                    Loss = 15,
-                    Playoffs = ""
-                }
-            };
+            List<Standings> standings = new List<Standings>();
 
-            return teamData;
+            List<TeamEntity> teamsEntities = GetTeams();
+
+            List<UserEntity> users = _userService.GetUsers();
+
+            return standings;
+
         }
 
-        public async Task<List<TeamsEntity>> GetTeamsAsync()
+        public List<TeamEntity> GetTeams()
         {
-            try {
-                TableClient tableClient = new(_appConfig.TableConnection, AppConstants.TeamsTable);
-                await tableClient.CreateIfNotExistsAsync();
+            var response = _tableStorageHelper.QueryEntities<TeamEntity>(AppConstants.TeamsTable).Result;
 
-                var response = tableClient.Query<TeamsEntity>();
-
-                return response.ToList();
-            } catch (Exception ex) {
-                _logger.LogError(ex, ex.Message);
-            }
-
-            return new List<TeamsEntity>();
+            return response.ToList();
         }
 
-        public async Task<List<TeamsEntity>> AddTeamsAsync(List<TeamsEntity> teamsEntities)
+        public List<TeamEntity> AddTeams(List<TeamEntity> teamEntities)
         {
-            try {
-                TableClient tableClient = new(_appConfig.TableConnection, AppConstants.TeamsTable);
-                await tableClient.CreateIfNotExistsAsync();
+            var response = _tableStorageHelper.UpsertEntities(teamEntities, AppConstants.TeamsTable).Result;
 
-                List<TableTransactionAction> addTeamsBatch = new List<TableTransactionAction>();
-
-                addTeamsBatch.AddRange(teamsEntities.Select(f => new TableTransactionAction(TableTransactionActionType.UpsertMerge, f)));
-
-                Response<IReadOnlyList<Response>> response = await tableClient.SubmitTransactionAsync(addTeamsBatch);
-
-                return teamsEntities;
-
-            } catch (Exception ex) {
-                _logger.LogError(ex, ex.Message);
-            }
-
-            return new List<TeamsEntity>();
+            return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
         }
     }
 }

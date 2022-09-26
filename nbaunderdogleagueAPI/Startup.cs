@@ -48,6 +48,8 @@ public class Startup
             services.AddSingleton<ITeamRepository, TeamRepository>();
             services.AddSingleton<ITeamDataAccess, TeamDataAccess>();
 
+            services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
+
             services.AddSwaggerGen();
         }
         catch (Exception ex) {
