@@ -40,6 +40,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
+        public void GetCurrentNBAStandingsTest()
+        {
+            if (_teamService != null) {
+                List<CurrentNBAStandings> currentNBAStandings = _teamService.GetCurrentNBAStandings();
+
+                Assert.AreNotEqual(0, currentNBAStandings.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void GetTeamsEntityTest()
         {
             if (_teamService != null) {

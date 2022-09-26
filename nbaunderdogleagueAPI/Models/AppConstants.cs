@@ -11,5 +11,6 @@
         public static readonly string UsersTable = "Users";
         public static readonly string AppName = "NBAUnderdogLeague";
         public static readonly string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
+        public static readonly string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
     }
 }

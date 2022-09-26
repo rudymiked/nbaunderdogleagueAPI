@@ -8,6 +8,7 @@ namespace nbaunderdogleagueAPI.Business
         List<Standings> GetStandings();
         List<TeamEntity> GetTeamsEntity();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
+        List<CurrentNBAStandings> GetCurrentNBAStandings();
     }
 
     public class TeamRepository : ITeamRepository
@@ -30,6 +31,10 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities)
         {
             return _teamDataAccess.AddTeams(teamsEntities);
+        }        
+        public List<CurrentNBAStandings> GetCurrentNBAStandings()
+        {
+            return _teamDataAccess.GetCurrentNBAStandings().Result;
         }
     }
 }
