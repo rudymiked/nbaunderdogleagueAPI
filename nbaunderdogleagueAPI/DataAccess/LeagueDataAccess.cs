@@ -42,13 +42,35 @@ namespace nbaunderdogleagueAPI.DataAccess
                     TeamCity = team.City,
                     ProjectedWin = team.ProjectedWin,
                     ProjectedLoss = team.ProjectedLoss,
-                    Win = currentNBAStanding.Win,
-                    Loss = currentNBAStanding.Loss,
-                    Playoffs = currentNBAStanding.Playoffs
+                    Win = PreseasonValue(currentNBAStanding.Win),
+                    Loss = PreseasonValue(currentNBAStanding.Loss),
+                    Playoffs = PreseasonPlayoffs(currentNBAStanding.Playoffs)
                 });
             }
 
             return standings;
+        }
+
+        private static int PreseasonValue(int value)
+        {
+            DateTime nbaStartDate = new(2022, 10, 18); // nba start date
+
+            if (DateTime.Now < nbaStartDate) {
+                return 0;
+            } else {
+                return value;
+            }
+        }
+
+        private static string PreseasonPlayoffs(string value)
+        {
+            DateTime nbaStartDate = new(2022, 10, 18);
+
+            if (DateTime.Now < nbaStartDate) {
+                return "";
+            } else {
+                return value;
+            }
         }
     }
 }
