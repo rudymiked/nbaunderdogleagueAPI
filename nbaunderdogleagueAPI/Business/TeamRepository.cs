@@ -31,7 +31,7 @@ namespace nbaunderdogleagueAPI.Business
         
         public List<CurrentNBAStanding> GetCurrentNBAStandingsList()
         {
-            return _teamDataAccess.GetCurrentNBAStandings().Result.Values.ToList();
+            return _teamDataAccess.GetCurrentNBAStandings().Result.Values.OrderByDescending(team => team.Win).ToList();
         }
 
         public Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary()
