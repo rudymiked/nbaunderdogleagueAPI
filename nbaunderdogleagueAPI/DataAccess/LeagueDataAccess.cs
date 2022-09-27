@@ -60,7 +60,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 });
             }
 
-            return standings;
+            return standings.OrderByDescending(league => league.Score).ToList();
         }
 
         private static int PreseasonValue(int value)
