@@ -15,18 +15,12 @@ namespace nbaunderdogleagueAPI.Controllers
         {
             _teamService = teamService;
             _logger = logger;
-        }
+        }    
 
-        [HttpGet("GetStandings")]
-        public IEnumerable<Standings> Get()
-        {
-            return _teamService.GetStandings();
-        }        
-
-        [HttpGet("GetCurrentNBAStandings")]
+        [HttpGet("GetCurrentNBAStandingsList")]
         public IEnumerable<CurrentNBAStanding> GetCurrentNBAStandings()
         {
-            return _teamService.GetCurrentNBAStandings();
+            return _teamService.GetCurrentNBAStandingsList();
         }
 
         [HttpGet("GetTeamsTable")]

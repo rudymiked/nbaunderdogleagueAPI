@@ -29,24 +29,16 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetStandingsTest()
-        {
-            if (_teamService != null) {
-                List<Standings> standings = _teamService.GetStandings();
-
-                Assert.AreNotEqual(0, standings.Count);
-            } else {
-                Assert.Fail();
-            }
-        }
-
-        [TestMethod]
         public void GetCurrentNBAStandingsTest()
         {
             if (_teamService != null) {
-                List<CurrentNBAStanding> currentNBAStandings = _teamService.GetCurrentNBAStandings();
+                List<CurrentNBAStanding> currentNBAStandings = _teamService.GetCurrentNBAStandingsList();
 
                 Assert.AreNotEqual(0, currentNBAStandings.Count);
+
+                Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = _teamService.GetCurrentNBAStandingsDictionary();
+
+                Assert.AreNotEqual(0, currentNBAStandingsDict.Count);
             } else {
                 Assert.Fail();
             }

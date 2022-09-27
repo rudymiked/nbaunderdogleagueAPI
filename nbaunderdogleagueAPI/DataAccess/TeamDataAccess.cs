@@ -9,7 +9,6 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        List<Standings> GetStandingsData();
         Task<Dictionary<string, CurrentNBAStanding>> GetCurrentNBAStandings();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
@@ -26,34 +25,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             _logger = logger;
             _userService = userService;
             _tableStorageHelper = tableStorageHelper;
-        }
-        public List<Standings> GetStandingsData()
-        {
-            List<Standings> standings = new();
-
-            // Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = GetCurrentNBAStandings().Result;
-
-            // Get Projected Data (from storage)
-            List<TeamEntity> teamsEntities = GetTeams();
-
-            // Combine
-            foreach(TeamEntity team in teamsEntities) {
-                CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
-
-                standings.Add(new Standings() {
-                    Governor = "", // Could add user here or in UI
-                    TeamName = team.Name,
-                    TeamCity = team.City,
-                    ProjectedWin = team.ProjectedWin,
-                    ProjectedLoss = team.ProjectedLoss,
-                    Win = currentNBAStanding.Win,
-                    Loss = currentNBAStanding.Loss,
-                    Playoffs = currentNBAStanding.Playoffs
-                });
-            }
-
-            return standings;
         }
 
         public List<TeamEntity> GetTeams()

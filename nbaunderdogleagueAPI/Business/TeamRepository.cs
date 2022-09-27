@@ -5,10 +5,10 @@ namespace nbaunderdogleagueAPI.Business
 {
     public interface ITeamRepository
     {
-        List<Standings> GetStandings();
         List<TeamEntity> GetTeamsEntity();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<CurrentNBAStanding> GetCurrentNBAStandings();
+        List<CurrentNBAStanding> GetCurrentNBAStandingsList();
+        Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary();
     }
 
     public class TeamRepository : ITeamRepository
@@ -17,10 +17,6 @@ namespace nbaunderdogleagueAPI.Business
         public TeamRepository(ITeamDataAccess teamDataAccess)
         {
             _teamDataAccess = teamDataAccess;
-        }
-        public List<Standings> GetStandings()
-        {
-            return _teamDataAccess.GetStandingsData();
         }
 
         public List<TeamEntity> GetTeamsEntity()
@@ -31,10 +27,16 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities)
         {
             return _teamDataAccess.AddTeams(teamsEntities);
-        }        
-        public List<CurrentNBAStanding> GetCurrentNBAStandings()
+        }      
+        
+        public List<CurrentNBAStanding> GetCurrentNBAStandingsList()
         {
             return _teamDataAccess.GetCurrentNBAStandings().Result.Values.ToList();
+        }
+
+        public Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary()
+        {
+            return _teamDataAccess.GetCurrentNBAStandings().Result;
         }
     }
 }

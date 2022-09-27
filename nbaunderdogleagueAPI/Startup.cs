@@ -48,6 +48,10 @@ public class Startup
             services.AddSingleton<ITeamRepository, TeamRepository>();
             services.AddSingleton<ITeamDataAccess, TeamDataAccess>();
 
+            services.AddSingleton<ILeagueService, LeagueService>();
+            services.AddSingleton<ILeagueRepository, LeagueRepository>();
+            services.AddSingleton<ILeagueDataAccess, LeagueDataAccess>();
+
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
             services.AddSwaggerGen();
