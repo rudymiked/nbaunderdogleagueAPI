@@ -35,16 +35,28 @@ namespace nbaunderdogleagueAPI.DataAccess
             // Combine
             foreach (TeamEntity team in teamsEntities) {
                 CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
+                
+                int win = currentNBAStanding.Win; //PreseasonValue(currentNBAStanding.Win);
+                int loss = currentNBAStanding.Loss; //PreseasonValue(currentNBAStanding.Loss);
+                int projectedWin = team.ProjectedWin;
+                int projectedLoss = team.ProjectedLoss;
+
+                double projectedDiff = (double)(projectedWin / (double)(projectedWin + projectedLoss));
+                double actualDiff = (double)(win / (double)(win + loss));
+                double score = (double)(actualDiff / (double)projectedDiff);
+
+                string playoffs = PreseasonPlayoffs(currentNBAStanding.Playoffs);
 
                 standings.Add(new LeagueStandings() {
                     Governor = "", // Could add user here or in UI
                     TeamName = team.Name,
                     TeamCity = team.City,
-                    ProjectedWin = team.ProjectedWin,
-                    ProjectedLoss = team.ProjectedLoss,
-                    Win = PreseasonValue(currentNBAStanding.Win),
-                    Loss = PreseasonValue(currentNBAStanding.Loss),
-                    Playoffs = PreseasonPlayoffs(currentNBAStanding.Playoffs)
+                    ProjectedWin = projectedWin,
+                    ProjectedLoss = projectedLoss,
+                    Win = win,
+                    Loss = loss,
+                    Score = Math.Round(score, 2),
+                    Playoffs = playoffs
                 });
             }
 
