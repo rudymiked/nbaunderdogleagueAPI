@@ -15,14 +15,15 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetUsers")]
-        public IEnumerable<UserEntity> Get()
+        public IEnumerable<UserEntity> Get(string leagueId)
         {
-            return _userService.GetUsers();
+            return _userService.GetUsers(leagueId);
         }
-        [HttpPost("AddUsers")]
-        public IEnumerable<UserEntity> AddUsers(List<UserEntity> userEntities)
+
+        [HttpPost("AddUser")]
+        public User AddUser(User user)
         {
-            return _userService.AddUsers(userEntities);
+            return _userService.AddUser(user);
         }
     }
 }

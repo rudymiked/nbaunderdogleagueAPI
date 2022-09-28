@@ -1,12 +1,14 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure;
+using Azure.Data.Tables;
+using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IUserDataAccess
     {
-        List<UserEntity> GetUsers();
-        List<UserEntity> AddUsers(List<UserEntity> userEntities);
+        List<UserEntity> GetUsers(string leagueId);
+        User AddUser(User user);
     }
     public class UserDataAccess : IUserDataAccess
     {
@@ -19,16 +21,27 @@ namespace nbaunderdogleagueAPI.DataAccess
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
         }
-        public List<UserEntity> AddUsers(List<UserEntity> userEntities)
+        public User AddUser(User user)
         {
-            var response = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
+            UserEntity entity = new() {
+                PartitionKey = user.League.ToString(),
+                RowKey = user.Email,
+                Email = user.Email,
+                League = user.League,
+                ETag = ETag.All,
+                Timestamp = DateTime.Now
+            };
 
-            return (response != null && !response.GetRawResponse().IsError) ? userEntities : new List<UserEntity>();
+            var response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
+
+            return (response != null && !response.IsError) ? user : new User();
         }
 
-        public List<UserEntity> GetUsers()
+        public List<UserEntity> GetUsers(string leagueId)
         {
-            var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable).Result;
+            string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == leagueId);
+
+            var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, filter).Result;
 
             return response.ToList();
         }

@@ -22,29 +22,30 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             _userService = application.Services.GetService<IUserService>();
         }
 
-        //[TestMethod]
-        //public void AddUsers()
-        //{
-        //    if (_userService != null) {
-        //        List<UserEntity> userEntities = new();
-        //        List<UserEntity> users = _userService.AddUsers(userEntities);
+        [TestMethod]
+        public void AddUsers()
+        {
+            if (_userService != null) {
+                User user = new();
+                User newUser = _userService.AddUser(user);
 
-        //        Assert.AreNotEqual(0, users.Count);
-        //    } else {
-        //        Assert.Fail();
-        //    }
-        //}
+                Assert.AreEqual(newUser.Email, user.Email);
+            } else {
+                Assert.Fail();
+            }
+        }
 
-        //[TestMethod]
-        //public void GetUsersTest()
-        //{
-        //    if (_userService != null) {
-        //        List<UserEntity> users = _userService.GetUsers();
+        [TestMethod]
+        public void GetUsersTest()
+        {
+            if (_userService != null) {
+                // need to query for a real league ID
+                List<UserEntity> users = _userService.GetUsers("");
 
-        //        Assert.AreNotEqual(0, users.Count);
-        //    } else {
-        //        Assert.Fail();
-        //    }
-        //}
+                Assert.AreNotEqual(0, users.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
     }
 }

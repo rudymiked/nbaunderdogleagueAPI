@@ -32,9 +32,21 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("SetupDraft")]
-        public List<Draft> SetupDraft()
+        public List<Draft> SetupDraft(string id)
         {
-            return _leagueService.SetupDraft();
+            return _leagueService.SetupDraft(id);
+        }
+
+        [HttpPost("CreateLeague")]
+        public League CreateLeague(string name, string ownerEmail)
+        {
+            return _leagueService.CreateLeague(name, ownerEmail);
+        }
+
+        [HttpPost("JoinLeague")]
+        public League JoinLeague(string id, string email)
+        {
+            return _leagueService.JoinLeague(id, email);
         }
     }
 }

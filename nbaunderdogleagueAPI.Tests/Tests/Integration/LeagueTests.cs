@@ -57,9 +57,22 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void SetupDraftTest()
         {
             if (_leagueService != null) {
-                List<Draft> draftResults= _leagueService.SetupDraft();
+                // need to query an actual league first for a guid (then conver to string)
+                List<Draft> draftResults = _leagueService.SetupDraft("");
 
                 Assert.AreNotEqual(string.Empty, draftResults.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void CreateLeague()
+        {
+            if (_leagueService != null) {
+                League newLeague = _leagueService.CreateLeague("Black Lung", "rudymiked@gmail.com");
+
+                Assert.AreNotEqual(string.Empty, newLeague.Id);
             } else {
                 Assert.Fail();
             }

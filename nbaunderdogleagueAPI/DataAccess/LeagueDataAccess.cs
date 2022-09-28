@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure;
+using Azure.Data.Tables;
+using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
+using System.Linq;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -8,7 +12,11 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         List<LeagueStandings> GetLeagueStandings();
         User DraftTeam(User user);
-        List<Draft> SetupDraft();
+        List<DraftRow> SetupDraft(string leagueId);
+        League CreateLeague(string name, string ownerEmail);
+        LeagueEntity GetLeague(string leagueId);
+        List<LeagueEntity> GetAllLeaguesByYear(int year);
+        List<LeagueEntity> GetAllLeagues();
     }
     public class LeagueDataAccess : ILeagueDataAccess
     {
@@ -16,12 +24,14 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly ILogger _logger;
         private readonly IUserService _userService;
         private readonly ITeamService _teamService;
-        public LeagueDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService)
+        private readonly ITableStorageHelper _tableStorageHelper;
+        public LeagueDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, ITableStorageHelper tableStorageHelper)
         {
             _appConfig = options.Value;
             _logger = logger;
             _userService = userService;
             _teamService = teamService;
+            _tableStorageHelper = tableStorageHelper;
         }
 
         public List<LeagueStandings> GetLeagueStandings()
@@ -74,9 +84,129 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
         }
 
-        public List<Draft> SetupDraft()
+        public LeagueEntity GetLeague(string leagueId)
         {
-            return new List<Draft>();
+            string filter = TableClient.CreateQueryFilter<LeagueEntity>((league) => league.PartitionKey == leagueId);
+
+            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable, filter).Result;
+
+            return response.Any() ? response.ToList()[0] : new LeagueEntity();
+        }
+
+        public List<LeagueEntity> GetAllLeaguesByYear(int year)
+        {
+            string filter = TableClient.CreateQueryFilter<LeagueEntity>((league) => league.Year == year);
+
+            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable, filter).Result;
+
+            return response.Any() ? response.ToList() : new List<LeagueEntity>();
+        }        
+
+        public List<LeagueEntity> GetAllLeagues()
+        {
+            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable).Result;
+
+            return response.Any() ? response.ToList() : new List<LeagueEntity>();
+        }
+
+        public List<DraftRow> SetupDraft(string leagueId)
+        {
+            // 1. query league, if it doesn't exist, return empty list
+            LeagueEntity leagueEntity = GetLeague(leagueId);
+
+            if (leagueEntity.Id.ToString() == string.Empty) {
+                // No League Found
+                _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
+                return new List<DraftRow>();
+            }
+
+            // 2. get all users from league
+
+            List<UserEntity> userEntities = _userService.GetUsers(leagueId);
+
+            if (!userEntities.Any()) {
+                // no users found in league
+                // should be at least 1 (owner)
+                _logger.LogError(AppConstants.LeagueNoUsersFound + leagueId);
+
+                return new List<DraftRow>();
+            }
+
+            // 3. set in random draft order
+
+            var response = _tableStorageHelper.UpsertEntities(teamEntities, AppConstants.TeamsTable).Result;
+
+            return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<DraftRow>();
+        }        
+        
+        public string JoinLeague(string leagueId, string email)
+        {
+            // 1. query league, if it doesn't exist, return empty list
+
+            LeagueEntity leagueEntity = GetLeague(leagueId);
+            
+            if (leagueEntity.Id.ToString() == string.Empty) {
+                // No League Found
+                _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
+                return AppConstants.LeagueNotFound + " : " + leagueId;
+            }
+
+            // 2. get all users from league, see if user doesn't already exist
+
+            List<UserEntity> userEntities = _userService.GetUsers(leagueEntity.Id.ToString());
+
+            if (!userEntities.Any()) {
+                // no users found in league
+                // should be at least 1 (owner)
+                _logger.LogError(AppConstants.LeagueNoUsersFound + leagueId);
+
+                return AppConstants.LeagueNoUsersFound + leagueId;
+            }
+
+            if (userEntities.Select(user => user.Email == email).Any()) {
+                // user already in league
+                // do nothing
+                return AppConstants.UserAlreadyInLeague;
+            }
+
+            // 3. add league to user data
+            UserEntity userEntity = new() {
+                PartitionKey = leagueId,
+                RowKey = email,
+                Email = email,
+                League = Guid.Parse(leagueId),
+                ETag = ETag.All,
+                Timestamp = DateTime.Now
+            };
+
+            var response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
+
+            return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinLeagueError + "email: " + email + " league: " + leagueId;
+        }
+
+        public LeagueInfo CreateLeague(string name, string ownerEmail)
+        {
+            LeagueInfo league = new() {
+                Id = Guid.NewGuid(),
+                Year = DateTime.Now.Year,
+                Name = name,
+                Owner = ownerEmail
+            };
+
+            LeagueEntity leagueEntity = new() {
+                PartitionKey = league.Id.ToString(),
+                RowKey = Guid.NewGuid().ToString(),
+                Id = league.Id,
+                Name = league.Name,
+                Owner = league.Owner,
+                Year = league.Year,
+                ETag = ETag.All,
+                Timestamp = DateTime.Now,
+            };
+
+            Response response = _tableStorageHelper.UpsertEntity(leagueEntity, AppConstants.LeaguesTable).Result;
+
+            return (response != null && !response.IsError) ? league : new LeagueInfo();
         }
 
         private List<string> ValidateUserCanDraftTeam(User user)

@@ -2,14 +2,17 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
+using System.Linq;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITableStorageHelper
     {
         Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
-        Task<Pageable<T>> QueryEntities<T>(string table) where T : class, ITableEntity, new();
+        Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
+        Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
     }
+
     public class TableStorageHelper : ITableStorageHelper
     {
         private readonly AppConfig _appConfig;
@@ -18,6 +21,20 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             _appConfig = options.Value;
             _logger = logger;
+        }
+
+        public async Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new()
+        {
+            try {
+                TableClient tableClient = new(_appConfig.TableConnection, table);
+                await tableClient.CreateIfNotExistsAsync();
+
+                return tableClient.UpsertEntity<T>(entity, TableUpdateMode.Replace);
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
         }
 
         public async Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
@@ -38,13 +55,13 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
-        public async Task<Pageable<T>> QueryEntities<T>(string table) where T : class, ITableEntity, new()
+        public async Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
-                return tableClient.Query<T>();
+                return tableClient.Query<T>(WhereFilter);
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
