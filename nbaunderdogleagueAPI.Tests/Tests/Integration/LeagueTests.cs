@@ -34,6 +34,35 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             } else {
                 Assert.Fail();
             }
+        }        
+
+        [TestMethod]
+        public void DraftTeamTest()
+        {
+            if (_leagueService != null) {
+                User userDrafted = new() {
+                    Email = "rudymiked@gmail.com",
+                    Team = "76ers"
+                };
+
+                User user = _leagueService.DraftTeam(userDrafted);
+
+                Assert.AreNotEqual(string.Empty, user.Team);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void SetupDraftTest()
+        {
+            if (_leagueService != null) {
+                List<Draft> draftResults= _leagueService.SetupDraft();
+
+                Assert.AreNotEqual(string.Empty, draftResults.Count);
+            } else {
+                Assert.Fail();
+            }
         }
     }
 }

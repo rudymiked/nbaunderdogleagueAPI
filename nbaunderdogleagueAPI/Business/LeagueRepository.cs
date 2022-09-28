@@ -5,7 +5,9 @@ namespace nbaunderdogleagueAPI.Business
 {
     public interface ILeagueRepository
     {
-        List<LeagueStandings> GetLeagueStandings(); 
+        List<LeagueStandings> GetLeagueStandings();
+        User DraftTeam(User user);
+        List<Draft> SetupDraft();
     }
 
     public class LeagueRepository : ILeagueRepository
@@ -20,6 +22,13 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _leagueDataAccess.GetLeagueStandings();
         }
-
+        public User DraftTeam(User user)
+        {
+            return _leagueDataAccess.DraftTeam(user);
+        }
+        public List<Draft> SetupDraft()
+        {
+            return _leagueDataAccess.SetupDraft();
+        }
     }
 }

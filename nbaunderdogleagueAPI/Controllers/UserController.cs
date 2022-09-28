@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;  
+        private readonly IUserService _userService;
 
         public UserController(IUserService userService)
         {
@@ -18,7 +18,7 @@ namespace nbaunderdogleagueAPI.Controllers
         public IEnumerable<UserEntity> Get()
         {
             return _userService.GetUsers();
-        }        
+        }
         [HttpPost("AddUsers")]
         public IEnumerable<UserEntity> AddUsers(List<UserEntity> userEntities)
         {

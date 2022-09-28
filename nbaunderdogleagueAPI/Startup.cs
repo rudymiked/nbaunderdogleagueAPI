@@ -55,8 +55,7 @@ public class Startup
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
             services.AddSwaggerGen();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Console.WriteLine("Startup Configure Services: " + ex.Message);
         }
     }
@@ -86,8 +85,7 @@ public class Startup
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
             });
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Console.WriteLine("Startup Configure: " + ex.Message);
         }
     }

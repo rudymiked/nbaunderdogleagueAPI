@@ -2,7 +2,6 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
-using System.Linq;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {

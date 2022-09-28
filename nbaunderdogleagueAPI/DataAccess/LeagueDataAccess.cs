@@ -7,6 +7,8 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface ILeagueDataAccess
     {
         List<LeagueStandings> GetLeagueStandings();
+        User DraftTeam(User user);
+        List<Draft> SetupDraft();
     }
     public class LeagueDataAccess : ILeagueDataAccess
     {
@@ -35,7 +37,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // Combine
             foreach (TeamEntity team in teamsEntities) {
                 CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
-                
+
                 int win = currentNBAStanding.Win; //PreseasonValue(currentNBAStanding.Win);
                 int loss = currentNBAStanding.Loss; //PreseasonValue(currentNBAStanding.Loss);
                 int projectedWin = team.ProjectedWin;
@@ -61,6 +63,35 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return standings.OrderByDescending(league => league.Score).ToList();
+        }
+
+        public User DraftTeam(User user)
+        {
+            if (ValidateUserCanDraftTeam(user).Count == 0) {
+                return user;
+            } else {
+                return new User();
+            }
+        }
+
+        public List<Draft> SetupDraft()
+        {
+            return new List<Draft>();
+        }
+
+        private List<string> ValidateUserCanDraftTeam(User user)
+        {
+            List<string> validations = new();
+
+            // Validations:
+            // 1. Is it the user's turn to draft? 
+            //      1.1 Time Now is greater than DraftStartHour and less than DraftStartHour + DraftWindowMinutes
+            // 2. Has the user already drafted?
+            //      2.1 User email is not already present in Governer column (maybe there is another way to do this?)
+            // 3. Is the team available?
+            //      3.1 Governer column is BLANK next to team. Could be good to do it this way, since it is one query for #2 and #3
+
+            return validations;
         }
 
         private static int PreseasonValue(int value)

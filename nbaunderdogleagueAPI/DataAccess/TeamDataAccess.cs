@@ -2,7 +2,6 @@
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace nbaunderdogleagueAPI.DataAccess
@@ -19,7 +18,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly ILogger _logger;
         private readonly IUserService _userService;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITableStorageHelper tableStorageHelper) 
+        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITableStorageHelper tableStorageHelper)
         {
             _appConfig = options.Value;
             _logger = logger;

@@ -6,5 +6,7 @@
         public string apiAppId { get; set; }
         public string apiAppSecret { get; set; }
         public string NBAAppInsights { get; set; }
+        public int DraftStartHour { get; set; }
+        public int DraftWindowMinutes { get; set; }
     }
 }

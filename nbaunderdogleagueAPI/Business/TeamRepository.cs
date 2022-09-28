@@ -27,8 +27,8 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities)
         {
             return _teamDataAccess.AddTeams(teamsEntities);
-        }      
-        
+        }
+
         public List<CurrentNBAStanding> GetCurrentNBAStandingsList()
         {
             return _teamDataAccess.GetCurrentNBAStandings().Result.Values.OrderByDescending(team => team.Win).ToList();

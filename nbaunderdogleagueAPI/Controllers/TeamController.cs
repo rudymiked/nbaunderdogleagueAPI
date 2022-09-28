@@ -9,13 +9,13 @@ namespace nbaunderdogleagueAPI.Controllers
     public class TeamController : ControllerBase
     {
         private readonly ILogger<TeamController> _logger;
-        private readonly ITeamService _teamService;  
+        private readonly ITeamService _teamService;
 
         public TeamController(ILogger<TeamController> logger, ITeamService teamService)
         {
             _teamService = teamService;
             _logger = logger;
-        }    
+        }
 
         [HttpGet("GetCurrentNBAStandings")]
         public IEnumerable<CurrentNBAStanding> GetCurrentNBAStandings()

@@ -1,6 +1,4 @@
-﻿using Azure;
-using Azure.Data.Tables;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 
 namespace nbaunderdogleagueAPI.DataAccess

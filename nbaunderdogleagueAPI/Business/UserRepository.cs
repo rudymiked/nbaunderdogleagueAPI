@@ -18,7 +18,7 @@ namespace nbaunderdogleagueAPI.Business
         public List<UserEntity> GetUsers()
         {
             return _userDataAccess.GetUsers();
-        }        
+        }
         public List<UserEntity> AddUsers(List<UserEntity> userEntities)
         {
             return _userDataAccess.AddUsers(userEntities);
