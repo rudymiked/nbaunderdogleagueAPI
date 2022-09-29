@@ -9,6 +9,7 @@ namespace nbaunderdogleagueAPI.Services
         LeagueInfo CreateLeague(string name, string ownerEmail);
         string JoinLeague(string id, string email);
         LeagueEntity GetLeague(string leagueId);
+        List<LeagueEntity> GetAllLeaguesByYear(int year);
     }
     public class LeagueService : ILeagueService
     {
@@ -32,6 +33,10 @@ namespace nbaunderdogleagueAPI.Services
         public LeagueEntity GetLeague(string leagueId)
         {
             return _leagueRepository.GetLeague(leagueId);
+        }
+        public List<LeagueEntity> GetAllLeaguesByYear(int year)
+        {
+            return _leagueRepository.GetAllLeaguesByYear(year);
         }
     }
 }

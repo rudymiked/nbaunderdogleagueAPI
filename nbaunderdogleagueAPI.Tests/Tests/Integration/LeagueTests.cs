@@ -62,6 +62,17 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.Fail();
             }
         }
+        [TestMethod]
+        public void GetAllLeaguesByYear()
+        {
+            if (_leagueService != null) {
+                List<LeagueEntity> leagues = _leagueService.GetAllLeaguesByYear(DateTime.Now.Year);
+
+                Assert.AreEqual(true, leagues.Any());
+            } else {
+                Assert.Fail();
+            }
+        }
 
         [TestMethod]
         public void JoinLeague()

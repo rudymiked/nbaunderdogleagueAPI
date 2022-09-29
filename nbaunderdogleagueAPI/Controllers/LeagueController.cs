@@ -37,10 +37,16 @@ namespace nbaunderdogleagueAPI.Controllers
             return _leagueService.JoinLeague(id, email);
         }
 
-        [HttpPost("GetLeague")]
+        [HttpGet("GetLeague")]
         public LeagueEntity GetLeague(string leagueId)
         {
             return _leagueService.GetLeague(leagueId);
+        }
+
+        [HttpGet("GetAllLeaguesByYear")]
+        public List<LeagueEntity> GetAllLeaguesByYear(int year)
+        {
+            return _leagueService.GetAllLeaguesByYear(year);
         }
     }
 }
