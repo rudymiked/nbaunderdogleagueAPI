@@ -28,7 +28,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetLeagueStandingsTest()
         {
             if (_leagueService != null) {
-                List<LeagueStandings> standings = _leagueService.GetLeagueStandings();
+                // need to query for an actual league first
+
+                List<LeagueStandings> standings = _leagueService.GetLeagueStandings("");
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {

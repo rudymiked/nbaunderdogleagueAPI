@@ -8,7 +8,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ILeagueDataAccess
     {
-        List<LeagueStandings> GetLeagueStandings();
+        List<LeagueStandings> GetLeagueStandings(string leagueId);
         LeagueInfo CreateLeague(string name, string ownerEmail);
         LeagueEntity GetLeague(string leagueId);
         List<LeagueEntity> GetAllLeaguesByYear(int year);
@@ -31,7 +31,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public List<LeagueStandings> GetLeagueStandings()
+        public List<LeagueStandings> GetLeagueStandings(string leagueId)
         {
             List<LeagueStandings> standings = new();
 
@@ -169,7 +169,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private static int PreseasonValue(int value)
         {
-            DateTime nbaStartDate = new(2022, 10, 18); // nba start date
+            DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18); // nba start date
 
             if (DateTime.Now < nbaStartDate) {
                 return 0;
@@ -180,7 +180,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private static string PreseasonPlayoffs(string value)
         {
-            DateTime nbaStartDate = new(2022, 10, 18);
+            DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18);
 
             if (DateTime.Now < nbaStartDate) {
                 return "";

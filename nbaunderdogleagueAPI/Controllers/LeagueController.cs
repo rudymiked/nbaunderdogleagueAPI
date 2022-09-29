@@ -20,9 +20,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetLeagueStandings")]
-        public IEnumerable<LeagueStandings> Get()
+        public IEnumerable<LeagueStandings> Get(string leagueId)
         {
-            return _leagueService.GetLeagueStandings();
+            return _leagueService.GetLeagueStandings(leagueId);
         }
 
         [HttpPost("CreateLeague")]

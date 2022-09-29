@@ -8,7 +8,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IDraftDataAccess
     {
-        Dictionary<User, List<string>> DraftTeam(User user);
+        Dictionary<User, string> DraftTeam(User user);
         List<DraftEntity> SetupDraft(string leagueId);
     }
     public class DraftDataAccess : IDraftDataAccess
@@ -29,14 +29,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public Dictionary<User, List<string>> DraftTeam(User user)
+        public Dictionary<User, string> DraftTeam(User user)
         {
-            Dictionary<User, List<string>> result = new();
-
-            List<string> validations = ValidateUserCanDraftTeam(user);
+            string validation = ValidateUserCanDraftTeam(user);
 
             // Is user good to draft?
-            if (validations.Count == 0) {
+            if (validation == string.Empty) {
 
                 //perform draft
                 UserEntity userDraftEntity = new() {
@@ -53,18 +51,16 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 if (response != null && !response.IsError) {
                     // Successfully Drafted!
-                    result.Add(user, validations);
+                    return new Dictionary<User, string> { { user, AppConstants.Success } };
                 } else {
                     // Something went wrong while drafting
-                    validations.Add(AppConstants.SomethingWentWrong);
-                    result.Add(new User(), validations);
+                    return new Dictionary<User, string> { { user, AppConstants.SomethingWentWrong } };
                 }
 
             } else {
-                result.Add(new User(), validations);
+                // validation failed
+                return new Dictionary<User, string> { { user, validation } }; ;
             }
-
-            return result;
         }
 
         public List<DraftEntity> SetupDraft(string leagueId)
@@ -119,42 +115,62 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
         }
 
-        private List<string> ValidateUserCanDraftTeam(User user)
+        private string ValidateUserCanDraftTeam(User user)
         {
-            List<string> validations = new();
-
             // Validations:
-            // 1. Is it the user's turn to draft? 
+            // *0. Is the user in this draft?
+            // *1. Is it the user's turn to draft? 
             //      1.1 Time Now is greater than DraftStartHour and less than DraftStartHour + DraftWindowMinutes
-            // 2. Has the user already drafted?
+            // *2. Has the user already drafted?
             //      2.1 User email is not already present in Governer column (maybe there is another way to do this?)
-            // 3. Is the team available?
+            // *3. Is the team available?
             //      3.1 Governer column is BLANK next to team. Could be good to do it this way, since it is one query for #2 and #3
 
-
-            // 1. Is it the user's turn to draft? 
-            string userFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.Email == user.Email && draft.LeagueId == user.League);
-
-            var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, userFilter).Result;
+            // Get users from draft
+            var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable).Result;
 
             if (!draftResponse.Any()) {
-                validations.Add(AppConstants.UserNotInDraft);
+                // no users in draft
+                return AppConstants.EmptyDraft;
             }
 
-            var userResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userFilter).Result;
+            DraftEntity userInDraft = draftResponse.ToHashSet().Where(draft => draft.Email == user.Email).First();
 
-            if (userResponse.ToList().Count > 1) {
-                validations.Add(AppConstants.MultipleUser);
+            if (userInDraft == null) {
+                return AppConstants.UserNotInDraft;
             }
 
+            string usersTurnToDraftResult = UsersTurnToDraft(userInDraft.DraftOrder);
 
-            return validations;
+            if (usersTurnToDraftResult != AppConstants.Success) {
+                // It's not the user's turn
+                return usersTurnToDraftResult;
+            }
+
+            // create filter for user in specific league
+            string leagueFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.LeagueId == user.League);
+
+            // get all user information for league information
+            var usersInLeagueResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, leagueFilter).Result;
+
+            if (usersInLeagueResponse.ToList().Count == 0) {
+                return AppConstants.LeagueNoUsersFound + user.League;
+            }
+
+            // someone already drafted this team
+            UserEntity draftedUser = usersInLeagueResponse.ToHashSet().Where(usersInLeague => usersInLeague.Team == user.Team).First();
+
+            if (draftedUser != null) {
+                return AppConstants.TeamAlreadyDrafted + draftedUser.Email;
+            }
+
+            return string.Empty;
         }
 
         private string UsersTurnToDraft(int order)
         {
             DateTime utcNow = DateTime.UtcNow;
-            DateTime draftStartTime = new(2022, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0);
+            DateTime draftStartTime = new(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0);
 
             // draft has not begun
             if (draftStartTime > utcNow) {

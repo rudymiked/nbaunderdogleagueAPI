@@ -33,7 +33,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     Team = "76ers"
                 };
 
-                Dictionary<User, List<string>> user = _draftService.DraftTeam(userDrafted);
+                Dictionary<User, string> user = _draftService.DraftTeam(userDrafted);
 
                 Assert.AreNotEqual(string.Empty, user.Keys.First().Team);
             } else {

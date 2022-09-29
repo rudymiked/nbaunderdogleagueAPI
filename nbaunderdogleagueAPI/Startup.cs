@@ -21,7 +21,9 @@ public class Startup
             services.AddHttpContextAccessor();
             services.AddControllers();
             services.AddLogging(configure => {
+#pragma warning disable CS0618 // 'ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights(ILoggingBuilder, string)' is obsolete: 'InstrumentationKey based global ingestion is being deprecated. Use the AddApplicationInsights() overload which accepts Action<TelemetryConfiguration> and set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.'
                 configure.AddApplicationInsights(Configuration[AppConstants.NBAAppInsights]);
+#pragma warning restore CS0618 // 'ApplicationInsightsLoggingBuilderExtensions.AddApplicationInsights(ILoggingBuilder, string)' is obsolete: 'InstrumentationKey based global ingestion is being deprecated. Use the AddApplicationInsights() overload which accepts Action<TelemetryConfiguration> and set TelemetryConfiguration.ConnectionString. See https://github.com/microsoft/ApplicationInsights-dotnet/issues/2560 for more details.'
                 configure.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information)
                 .AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Error);
             });
