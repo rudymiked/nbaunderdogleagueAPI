@@ -2,21 +2,18 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
-using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
-using System.Linq;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ILeagueDataAccess
     {
         List<LeagueStandings> GetLeagueStandings();
-        User DraftTeam(User user);
-        List<DraftRow> SetupDraft(string leagueId);
-        League CreateLeague(string name, string ownerEmail);
+        LeagueInfo CreateLeague(string name, string ownerEmail);
         LeagueEntity GetLeague(string leagueId);
         List<LeagueEntity> GetAllLeaguesByYear(int year);
         List<LeagueEntity> GetAllLeagues();
+        string JoinLeague(string id, string email);
     }
     public class LeagueDataAccess : ILeagueDataAccess
     {
@@ -38,13 +35,13 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             List<LeagueStandings> standings = new();
 
-            // Get Current NBA Standings Data (from NBA stats)
+            // 1. Get Current NBA Standings Data (from NBA stats)
             Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = _teamService.GetCurrentNBAStandingsDictionary();
 
-            // Get Projected Data (from storage)
+            // 2. Get Projected Data (from storage)
             List<TeamEntity> teamsEntities = _teamService.GetTeamsEntity();
 
-            // Combine
+            // 3. Combine 1 and 2
             foreach (TeamEntity team in teamsEntities) {
                 CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
 
@@ -75,15 +72,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             return standings.OrderByDescending(league => league.Score).ToList();
         }
 
-        public User DraftTeam(User user)
-        {
-            if (ValidateUserCanDraftTeam(user).Count == 0) {
-                return user;
-            } else {
-                return new User();
-            }
-        }
-
         public LeagueEntity GetLeague(string leagueId)
         {
             string filter = TableClient.CreateQueryFilter<LeagueEntity>((league) => league.PartitionKey == leagueId);
@@ -100,7 +88,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable, filter).Result;
 
             return response.Any() ? response.ToList() : new List<LeagueEntity>();
-        }        
+        }
 
         public List<LeagueEntity> GetAllLeagues()
         {
@@ -109,42 +97,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             return response.Any() ? response.ToList() : new List<LeagueEntity>();
         }
 
-        public List<DraftRow> SetupDraft(string leagueId)
-        {
-            // 1. query league, if it doesn't exist, return empty list
-            LeagueEntity leagueEntity = GetLeague(leagueId);
-
-            if (leagueEntity.Id.ToString() == string.Empty) {
-                // No League Found
-                _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
-                return new List<DraftRow>();
-            }
-
-            // 2. get all users from league
-
-            List<UserEntity> userEntities = _userService.GetUsers(leagueId);
-
-            if (!userEntities.Any()) {
-                // no users found in league
-                // should be at least 1 (owner)
-                _logger.LogError(AppConstants.LeagueNoUsersFound + leagueId);
-
-                return new List<DraftRow>();
-            }
-
-            // 3. set in random draft order
-
-            var response = _tableStorageHelper.UpsertEntities(teamEntities, AppConstants.TeamsTable).Result;
-
-            return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<DraftRow>();
-        }        
-        
         public string JoinLeague(string leagueId, string email)
         {
             // 1. query league, if it doesn't exist, return empty list
 
             LeagueEntity leagueEntity = GetLeague(leagueId);
-            
+
             if (leagueEntity.Id.ToString() == string.Empty) {
                 // No League Found
                 _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
@@ -207,21 +165,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             Response response = _tableStorageHelper.UpsertEntity(leagueEntity, AppConstants.LeaguesTable).Result;
 
             return (response != null && !response.IsError) ? league : new LeagueInfo();
-        }
-
-        private List<string> ValidateUserCanDraftTeam(User user)
-        {
-            List<string> validations = new();
-
-            // Validations:
-            // 1. Is it the user's turn to draft? 
-            //      1.1 Time Now is greater than DraftStartHour and less than DraftStartHour + DraftWindowMinutes
-            // 2. Has the user already drafted?
-            //      2.1 User email is not already present in Governer column (maybe there is another way to do this?)
-            // 3. Is the team available?
-            //      3.1 Governer column is BLANK next to team. Could be good to do it this way, since it is one query for #2 and #3
-
-            return validations;
         }
 
         private static int PreseasonValue(int value)

@@ -6,9 +6,9 @@ namespace nbaunderdogleagueAPI.Services
     public interface ILeagueService
     {
         List<LeagueStandings> GetLeagueStandings();
-        User DraftTeam(User user);
-        List<Draft> SetupDraft(string id);
-        League CreateLeague(string name, string ownerEmail);
+        LeagueInfo CreateLeague(string name, string ownerEmail);
+        string JoinLeague(string id, string email);
+        LeagueEntity GetLeague(string leagueId);
     }
     public class LeagueService : ILeagueService
     {
@@ -21,17 +21,17 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _leagueRepository.GetLeagueStandings();
         }
-        public User DraftTeam(User user)
-        {
-            return _leagueRepository.DraftTeam(user);
-        }
-        public List<Draft> SetupDraft(string id)
-        {
-            return _leagueRepository.SetupDraft(id);
-        }        
-        public League CreateLeague(string name, string ownerEmail)
+        public LeagueInfo CreateLeague(string name, string ownerEmail)
         {
             return _leagueRepository.CreateLeague(name, ownerEmail);
+        }
+        public string JoinLeague(string id, string email)
+        {
+            return _leagueRepository.JoinLeague(id, email);
+        }
+        public LeagueEntity GetLeague(string leagueId)
+        {
+            return _leagueRepository.GetLeague(leagueId);
         }
     }
 }

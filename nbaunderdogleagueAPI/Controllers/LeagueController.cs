@@ -25,28 +25,22 @@ namespace nbaunderdogleagueAPI.Controllers
             return _leagueService.GetLeagueStandings();
         }
 
-        [HttpPost("DraftTeam")]
-        public User DraftTeam(User user)
-        {
-            return _leagueService.DraftTeam(user);
-        }
-
-        [HttpPost("SetupDraft")]
-        public List<Draft> SetupDraft(string id)
-        {
-            return _leagueService.SetupDraft(id);
-        }
-
         [HttpPost("CreateLeague")]
-        public League CreateLeague(string name, string ownerEmail)
+        public LeagueInfo CreateLeague(string name, string ownerEmail)
         {
             return _leagueService.CreateLeague(name, ownerEmail);
         }
 
         [HttpPost("JoinLeague")]
-        public League JoinLeague(string id, string email)
+        public string JoinLeague(string id, string email)
         {
             return _leagueService.JoinLeague(id, email);
+        }
+
+        [HttpPost("GetLeague")]
+        public LeagueEntity GetLeague(string leagueId)
+        {
+            return _leagueService.GetLeague(leagueId);
         }
     }
 }

@@ -37,42 +37,39 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }        
 
         [TestMethod]
-        public void DraftTeamTest()
-        {
-            if (_leagueService != null) {
-                User userDrafted = new() {
-                    Email = "rudymiked@gmail.com",
-                    Team = "76ers"
-                };
-
-                User user = _leagueService.DraftTeam(userDrafted);
-
-                Assert.AreNotEqual(string.Empty, user.Team);
-            } else {
-                Assert.Fail();
-            }
-        }
-
-        [TestMethod]
-        public void SetupDraftTest()
-        {
-            if (_leagueService != null) {
-                // need to query an actual league first for a guid (then conver to string)
-                List<Draft> draftResults = _leagueService.SetupDraft("");
-
-                Assert.AreNotEqual(string.Empty, draftResults.Count);
-            } else {
-                Assert.Fail();
-            }
-        }
-
-        [TestMethod]
         public void CreateLeague()
         {
             if (_leagueService != null) {
-                League newLeague = _leagueService.CreateLeague("Black Lung", "rudymiked@gmail.com");
+                LeagueInfo newLeague = _leagueService.CreateLeague("Black Lung", "rudymiked@gmail.com");
 
                 Assert.AreNotEqual(string.Empty, newLeague.Id);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetLeague()
+        {
+            if (_leagueService != null) {
+                // need to query for an existing league first
+                LeagueEntity league = _leagueService.GetLeague("");
+
+                Assert.AreNotEqual(string.Empty, league.Name);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void JoinLeague()
+        {
+            if (_leagueService != null) {
+                // need to query for an existing league first
+                // also need a user email
+                string leagueResult = _leagueService.JoinLeague("", "");
+
+                Assert.AreNotEqual(AppConstants.Success, leagueResult);
             } else {
                 Assert.Fail();
             }
