@@ -8,7 +8,7 @@ namespace nbaunderdogleagueAPI.Models
         public string PartitionKey { get; set; } // league ID
         public string RowKey { get; set; } // draft ID
         public Guid Id { get; set; }
-        public Guid LeagueId { get; set; }
+        public Guid groupId { get; set; }
         public string Email { get; set; }
         public int DraftOrder { get; set; }
         public DateTimeOffset? Timestamp { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace nbaunderdogleagueAPI.Models
 {
-    public class LeagueInfo
+    public class Group
     {
         public Guid Id { get; set; }
         public string Owner { get; set; }

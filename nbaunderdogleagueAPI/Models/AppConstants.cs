@@ -9,7 +9,7 @@
         public static readonly string Tenant = "Tenant";
         public static readonly string TeamsTable = "Teams";
         public static readonly string UsersTable = "Users";
-        public static readonly string LeaguesTable = "Leagues";
+        public static readonly string GroupsTable = "Groups";
         public static readonly string DraftTable = "Drafts";
         public static readonly string AppName = "NBAUnderdogLeague";
         public static readonly string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
@@ -19,11 +19,11 @@
         public static readonly string Success = "Success";
         public static readonly string SomethingWentWrong = "Something Went Wrong";
 
-        // League Results
-        public static readonly string LeagueNotFound = "League cannot be found: ";
-        public static readonly string LeagueNoUsersFound = "No Users found in League: ";
-        public static readonly string UserAlreadyInLeague = "User already in League: ";
-        public static readonly string JoinLeagueError = "Something went wrong joining league: ";
+        // Group Results
+        public static readonly string GroupNotFound = "Group cannot be found: ";
+        public static readonly string GroupNoUsersFound = "No users found in group: ";
+        public static readonly string UserAlreadyInGroup = "User already in group: ";
+        public static readonly string JoinGroupError = "Something went wrong joining group: ";
 
         // Draft 
         public static readonly string DraftNotStarted = "Draft has not started";
@@ -31,7 +31,7 @@
         public static readonly string PleaseWaitToDraft = "It's not your turn to draft, please wait until: ";
         public static readonly string UserNotInDraft = "Could not find user in draft";
         public static readonly string EmptyDraft = "Draft is empty";
-        public static readonly string MultipleUser = "Multiple instance of a user in league.";
+        public static readonly string MultipleUser = "Multiple instance of a user in group.";
         public static readonly string UserAlreadyDrafted = "User already drafted";
         public static readonly string TeamAlreadyDrafted = "Team has already been drafted by: ";
     }

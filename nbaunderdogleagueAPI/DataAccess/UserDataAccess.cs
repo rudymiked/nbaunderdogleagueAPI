@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IUserDataAccess
     {
-        List<UserEntity> GetUsers(string leagueId);
+        List<UserEntity> GetUsers(string groupId);
         User AddUser(User user);
     }
     public class UserDataAccess : IUserDataAccess
@@ -24,10 +24,10 @@ namespace nbaunderdogleagueAPI.DataAccess
         public User AddUser(User user)
         {
             UserEntity entity = new() {
-                PartitionKey = user.League.ToString(),
+                PartitionKey = user.Group.ToString(),
                 RowKey = user.Email,
                 Email = user.Email,
-                League = user.League,
+                Group = user.Group,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now
             };
@@ -37,9 +37,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.IsError) ? user : new User();
         }
 
-        public List<UserEntity> GetUsers(string leagueId)
+        public List<UserEntity> GetUsers(string groupId)
         {
-            string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == leagueId);
+            string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == groupId);
 
             var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, filter).Result;
 

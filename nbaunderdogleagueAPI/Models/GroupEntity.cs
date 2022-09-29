@@ -3,7 +3,7 @@ using Azure.Data.Tables;
 
 namespace nbaunderdogleagueAPI.Models
 {
-    public class LeagueEntity : ITableEntity
+    public class GroupEntity : ITableEntity
     {
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }

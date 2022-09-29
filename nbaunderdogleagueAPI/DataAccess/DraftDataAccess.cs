@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface IDraftDataAccess
     {
         Dictionary<User, string> DraftTeam(User user);
-        List<DraftEntity> SetupDraft(string leagueId);
+        List<DraftEntity> SetupDraft(string groupId);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -17,15 +17,15 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly ILogger _logger;
         private readonly IUserService _userService;
         private readonly ITeamService _teamService;
-        private readonly ILeagueService _leagueService;
+        private readonly IGroupService _groupService;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public DraftDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, ILeagueService leagueService, ITableStorageHelper tableStorageHelper)
+        public DraftDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, IGroupService groupService, ITableStorageHelper tableStorageHelper)
         {
             _appConfig = options.Value;
             _logger = logger;
             _userService = userService;
             _teamService = teamService;
-            _leagueService = leagueService;
+            _groupService = groupService;
             _tableStorageHelper = tableStorageHelper;
         }
 
@@ -38,10 +38,10 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 //perform draft
                 UserEntity userDraftEntity = new() {
-                    PartitionKey = user.League.ToString(),
+                    PartitionKey = user.Group.ToString(),
                     RowKey = user.Email,
                     Email = user.Email,
-                    League = user.League,
+                    Group = user.Group,
                     Team = user.Team,
                     ETag = ETag.All,
                     Timestamp = DateTime.Now
@@ -63,25 +63,25 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
         }
 
-        public List<DraftEntity> SetupDraft(string leagueId)
+        public List<DraftEntity> SetupDraft(string groupId)
         {
-            // 1. query league, if it doesn't exist, return empty list
-            LeagueEntity leagueEntity = _leagueService.GetLeague(leagueId);
+            // 1. query group, if it doesn't exist, return empty list
+            GroupEntity groupEntity = _groupService.GetGroup(groupId);
 
-            if (leagueEntity.Id.ToString() == string.Empty) {
-                // No League Found
-                _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
+            if (groupEntity.Id.ToString() == string.Empty) {
+                // No group Found
+                _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
                 return new List<DraftEntity>();
             }
 
-            // 2. get all users from league
+            // 2. get all users from group
 
-            List<UserEntity> userEntities = _userService.GetUsers(leagueId);
+            List<UserEntity> userEntities = _userService.GetUsers(groupId);
 
             if (!userEntities.Any()) {
-                // no users found in league
+                // no users found in group
                 // should be at least 1 (owner)
-                _logger.LogError(AppConstants.LeagueNoUsersFound + leagueId);
+                _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
 
                 return new List<DraftEntity>();
             }
@@ -99,9 +99,9 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             for (int i = 0; i < usersInDraft; i++) {
                 draftEntities.Add(new DraftEntity() {
-                    PartitionKey = leagueId,
+                    PartitionKey = groupId,
                     RowKey = draftID.ToString(),
-                    LeagueId = Guid.Parse(leagueId),
+                    groupId = Guid.Parse(groupId),
                     Id = draftID,
                     DraftOrder = shuffledList[i],
                     Email = userEntities[i].Email,
@@ -147,18 +147,18 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return usersTurnToDraftResult;
             }
 
-            // create filter for user in specific league
-            string leagueFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.LeagueId == user.League);
+            // create filter for user in specific group
+            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.groupId == user.Group);
 
-            // get all user information for league information
-            var usersInLeagueResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, leagueFilter).Result;
+            // get all user information for group information
+            var usersInGroupResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result;
 
-            if (usersInLeagueResponse.ToList().Count == 0) {
-                return AppConstants.LeagueNoUsersFound + user.League;
+            if (usersInGroupResponse.ToList().Count == 0) {
+                return AppConstants.GroupNoUsersFound + user.Group;
             }
 
             // someone already drafted this team
-            UserEntity draftedUser = usersInLeagueResponse.ToHashSet().Where(usersInLeague => usersInLeague.Team == user.Team).First();
+            UserEntity draftedUser = usersInGroupResponse.ToHashSet().Where(usersInGroup => usersInGroup.Team == user.Team).First();
 
             if (draftedUser != null) {
                 return AppConstants.TeamAlreadyDrafted + draftedUser.Email;

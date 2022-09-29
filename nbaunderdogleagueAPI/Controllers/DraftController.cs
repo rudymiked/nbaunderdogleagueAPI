@@ -8,11 +8,11 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class DraftController : ControllerBase
     {
-        private readonly ILogger<LeagueController> _logger;
+        private readonly ILogger<GroupController> _logger;
         private readonly IDraftService _draftService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DraftController(ILogger<LeagueController> logger, IDraftService draftService, IHttpContextAccessor httpContextAccessor)
+        public DraftController(ILogger<GroupController> logger, IDraftService draftService, IHttpContextAccessor httpContextAccessor)
         {
             _draftService = draftService;
             _logger = logger;

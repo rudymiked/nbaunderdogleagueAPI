@@ -6,23 +6,23 @@ using nbaunderdogleagueAPI.Services;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
-    public interface ILeagueDataAccess
+    public interface IGroupDataAccess
     {
-        List<LeagueStandings> GetLeagueStandings(string leagueId);
-        LeagueInfo CreateLeague(string name, string ownerEmail);
-        LeagueEntity GetLeague(string leagueId);
-        List<LeagueEntity> GetAllLeaguesByYear(int year);
-        List<LeagueEntity> GetAllLeagues();
-        string JoinLeague(string id, string email);
+        List<GroupStandings> GetGroupStandings(string groupId);
+        Group CreateGroup(string name, string ownerEmail);
+        GroupEntity GetGroup(string groupId);
+        List<GroupEntity> GetAllGroupsByYear(int year);
+        List<GroupEntity> GetAllGroups();
+        string JoinGroup(string id, string email);
     }
-    public class LeagueDataAccess : ILeagueDataAccess
+    public class GroupDataAccess : IGroupDataAccess
     {
         private readonly AppConfig _appConfig;
         private readonly ILogger _logger;
         private readonly IUserService _userService;
         private readonly ITeamService _teamService;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public LeagueDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, ITableStorageHelper tableStorageHelper)
+        public GroupDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, ITableStorageHelper tableStorageHelper)
         {
             _appConfig = options.Value;
             _logger = logger;
@@ -31,9 +31,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public List<LeagueStandings> GetLeagueStandings(string leagueId)
+        public List<GroupStandings> GetGroupStandings(string groupId)
         {
-            List<LeagueStandings> standings = new();
+            List<GroupStandings> standings = new();
 
             // 1. Get Current NBA Standings Data (from NBA stats)
             Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = _teamService.GetCurrentNBAStandingsDictionary();
@@ -56,7 +56,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 string playoffs = PreseasonPlayoffs(currentNBAStanding.Playoffs);
 
-                standings.Add(new LeagueStandings() {
+                standings.Add(new GroupStandings() {
                     Governor = "", // Could add user here or in UI
                     TeamName = team.Name,
                     TeamCity = team.City,
@@ -69,102 +69,102 @@ namespace nbaunderdogleagueAPI.DataAccess
                 });
             }
 
-            return standings.OrderByDescending(league => league.Score).ToList();
+            return standings.OrderByDescending(group => group.Score).ToList();
         }
 
-        public LeagueEntity GetLeague(string leagueId)
+        public GroupEntity GetGroup(string groupId)
         {
-            string filter = TableClient.CreateQueryFilter<LeagueEntity>((league) => league.PartitionKey == leagueId);
+            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.PartitionKey == groupId);
 
-            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
 
-            return response.Any() ? response.ToList()[0] : new LeagueEntity();
+            return response.Any() ? response.ToList()[0] : new GroupEntity();
         }
 
-        public List<LeagueEntity> GetAllLeaguesByYear(int year)
+        public List<GroupEntity> GetAllGroupsByYear(int year)
         {
-            string filter = TableClient.CreateQueryFilter<LeagueEntity>((league) => league.Year == year);
+            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
 
-            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
 
-            return response.Any() ? response.ToList() : new List<LeagueEntity>();
+            return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
-        public List<LeagueEntity> GetAllLeagues()
+        public List<GroupEntity> GetAllGroups()
         {
-            var response = _tableStorageHelper.QueryEntities<LeagueEntity>(AppConstants.LeaguesTable).Result;
+            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable).Result;
 
-            return response.Any() ? response.ToList() : new List<LeagueEntity>();
+            return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
-        public string JoinLeague(string leagueId, string email)
+        public string JoinGroup(string groupId, string email)
         {
-            // 1. query league, if it doesn't exist, return empty list
+            // 1. query group, if it doesn't exist, return empty list
 
-            LeagueEntity leagueEntity = GetLeague(leagueId);
+            GroupEntity groupEntity = GetGroup(groupId);
 
-            if (leagueEntity.Id.ToString() == string.Empty) {
-                // No League Found
-                _logger.LogError(AppConstants.LeagueNotFound + " : " + leagueId);
-                return AppConstants.LeagueNotFound + " : " + leagueId;
+            if (groupEntity.Id.ToString() == string.Empty) {
+                // No group Found
+                _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
+                return AppConstants.GroupNotFound + " : " + groupId;
             }
 
-            // 2. get all users from league, see if user doesn't already exist
+            // 2. get all users from group, see if user doesn't already exist
 
-            List<UserEntity> userEntities = _userService.GetUsers(leagueEntity.Id.ToString());
+            List<UserEntity> userEntities = _userService.GetUsers(groupEntity.Id.ToString());
 
             if (!userEntities.Any()) {
-                // no users found in league
+                // no users found in group
                 // should be at least 1 (owner)
-                _logger.LogError(AppConstants.LeagueNoUsersFound + leagueId);
+                _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
 
-                return AppConstants.LeagueNoUsersFound + leagueId;
+                return AppConstants.GroupNoUsersFound + groupId;
             }
 
             if (userEntities.Select(user => user.Email == email).Any()) {
-                // user already in league
+                // user already in group
                 // do nothing
-                return AppConstants.UserAlreadyInLeague;
+                return AppConstants.UserAlreadyInGroup;
             }
 
-            // 3. add league to user data
+            // 3. add group to user data
             UserEntity userEntity = new() {
-                PartitionKey = leagueId,
+                PartitionKey = groupId,
                 RowKey = email,
                 Email = email,
-                League = Guid.Parse(leagueId),
+                Group = Guid.Parse(groupId),
                 ETag = ETag.All,
                 Timestamp = DateTime.Now
             };
 
             var response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
 
-            return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinLeagueError + "email: " + email + " league: " + leagueId;
+            return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + email + " group: " + groupId;
         }
 
-        public LeagueInfo CreateLeague(string name, string ownerEmail)
+        public Group CreateGroup(string name, string ownerEmail)
         {
-            LeagueInfo league = new() {
+            Group group = new() {
                 Id = Guid.NewGuid(),
                 Year = DateTime.Now.Year,
                 Name = name,
                 Owner = ownerEmail
             };
 
-            LeagueEntity leagueEntity = new() {
-                PartitionKey = league.Id.ToString(),
+            GroupEntity groupEntity = new() {
+                PartitionKey = group.Id.ToString(),
                 RowKey = Guid.NewGuid().ToString(),
-                Id = league.Id,
-                Name = league.Name,
-                Owner = league.Owner,
-                Year = league.Year,
+                Id = group.Id,
+                Name = group.Name,
+                Owner = group.Owner,
+                Year = group.Year,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now,
             };
 
-            Response response = _tableStorageHelper.UpsertEntity(leagueEntity, AppConstants.LeaguesTable).Result;
+            Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
 
-            return (response != null && !response.IsError) ? league : new LeagueInfo();
+            return (response != null && !response.IsError) ? group : new Group();
         }
 
         private static int PreseasonValue(int value)

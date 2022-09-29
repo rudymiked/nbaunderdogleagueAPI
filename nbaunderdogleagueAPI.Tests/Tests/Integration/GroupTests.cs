@@ -7,9 +7,9 @@ using nbaunderdogleagueAPI.Services;
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
     [TestClass]
-    public class LeagueTests
+    public class GroupTests
     {
-        private ILeagueService _leagueService;
+        private IGroupService _groupService;
 
         [TestInitialize]
         public void SetUp()
@@ -21,16 +21,16 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 });
             });
 
-            _leagueService = application.Services.GetService<ILeagueService>();
+            _groupService = application.Services.GetService<IGroupService>();
         }
 
         [TestMethod]
-        public void GetLeagueStandingsTest()
+        public void GetGroupStandingsTest()
         {
-            if (_leagueService != null) {
+            if (_groupService != null) {
                 // need to query for an actual league first
 
-                List<LeagueStandings> standings = _leagueService.GetLeagueStandings("");
+                List<GroupStandings> standings = _groupService.GetGroupStandings("");
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
@@ -39,10 +39,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }        
 
         [TestMethod]
-        public void CreateLeague()
+        public void CreateGroup()
         {
-            if (_leagueService != null) {
-                LeagueInfo newLeague = _leagueService.CreateLeague("Black Lung", "rudymiked@gmail.com");
+            if (_groupService != null) {
+                Group newLeague = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
 
                 Assert.AreNotEqual(string.Empty, newLeague.Id);
             } else {
@@ -51,11 +51,11 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetLeague()
+        public void GetGroup()
         {
-            if (_leagueService != null) {
+            if (_groupService != null) {
                 // need to query for an existing league first
-                LeagueEntity league = _leagueService.GetLeague("");
+                GroupEntity league = _groupService.GetGroup("");
 
                 Assert.AreNotEqual(string.Empty, league.Name);
             } else {
@@ -63,10 +63,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
         [TestMethod]
-        public void GetAllLeaguesByYear()
+        public void GetAllGroupsByYear()
         {
-            if (_leagueService != null) {
-                List<LeagueEntity> leagues = _leagueService.GetAllLeaguesByYear(DateTime.Now.Year);
+            if (_groupService != null) {
+                List<GroupEntity> leagues = _groupService.GetAllGroupsByYear(DateTime.Now.Year);
 
                 Assert.AreEqual(true, leagues.Any());
             } else {
@@ -75,12 +75,12 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void JoinLeague()
+        public void JoinGroup()
         {
-            if (_leagueService != null) {
+            if (_groupService != null) {
                 // need to query for an existing league first
                 // also need a user email
-                string leagueResult = _leagueService.JoinLeague("", "");
+                string leagueResult = _groupService.JoinGroup("", "");
 
                 Assert.AreNotEqual(AppConstants.Success, leagueResult);
             } else {

@@ -4,7 +4,7 @@ namespace nbaunderdogleagueAPI.Services
 {
     public interface IUserService
     {
-        List<UserEntity> GetUsers(string leagueId);
+        List<UserEntity> GetUsers(string groupId);
         User AddUser(User user);
     }
     public class UserService : IUserService
@@ -14,9 +14,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             _userRepository = userRepository;
         }
-        public List<UserEntity> GetUsers(string leagueId)
+        public List<UserEntity> GetUsers(string groupId)
         {
-            return _userRepository.GetUsers(leagueId);
+            return _userRepository.GetUsers(groupId);
         }
 
         public User AddUser(User user)

@@ -1,6 +1,6 @@
 ﻿namespace nbaunderdogleagueAPI.Models
 {
-    public class LeagueStandings
+    public class GroupStandings
     {
         public string Governor { get; set; }
         public string TeamName { get; set; }
