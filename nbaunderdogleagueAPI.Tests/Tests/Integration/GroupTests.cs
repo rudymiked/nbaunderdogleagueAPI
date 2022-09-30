@@ -42,7 +42,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void CreateGroup()
         {
             if (_groupService != null) {
-                Group newLeague = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
+                GroupEntity newLeague = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
 
                 Assert.AreNotEqual(string.Empty, newLeague.Id);
             } else {

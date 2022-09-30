@@ -26,7 +26,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("CreateGroup")]
-        public Group CreateGroup(string name, string ownerEmail)
+        public GroupEntity CreateGroup(string name, string ownerEmail)
         {
             return _groupService.CreateGroup(name, ownerEmail);
         }
@@ -41,6 +41,12 @@ namespace nbaunderdogleagueAPI.Controllers
         public GroupEntity GetGroup(string groupId)
         {
             return _groupService.GetGroup(groupId);
+        }
+
+        [HttpGet("GetAllGroupsUserIsInByYear")]
+        public List<GroupEntity> GetAllGroupsUserIsInByYear(int year)
+        {
+            return _groupService.GetAllGroupsByYear(year);
         }
 
         [HttpGet("GetAllGroupsByYear")]

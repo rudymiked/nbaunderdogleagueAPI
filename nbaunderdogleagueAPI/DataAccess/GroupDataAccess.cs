@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface IGroupDataAccess
     {
         List<GroupStandings> GetGroupStandings(string groupId);
-        Group CreateGroup(string name, string ownerEmail);
+        GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
         List<GroupEntity> GetAllGroups();
@@ -142,29 +142,24 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + email + " group: " + groupId;
         }
 
-        public Group CreateGroup(string name, string ownerEmail)
+        public GroupEntity CreateGroup(string name, string ownerEmail)
         {
-            Group group = new() {
-                Id = Guid.NewGuid(),
-                Year = DateTime.Now.Year,
-                Name = name,
-                Owner = ownerEmail
-            };
+            Guid guid = Guid.NewGuid();
 
             GroupEntity groupEntity = new() {
-                PartitionKey = group.Id.ToString(),
+                PartitionKey = guid.ToString(),
                 RowKey = Guid.NewGuid().ToString(),
-                Id = group.Id,
-                Name = group.Name,
-                Owner = group.Owner,
-                Year = group.Year,
+                Id = guid,
+                Name = name,
+                Owner = ownerEmail,
+                Year = DateTime.Now.Year,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now,
             };
 
             Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
 
-            return (response != null && !response.IsError) ? group : new Group();
+            return (response != null && !response.IsError) ? groupEntity : new GroupEntity();
         }
 
         private static int PreseasonValue(int value)

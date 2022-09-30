@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Business
     public interface IGroupRepository
     {
         List<GroupStandings> GetGroupStandings(string groupId);
-        Group CreateGroup(string name, string ownerEmail);
+        GroupEntity CreateGroup(string name, string ownerEmail);
         string JoinGroup(string id, string email);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _groupDataAccess.GetGroupStandings(groupId);
         }
-        public Group CreateGroup(string name, string ownerEmail)
+        public GroupEntity CreateGroup(string name, string ownerEmail)
         {
             return _groupDataAccess.CreateGroup(name, ownerEmail);
         }
