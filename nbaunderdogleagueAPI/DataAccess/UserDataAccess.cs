@@ -23,27 +23,35 @@ namespace nbaunderdogleagueAPI.DataAccess
         }
         public User AddUser(User user)
         {
-            UserEntity entity = new() {
-                PartitionKey = user.Group.ToString(),
-                RowKey = user.Email,
-                Email = user.Email,
-                Group = user.Group,
-                ETag = ETag.All,
-                Timestamp = DateTime.Now
-            };
+            if (user.Group != Guid.Empty && user.Email != string.Empty) {
+                UserEntity entity = new() {
+                    PartitionKey = user.Group.ToString(),
+                    RowKey = user.Email,
+                    Email = user.Email,
+                    Group = user.Group,
+                    ETag = ETag.All,
+                    Timestamp = DateTime.Now
+                };
 
-            var response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
+                var response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
 
-            return (response != null && !response.IsError) ? user : new User();
+                return (response != null && !response.IsError) ? user : new User();
+            }
+
+            return new User();
         }
 
         public List<UserEntity> GetUsers(string groupId)
         {
-            string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == groupId);
+            if (groupId != null && groupId != string.Empty) {
+                string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == groupId);
 
-            var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, filter).Result;
+                var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, filter).Result;
 
-            return response.ToList();
+                return response.ToList();
+            }
+
+            return new List<UserEntity>();
         }
     }
 }
