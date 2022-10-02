@@ -13,7 +13,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<GroupStandings> GetGroupStandings(string groupId);
         GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
-        List<GroupEntity> GetAllGroupsByYear(int year);
+        List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
         string JoinGroup(string id, string email);
@@ -84,13 +84,38 @@ namespace nbaunderdogleagueAPI.DataAccess
             return response.Any() ? response.ToList()[0] : new GroupEntity();
         }
 
-        public List<GroupEntity> GetAllGroupsByYear(int year)
+        public List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email)
         {
+            List<GroupEntity> groupEntities = new();
+
             string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
 
             var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
 
-            return response.Any() ? response.ToList() : new List<GroupEntity>();
+            if (response.Any()) {
+                groupEntities = response.ToList();
+                
+                // filter out groups that user is in if this flag is false
+                if (!includeUser) {
+                    // Collect all groups that user is in
+
+                    string userGroupFilter = TableClient.CreateQueryFilter<UserEntity>((user) => user.Email == email);
+
+                    var userRsponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
+
+                    if (!userRsponse.Any()) {
+                        return new List<GroupEntity>();
+                    }
+
+                    var userGroups = userRsponse.ToList().Select(user => user.Group);
+
+                    List<Guid> groupsUserIsNotIn = groupEntities.Select(group => group.Id).Except(userGroups).ToList();
+
+                    return groupEntities.Where(group => groupsUserIsNotIn.Contains(group.Id)).ToList();
+                }
+            }
+
+            return groupEntities;
         }
 
         public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)

@@ -67,7 +67,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAllGroupsByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year);
+                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year, true, "rudymiked@gmail.com");
 
                 Assert.AreEqual(true, groups.Any());
             } else {
