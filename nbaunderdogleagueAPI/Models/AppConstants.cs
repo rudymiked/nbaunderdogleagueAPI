@@ -34,5 +34,8 @@
         public static readonly string MultipleUser = "Multiple instance of a user in group.";
         public static readonly string UserAlreadyDrafted = "User already drafted";
         public static readonly string TeamAlreadyDrafted = "Team has already been drafted by: ";
+
+        // Ints
+        public static readonly int MinYear = 2020;
     }
 }
