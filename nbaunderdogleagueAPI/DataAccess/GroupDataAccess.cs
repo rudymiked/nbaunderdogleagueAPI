@@ -13,6 +13,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
+        List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year);
         List<GroupEntity> GetAllGroups();
         string JoinGroup(string id, string email);
     }
@@ -91,6 +92,15 @@ namespace nbaunderdogleagueAPI.DataAccess
             return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
+        public List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year)
+        {
+            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
+
+            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+
+            return response.Any() ? response.ToList() : new List<GroupEntity>();
+        }
+
         public List<GroupEntity> GetAllGroups()
         {
             var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable).Result;
@@ -145,6 +155,10 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public GroupEntity CreateGroup(string name, string ownerEmail)
         {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(ownerEmail)) {
+                return new GroupEntity();
+            }
+
             // Query groups first
             // Ensure owner has not created more than MaxGroupsPerOwner groups
             // Create group if validations pass

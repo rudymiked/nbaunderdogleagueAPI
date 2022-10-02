@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpPost("CreateGroup")]
         public ActionResult<GroupEntity> CreateGroup(Group newGroup)
         {
-            if (newGroup.Name != string.Empty && newGroup.Owner != string.Empty) {
+            if (!string.IsNullOrEmpty(newGroup.Name) && !string.IsNullOrEmpty(newGroup.Owner)) {
                 return Ok(_groupService.CreateGroup(newGroup.Name, newGroup.Owner));
             } else {
                 return NoContent();
@@ -48,9 +48,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetAllGroupsUserIsInByYear")]
-        public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(int year)
+        public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(string user, int year)
         {
-            return Ok(_groupService.GetAllGroupsByYear(year));
+            return Ok(_groupService.GetAllGroupsUserIsInByYear(user, year));
         }
 
         [HttpGet("GetAllGroupsByYear")]
