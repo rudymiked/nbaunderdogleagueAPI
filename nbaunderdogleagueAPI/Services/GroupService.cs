@@ -39,9 +39,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _groupRepository.GetAllGroupsByYear(year);
         }
-        public List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year)
+        public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)
         {
-            return _groupRepository.GetAllGroupsUserIsInByYear(user, year);
+            return _groupRepository.GetAllGroupsUserIsInByYear(email, year);
         }
     }
 }

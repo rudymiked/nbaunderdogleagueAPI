@@ -3,6 +3,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
@@ -13,7 +14,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
-        List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year);
+        List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
         string JoinGroup(string id, string email);
     }
@@ -92,13 +93,31 @@ namespace nbaunderdogleagueAPI.DataAccess
             return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
-        public List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year)
+        public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)
         {
-            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
+            // Collect all groups that user is in
 
-            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+            string userGroupFilter = TableClient.CreateQueryFilter<UserEntity>((user) => user.Email == email);
 
-            return response.Any() ? response.ToList() : new List<GroupEntity>();
+            var userRsponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
+
+            if (!userRsponse.Any()) {
+                return new List<GroupEntity>();
+            }
+
+            var userGroups = userRsponse.ToList().Select(user => user.Group);
+
+            // Filter groups by year 
+
+            string yearFilter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
+
+            var groupResponse = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, yearFilter).Result;
+
+            List<GroupEntity> groupsByYear = groupResponse.ToList();
+
+            List<Guid> groupsUserIsIn = groupsByYear.Select(group => group.Id).Intersect(userGroups).ToList();
+
+            return groupsByYear.Where(group => groupsUserIsIn.Contains(group.Id)).ToList();
         }
 
         public List<GroupEntity> GetAllGroups()
@@ -162,6 +181,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // Query groups first
             // Ensure owner has not created more than MaxGroupsPerOwner groups
             // Create group if validations pass
+            // Create user entity for group owner
 
             string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Owner == ownerEmail);
 
@@ -188,7 +208,23 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
 
-            return (response != null && !response.IsError) ? groupEntity : new GroupEntity();
+            if (response == null || response.IsError) {
+                return new GroupEntity();
+            }
+
+            User owner = new() {
+                Email = ownerEmail,
+                Team = "",
+                Group = groupEntity.Id
+            };
+
+            User userResult = _userService.AddUser(owner);
+
+            if (userResult.Email != owner.Email) {
+                _logger.LogError(AppConstants.SomethingWentWrong);
+            }
+
+            return groupEntity;
         }
 
         private static int PreseasonValue(int value)

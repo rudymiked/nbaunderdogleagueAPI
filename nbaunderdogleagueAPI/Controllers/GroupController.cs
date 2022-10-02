@@ -48,9 +48,13 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetAllGroupsUserIsInByYear")]
-        public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(string user, int year)
+        public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(string email, int year)
         {
-            return Ok(_groupService.GetAllGroupsUserIsInByYear(user, year));
+            if (string.IsNullOrEmpty(email) || year <= 0) {
+                return Ok(_groupService.GetAllGroupsUserIsInByYear(email, year));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("GetAllGroupsByYear")]

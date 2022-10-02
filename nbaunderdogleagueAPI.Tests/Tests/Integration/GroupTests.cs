@@ -42,9 +42,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void CreateGroup()
         {
             if (_groupService != null) {
-                GroupEntity newLeague = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
+                GroupEntity newGroup = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
 
-                Assert.AreNotEqual(string.Empty, newLeague.Id);
+                Assert.AreNotEqual(string.Empty, newGroup.Id);
             } else {
                 Assert.Fail();
             }
@@ -55,20 +55,33 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_groupService != null) {
                 // need to query for an existing league first
-                GroupEntity league = _groupService.GetGroup("");
+                GroupEntity group = _groupService.GetGroup("");
 
-                Assert.AreNotEqual(string.Empty, league.Name);
+                Assert.AreNotEqual(string.Empty, group.Name);
             } else {
                 Assert.Fail();
             }
         }
+
         [TestMethod]
         public void GetAllGroupsByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> leagues = _groupService.GetAllGroupsByYear(DateTime.Now.Year);
+                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year);
 
-                Assert.AreEqual(true, leagues.Any());
+                Assert.AreEqual(true, groups.Any());
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetAllGroupsUserIsInByYear()
+        {
+            if (_groupService != null) {
+                List<GroupEntity> groups = _groupService.GetAllGroupsUserIsInByYear("rudymiked@gmail.com", DateTime.Now.Year);
+
+                Assert.AreEqual(true, groups.Any());
             } else {
                 Assert.Fail();
             }
@@ -80,9 +93,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
                 // need to query for an existing league first
                 // also need a user email
-                string leagueResult = _groupService.JoinGroup("", "");
+                string groupResult = _groupService.JoinGroup("", "");
 
-                Assert.AreNotEqual(AppConstants.Success, leagueResult);
+                Assert.AreNotEqual(AppConstants.Success, groupResult);
             } else {
                 Assert.Fail();
             }
