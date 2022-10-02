@@ -3,6 +3,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -144,6 +145,20 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public GroupEntity CreateGroup(string name, string ownerEmail)
         {
+            // Query groups first
+            // Ensure owner has not created more than MaxGroupsPerOwner groups
+            // Create group if validations pass
+
+            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Owner == ownerEmail);
+
+            var currentGroupsResponse = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+
+            List<GroupEntity> currentGroups = currentGroupsResponse.ToList();
+
+            if (currentGroups.Count > _appConfig.MaxGroupsPerOwner) {
+                return new GroupEntity();
+            }
+
             Guid guid = Guid.NewGuid();
 
             GroupEntity groupEntity = new() {

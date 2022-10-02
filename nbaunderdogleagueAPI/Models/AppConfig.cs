@@ -10,5 +10,6 @@
         public int DraftStartDay { get; set; }
         public int DraftStartMonth { get; set; }
         public int DraftWindowMinutes { get; set; }
+        public int MaxGroupsPerOwner { get; set; }
     }
 }

@@ -20,39 +20,43 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetGroupStandings")]
-        public IEnumerable<GroupStandings> Get(string groupId)
+        public ActionResult<IEnumerable<GroupStandings>> Get(string groupId)
         {
-            return _groupService.GetGroupStandings(groupId);
+            return Ok(_groupService.GetGroupStandings(groupId));
         }
 
         [HttpPost("CreateGroup")]
-        public GroupEntity CreateGroup(Group newGroup)
+        public ActionResult<GroupEntity> CreateGroup(Group newGroup)
         {
-            return _groupService.CreateGroup(newGroup.Name, newGroup.Owner);
+            if (newGroup.Name != string.Empty && newGroup.Owner != string.Empty) {
+                return Ok(_groupService.CreateGroup(newGroup.Name, newGroup.Owner));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpPost("JoinGroup")]
-        public string JoinGroup(string id, string email)
+        public ActionResult<string> JoinGroup(string id, string email)
         {
-            return _groupService.JoinGroup(id, email);
+            return Ok(_groupService.JoinGroup(id, email));
         }
 
         [HttpGet("GetGroup")]
-        public GroupEntity GetGroup(string groupId)
+        public ActionResult<GroupEntity> GetGroup(string groupId)
         {
-            return _groupService.GetGroup(groupId);
+            return Ok(_groupService.GetGroup(groupId));
         }
 
         [HttpGet("GetAllGroupsUserIsInByYear")]
-        public List<GroupEntity> GetAllGroupsUserIsInByYear(int year)
+        public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(int year)
         {
-            return _groupService.GetAllGroupsByYear(year);
+            return Ok(_groupService.GetAllGroupsByYear(year));
         }
 
         [HttpGet("GetAllGroupsByYear")]
-        public List<GroupEntity> GetAllGroupsByYear(int year)
+        public ActionResult<List<GroupEntity>>GetAllGroupsByYear(int year)
         {
-            return _groupService.GetAllGroupsByYear(year);
+            return Ok(_groupService.GetAllGroupsByYear(year));
         }
     }
 }
