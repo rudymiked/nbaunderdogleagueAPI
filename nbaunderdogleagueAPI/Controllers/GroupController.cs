@@ -26,9 +26,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("CreateGroup")]
-        public GroupEntity CreateGroup(string name, string ownerEmail)
+        public GroupEntity CreateGroup(Group newGroup)
         {
-            return _groupService.CreateGroup(name, ownerEmail);
+            return _groupService.CreateGroup(newGroup.Name, newGroup.Owner);
         }
 
         [HttpPost("JoinGroup")]
