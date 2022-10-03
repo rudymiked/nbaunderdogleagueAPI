@@ -3,7 +3,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 
-namespace nbaunderdogleagueAPI.DataAccess
+namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
     public interface ITableStorageHelper
     {
@@ -24,12 +24,15 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public async Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new()
         {
-            try {
+            try
+            {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
-                return tableClient.UpsertEntity<T>(entity, TableUpdateMode.Replace);
-            } catch (Exception ex) {
+                return tableClient.UpsertEntity(entity, TableUpdateMode.Replace);
+            }
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -38,7 +41,8 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public async Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
         {
-            try {
+            try
+            {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
@@ -47,7 +51,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                 addBatch.AddRange(entities.Select(f => new TableTransactionAction(TableTransactionActionType.UpsertMerge, f)));
 
                 return await tableClient.SubmitTransactionAsync(addBatch);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -56,12 +62,15 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public async Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
         {
-            try {
+            try
+            {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
                 return tableClient.Query<T>(WhereFilter);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, ex.Message);
             }
 
