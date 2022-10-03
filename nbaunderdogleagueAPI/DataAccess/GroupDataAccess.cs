@@ -58,7 +58,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 double actualDiff = (double)(win / (double)(win + loss));
                 double score = (double)(actualDiff / (double)projectedDiff);
 
-                string playoffs = PreseasonPlayoffs(currentNBAStanding.Playoffs);
+                string playoffs = currentNBAStanding.Playoffs; // PreseasonPlayoffs(currentNBAStanding.Playoffs);
 
                 standings.Add(new GroupStandings() {
                     Governor = "", // Could add user here or in UI

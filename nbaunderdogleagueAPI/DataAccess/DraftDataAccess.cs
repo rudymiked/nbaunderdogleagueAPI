@@ -11,6 +11,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         Dictionary<User, string> DraftTeam(User user);
         List<DraftEntity> SetupDraft(string groupId);
+        List<User> DraftedTeams(string groupId);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -116,9 +117,17 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
         }
 
+        public List<User> DraftedTeams(string groupId)
+        {
+
+
+            return new List<User>();
+        }
+
         private string ValidateUserCanDraftTeam(User user)
         {
             // Validations:
+            // *-1. Test draft? skip validations
             // *0. Is the user in this draft?
             // *1. Is it the user's turn to draft? 
             //      1.1 Time Now is greater than DraftStartHour and less than DraftStartHour + DraftWindowMinutes
@@ -126,6 +135,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             //      2.1 User email is not already present in Governer column (maybe there is another way to do this?)
             // *3. Is the team available?
             //      3.1 Governer column is BLANK next to team. Could be good to do it this way, since it is one query for #2 and #3
+
+
+            // TEST DRAFT
+            if (_appConfig.TestDraft == 1) {
+                return string.Empty;
+            }
 
             // Get users from draft
             var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable).Result;

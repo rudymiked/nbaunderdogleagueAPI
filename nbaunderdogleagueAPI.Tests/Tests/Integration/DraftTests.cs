@@ -53,5 +53,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.Fail();
             }
         }
+
+        [TestMethod]
+        public void GetDraftedTeamsTest()
+        {
+            if (_draftService != null) {
+                // need to query an actual league first for a guid (then conver to string)
+                List<User> draftResults = _draftService.DraftedTeams("");
+
+                Assert.AreNotEqual(null, draftResults);
+            } else {
+                Assert.Fail();
+            }
+        }
     }
 }

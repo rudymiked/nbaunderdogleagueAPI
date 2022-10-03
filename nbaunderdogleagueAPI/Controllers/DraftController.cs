@@ -30,5 +30,11 @@ namespace nbaunderdogleagueAPI.Controllers
         {
             return _draftService.SetupDraft(id);
         }
+
+        [HttpGet("DraftedTeams")]
+        public List<User> DraftedTeams(string groupId)
+        {
+            return _draftService.DraftedTeams(groupId);
+        }
     }
 }
