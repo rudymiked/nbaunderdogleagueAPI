@@ -22,7 +22,12 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("GetGroupStandings")]
         public ActionResult<IEnumerable<GroupStandings>> Get(string groupId)
         {
-            return Ok(_groupService.GetGroupStandings(groupId));
+            if (!string.IsNullOrEmpty(groupId)) { 
+                return Ok(_groupService.GetGroupStandings(groupId));
+            } else {
+                return NoContent();
+            }
+
         }
 
         [HttpPost("CreateGroup")]
