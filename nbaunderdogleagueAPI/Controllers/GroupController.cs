@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Controllers
 {
@@ -20,7 +21,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetGroupStandings")]
-        public ActionResult<IEnumerable<GroupStandings>> Get(string groupId)
+        public ActionResult<List<GroupStandings>> Get(string groupId)
         {
             if (!string.IsNullOrEmpty(groupId)) { 
                 return Ok(_groupService.GetGroupStandings(groupId));
@@ -31,25 +32,33 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("CreateGroup")]
-        public ActionResult<GroupEntity> CreateGroup(Group newGroup)
+        public ActionResult<GroupEntity> CreateGroup(string name, string ownerEmail)
         {
-            if (!string.IsNullOrEmpty(newGroup.Name) && !string.IsNullOrEmpty(newGroup.Owner)) {
-                return Ok(_groupService.CreateGroup(newGroup.Name, newGroup.Owner));
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(ownerEmail)) {
+                return Ok(_groupService.CreateGroup(name, ownerEmail));
             } else {
                 return NoContent();
             }
         }
 
         [HttpPost("JoinGroup")]
-        public ActionResult<string> JoinGroup(string id, string email)
+        public ActionResult<string> JoinGroup(string groupId, string email)
         {
-            return Ok(_groupService.JoinGroup(id, email));
+            if (!string.IsNullOrEmpty(groupId) && !string.IsNullOrEmpty(email)) {
+                return Ok(_groupService.JoinGroup(groupId, email));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("GetGroup")]
         public ActionResult<GroupEntity> GetGroup(string groupId)
         {
-            return Ok(_groupService.GetGroup(groupId));
+            if (!string.IsNullOrEmpty(groupId)) {
+                return Ok(_groupService.GetGroup(groupId));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("GetAllGroupsUserIsInByYear")]
