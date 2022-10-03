@@ -67,7 +67,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     ProjectedLoss = projectedLoss,
                     Win = win,
                     Loss = loss,
-                    Score = Double.IsNaN(Math.Round(score, 2)) ? 0 : Math.Round(score, 2),
+                    Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
                     Playoffs = playoffs
                 });
             }
