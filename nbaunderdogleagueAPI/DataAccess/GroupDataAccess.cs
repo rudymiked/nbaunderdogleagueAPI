@@ -4,8 +4,6 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -95,7 +93,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             if (response.Any()) {
                 groupEntities = response.ToList();
-                
+
                 // filter out groups that user is in if this flag is false
                 if (!includeUser) {
                     // Collect all groups that user is in

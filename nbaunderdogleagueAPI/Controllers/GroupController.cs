@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Controllers
 {
@@ -23,7 +22,7 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("GetGroupStandings")]
         public ActionResult<List<GroupStandings>> Get(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) { 
+            if (!string.IsNullOrEmpty(groupId)) {
                 return Ok(_groupService.GetGroupStandings(groupId));
             } else {
                 return NoContent();
@@ -72,7 +71,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("GetAllGroupsByYear")]
-        public ActionResult<List<GroupEntity>>GetAllGroupsByYear(int year, bool includeUser, string email)
+        public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year, bool includeUser, string email)
         {
             return Ok(_groupService.GetAllGroupsByYear(year, includeUser, email));
         }

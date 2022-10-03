@@ -1,6 +1,5 @@
 ﻿using nbaunderdogleagueAPI.DataAccess;
 using nbaunderdogleagueAPI.Models;
-using nbaunderdogleagueAPI.Models.NBAModels;
 
 namespace nbaunderdogleagueAPI.Business
 {
