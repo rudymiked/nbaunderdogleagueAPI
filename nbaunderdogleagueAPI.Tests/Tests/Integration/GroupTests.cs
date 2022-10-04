@@ -88,11 +88,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void JoinGroup()
         {
             if (_groupService != null) {
-                // need to query for an existing league first
-                // also need a user email
-                string groupResult = _groupService.JoinGroup(TestConstants.GroupId.ToString(), TestConstants.Email);
+                string groupResult = _groupService.JoinGroup("09fa8ea1-1284-4ad8-b6d1-6f1377fdbac7", TestConstants.Email);
 
-                Assert.AreNotEqual(AppConstants.Success, groupResult);
+                Assert.AreEqual(AppConstants.Success, groupResult);
             } else {
                 Assert.Fail();
             }

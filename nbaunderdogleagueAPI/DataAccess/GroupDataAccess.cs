@@ -175,10 +175,12 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.GroupNoUsersFound + groupId;
             }
 
-            if (userEntities.Select(user => user.Email == email).Any()) {
+            List<UserEntity> usersGroups = userEntities.Where(user => user.Email == email && user.Group.ToString() == groupId).ToList();
+
+            if (usersGroups.Any()) {
                 // user already in group
                 // do nothing
-                return AppConstants.UserAlreadyInGroup;
+                return AppConstants.UserAlreadyInGroup + groupId;
             }
 
             // 3. add group to user data
