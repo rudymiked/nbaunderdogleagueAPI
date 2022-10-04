@@ -92,7 +92,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 draftEntities.Add(new DraftEntity() {
                     PartitionKey = groupId,
                     RowKey = draftID.ToString(),
-                    groupId = Guid.Parse(groupId),
+                    GroupId = Guid.Parse(groupId),
                     Id = draftID,
                     DraftOrder = shuffledList[i],
                     Email = userEntities[i].Email,
@@ -118,6 +118,11 @@ namespace nbaunderdogleagueAPI.DataAccess
             return groupUsers.Where(user => !string.IsNullOrEmpty(user.Team)).ToList();
         }
 
+        private bool IsTestDraft()
+        {
+            return _appConfig.TestDraft == 1;
+        }
+
         private string ValidateUserCanDraftTeam(User user)
         {
             // Validations:
@@ -131,20 +136,21 @@ namespace nbaunderdogleagueAPI.DataAccess
             //      3.1 Governer column is BLANK next to team. Could be good to do it this way, since it is one query for #2 and #3
 
 
-            // TEST DRAFT
-            if (_appConfig.TestDraft == 1) {
-                return string.Empty;
-            }
+            // -1 TEST DRAFT
 
-            // Get users from draft
-            var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable).Result;
+            if (IsTestDraft()) return string.Empty;
+
+            // 0 Get users from draft
+            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == user.Group);
+            
+            var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result;
 
             if (!draftResponse.Any()) {
                 // no users in draft
                 return AppConstants.EmptyDraft;
             }
 
-            DraftEntity userInDraft = draftResponse.ToHashSet().Where(draft => draft.Email == user.Email).First();
+            DraftEntity userInDraft = draftResponse.ToList().Where(draft => draft.Email == user.Email).First();
 
             if (userInDraft == null) {
                 return AppConstants.UserNotInDraft;
@@ -157,18 +163,15 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return usersTurnToDraftResult;
             }
 
-            // create filter for user in specific group
-            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.groupId == user.Group);
-
-            // get all user information for group information
+            // need to get the UserEntity, to ensure the team hasn't already been drafted
             var usersInGroupResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result;
 
             if (usersInGroupResponse.ToList().Count == 0) {
                 return AppConstants.GroupNoUsersFound + user.Group;
             }
 
-            // someone already drafted this team
-            UserEntity draftedUser = usersInGroupResponse.ToHashSet().Where(usersInGroup => usersInGroup.Team == user.Team).First();
+            // 3 someone already drafted this team
+            UserEntity draftedUser = usersInGroupResponse.ToList().Where(usersInGroup => usersInGroup.Team == user.Team).First();
 
             if (draftedUser != null) {
                 return AppConstants.TeamAlreadyDrafted + draftedUser.Email;
