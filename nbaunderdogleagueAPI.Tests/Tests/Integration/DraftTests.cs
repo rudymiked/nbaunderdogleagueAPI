@@ -46,7 +46,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void SetupDraftTest()
         {
             if (_draftService != null) {
-                List<DraftEntity> draftResults = _draftService.SetupDraft(TestConstants.GroupId.ToString());
+                List<DraftEntity> draftResults = _draftService.SetupDraft("09fa8ea1-1284-4ad8-b6d1-6f1377fdbac7");
 
                 Assert.AreNotEqual(string.Empty, draftResults.Count);
             } else {
@@ -58,7 +58,19 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftedTeamsTest()
         {
             if (_draftService != null) {
-                List<UserEntity> draftResults = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
+                List<UserEntity> draftedTeams = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
+
+                Assert.AreNotEqual(null, draftedTeams);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetDraftTest()
+        {
+            if (_draftService != null) {
+                List<DraftEntity> draftResults = _draftService.GetDraft(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(null, draftResults);
             } else {

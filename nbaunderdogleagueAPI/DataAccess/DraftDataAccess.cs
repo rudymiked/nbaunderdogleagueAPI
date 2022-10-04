@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -12,6 +14,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<User, string> DraftTeam(User user);
         List<DraftEntity> SetupDraft(string groupId);
         List<UserEntity> DraftedTeams(string groupId);
+        List<DraftEntity> GetDraft(string groupId);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -86,12 +89,26 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             List<DraftEntity> draftEntities = new();
 
+            // need to ensure that draft for this group doesn't already exist
+            // if it does, this method should just re-shuffle the order and pick up new members
+
+            List<DraftEntity> groupDraft = GetDraft(groupId);
+            
             Guid draftID = Guid.NewGuid();
+
+            if (groupDraft.Any()) {
+                if (groupDraft.Count == 1) {
+                    draftID = groupDraft[0].GroupId;
+                } else {
+                    _logger.LogError("Groups should only have one draft. Something is wrong");
+                }
+                
+            }
 
             for (int i = 0; i < usersInDraft; i++) {
                 draftEntities.Add(new DraftEntity() {
                     PartitionKey = groupId,
-                    RowKey = draftID.ToString(),
+                    RowKey = userEntities[i].Email,
                     GroupId = Guid.Parse(groupId),
                     Id = draftID,
                     DraftOrder = shuffledList[i],
@@ -141,16 +158,14 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (IsTestDraft()) return string.Empty;
 
             // 0 Get users from draft
-            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == user.Group);
-            
-            var draftResponse = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result;
+            List<DraftEntity> userDraft = GetDraft(user.Group.ToString());
 
-            if (!draftResponse.Any()) {
+            if (!userDraft.Any()) {
                 // no users in draft
                 return AppConstants.EmptyDraft;
             }
 
-            DraftEntity userInDraft = draftResponse.ToList().Where(draft => draft.Email == user.Email).First();
+            DraftEntity userInDraft = userDraft.Where(draft => draft.Email == user.Email).First();
 
             if (userInDraft == null) {
                 return AppConstants.UserNotInDraft;
@@ -164,6 +179,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // need to get the UserEntity, to ensure the team hasn't already been drafted
+            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == user.Group);
             var usersInGroupResponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result;
 
             if (usersInGroupResponse.ToList().Count == 0) {
@@ -206,6 +222,19 @@ namespace nbaunderdogleagueAPI.DataAccess
             //if (userCanStart > utcNow && utcNow < userTurnOver) {
             return AppConstants.Success;
             //}
+        }
+
+        public List<DraftEntity> GetDraft(string groupId)
+        {
+            Guid groupGruid;
+
+            if (Guid.TryParse(groupId, out groupGruid)) {
+                string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == groupGruid);
+
+                return _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result.ToList();
+            } else {
+                return new List<DraftEntity>();
+            }
         }
     }
 }
