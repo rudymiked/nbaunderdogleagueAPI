@@ -24,11 +24,11 @@ namespace nbaunderdogleagueAPI.Controllers
             return NoContent();
         }
 
-        [HttpPost("AddUser")]
-        public ActionResult<User> AddUser(User user)
+        [HttpPost("UpserUser")]
+        public ActionResult<User> UpserUser(User user)
         {
             if (user != null && user.Group.ToString() != string.Empty) {
-                return _userService.AddUser(user);
+                return _userService.UpserUser(user);
             }
 
             return NoContent();

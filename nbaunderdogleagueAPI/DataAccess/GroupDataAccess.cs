@@ -242,7 +242,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Group = groupEntity.Id
             };
 
-            User userResult = _userService.AddUser(owner);
+            User userResult = _userService.UpserUser(owner);
 
             if (userResult.Email != owner.Email) {
                 _logger.LogError(AppConstants.SomethingWentWrong);

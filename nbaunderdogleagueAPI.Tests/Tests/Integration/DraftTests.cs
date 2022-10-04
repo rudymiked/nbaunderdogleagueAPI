@@ -30,7 +30,8 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_draftService != null) {
                 User userDrafted = new() {
                     Email = "rudymiked@gmail.com",
-                    Team = "76ers"
+                    Team = "76ers",
+                    Group = TestConstants.GroupId
                 };
 
                 Dictionary<User, string> user = _draftService.DraftTeam(userDrafted);
@@ -45,8 +46,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void SetupDraftTest()
         {
             if (_draftService != null) {
-                // need to query an actual league first for a guid (then conver to string)
-                List<DraftEntity> draftResults = _draftService.SetupDraft("");
+                List<DraftEntity> draftResults = _draftService.SetupDraft(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(string.Empty, draftResults.Count);
             } else {
@@ -58,8 +58,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftedTeamsTest()
         {
             if (_draftService != null) {
-                // need to query an actual league first for a guid (then conver to string)
-                List<User> draftResults = _draftService.DraftedTeams("");
+                List<User> draftResults = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(null, draftResults);
             } else {

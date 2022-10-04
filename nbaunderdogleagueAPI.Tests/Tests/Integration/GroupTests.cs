@@ -28,9 +28,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroupStandingsTest()
         {
             if (_groupService != null) {
-                // need to query for an actual league first
-
-                List<GroupStandings> standings = _groupService.GetGroupStandings("");
+                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
@@ -42,7 +40,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void CreateGroup()
         {
             if (_groupService != null) {
-                GroupEntity newGroup = _groupService.CreateGroup("Black Lung", "rudymiked@gmail.com");
+                GroupEntity newGroup = _groupService.CreateGroup("Black Lung", TestConstants.Email);
 
                 Assert.AreNotEqual(string.Empty, newGroup.Id);
             } else {
@@ -54,8 +52,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroup()
         {
             if (_groupService != null) {
-                // need to query for an existing league first
-                GroupEntity group = _groupService.GetGroup("");
+                GroupEntity group = _groupService.GetGroup(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(string.Empty, group.Name);
             } else {
@@ -67,7 +64,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAllGroupsByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year, true, "rudymiked@gmail.com");
+                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year, true, TestConstants.Email);
 
                 Assert.AreEqual(true, groups.Any());
             } else {
@@ -79,7 +76,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAllGroupsUserIsInByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsUserIsInByYear("rudymiked@gmail.com", DateTime.Now.Year);
+                List<GroupEntity> groups = _groupService.GetAllGroupsUserIsInByYear(TestConstants.Email, DateTime.Now.Year);
 
                 Assert.AreEqual(true, groups.Any());
             } else {
@@ -93,7 +90,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
                 // need to query for an existing league first
                 // also need a user email
-                string groupResult = _groupService.JoinGroup("", "");
+                string groupResult = _groupService.JoinGroup(TestConstants.GroupId.ToString(), TestConstants.Email);
 
                 Assert.AreNotEqual(AppConstants.Success, groupResult);
             } else {

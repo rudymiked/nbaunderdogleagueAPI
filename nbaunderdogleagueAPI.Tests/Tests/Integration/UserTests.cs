@@ -23,11 +23,11 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void AddUsers()
+        public void UpserUsers()
         {
             if (_userService != null) {
                 User user = new();
-                User newUser = _userService.AddUser(user);
+                User newUser = _userService.UpserUser(user);
 
                 Assert.AreEqual(newUser.Email, user.Email);
             } else {
@@ -40,7 +40,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_userService != null) {
                 // need to query for a real league ID
-                List<UserEntity> users = _userService.GetUsers("");
+                List<UserEntity> users = _userService.GetUsers(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(0, users.Count);
             } else {

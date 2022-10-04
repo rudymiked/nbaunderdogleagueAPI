@@ -38,20 +38,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             // Is user good to draft?
             if (validation == string.Empty) {
 
-                //perform draft
-                UserEntity userDraftEntity = new() {
-                    PartitionKey = user.Group.ToString(),
-                    RowKey = user.Email,
-                    Email = user.Email,
-                    Group = user.Group,
-                    Team = user.Team,
-                    ETag = ETag.All,
-                    Timestamp = DateTime.Now
-                };
+                User userResult = _userService.UpserUser(user);
 
-                var response = _tableStorageHelper.UpsertEntity(userDraftEntity, AppConstants.UsersTable).Result;
-
-                if (response != null && !response.IsError) {
+                if (string.IsNullOrEmpty(userResult.Team)) {
                     // Successfully Drafted!
                     return new Dictionary<User, string> { { user, AppConstants.Success } };
                 } else {

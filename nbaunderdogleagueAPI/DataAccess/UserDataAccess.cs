@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface IUserDataAccess
     {
         List<UserEntity> GetUsers(string groupId);
-        User AddUser(User user);
+        User UpserUser(User user);
     }
     public class UserDataAccess : IUserDataAccess
     {
@@ -22,7 +22,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
         }
-        public User AddUser(User user)
+        public User UpserUser(User user)
         {
             if (user.Group != Guid.Empty && user.Email != string.Empty) {
                 UserEntity entity = new() {
@@ -31,6 +31,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Email = user.Email,
                     Group = user.Group,
                     ETag = ETag.All,
+                    Team = user.Team,
                     Timestamp = DateTime.Now
                 };
 
