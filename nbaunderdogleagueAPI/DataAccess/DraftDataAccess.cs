@@ -226,9 +226,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<DraftEntity> GetDraft(string groupId)
         {
-            Guid groupGruid;
-
-            if (Guid.TryParse(groupId, out groupGruid)) {
+            if (Guid.TryParse(groupId, out Guid groupGruid)) {
                 string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == groupGruid);
 
                 return _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result.ToList();

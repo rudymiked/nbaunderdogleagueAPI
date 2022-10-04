@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -46,7 +47,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void SetupDraftTest()
         {
             if (_draftService != null) {
-                List<DraftEntity> draftResults = _draftService.SetupDraft("09fa8ea1-1284-4ad8-b6d1-6f1377fdbac7");
+                List<DraftEntity> draftResults = _draftService.SetupDraft(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(string.Empty, draftResults.Count);
             } else {
