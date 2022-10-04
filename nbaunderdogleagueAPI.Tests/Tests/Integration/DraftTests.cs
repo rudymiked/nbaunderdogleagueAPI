@@ -58,7 +58,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftedTeamsTest()
         {
             if (_draftService != null) {
-                List<User> draftResults = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
+                List<UserEntity> draftResults = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
 
                 Assert.AreNotEqual(null, draftResults);
             } else {

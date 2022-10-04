@@ -11,7 +11,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         Dictionary<User, string> DraftTeam(User user);
         List<DraftEntity> SetupDraft(string groupId);
-        List<User> DraftedTeams(string groupId);
+        List<UserEntity> DraftedTeams(string groupId);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -106,11 +106,16 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
         }
 
-        public List<User> DraftedTeams(string groupId)
+        public List<UserEntity> DraftedTeams(string groupId)
         {
+            // query user table for users in this group
+            // might be better placed in UserDataAccess? 
+            // But it is a draft method... leaving here for now
 
+            List<UserEntity> groupUsers = _userService.GetUsers(groupId);
 
-            return new List<User>();
+            // return users who have picked a team
+            return groupUsers.Where(user => !string.IsNullOrEmpty(user.Team)).ToList();
         }
 
         private string ValidateUserCanDraftTeam(User user)

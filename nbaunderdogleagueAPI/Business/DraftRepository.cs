@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Business
     {
         Dictionary<User, string> DraftTeam(User user);
         List<DraftEntity> SetupDraft(string groupId);
-        List<User> DraftedTeams(string groupId);
+        List<UserEntity> DraftedTeams(string groupId);
     }
 
     public class DraftRepository : IDraftRepository
@@ -25,7 +25,7 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _draftDataAccess.SetupDraft(groupId);
         }
-        public List<User> DraftedTeams(string groupId)
+        public List<UserEntity> DraftedTeams(string groupId)
         {
             return _draftDataAccess.DraftedTeams(groupId);
         }
