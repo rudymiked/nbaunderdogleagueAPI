@@ -48,7 +48,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetTeamsEntityTest()
         {
             if (_teamService != null) {
-                List<TeamEntity> teams = _teamService.GetTeamsEntity();
+                List<TeamEntity> teams = _teamService.GetTeams();
 
                 Assert.AreNotEqual(0, teams.Count);
             } else {

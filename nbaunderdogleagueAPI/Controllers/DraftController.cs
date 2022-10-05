@@ -26,9 +26,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("SetupDraft")]
-        public List<DraftEntity> SetupDraft(string id)
+        public List<DraftEntity> SetupDraft(string groupId)
         {
-            return _draftService.SetupDraft(id);
+            return _draftService.SetupDraft(groupId);
         }
 
         [HttpGet("DraftedTeams")]
@@ -41,6 +41,12 @@ namespace nbaunderdogleagueAPI.Controllers
         public List<DraftEntity> GetDraft(string groupId)
         {
             return _draftService.GetDraft(groupId);
+        }
+
+        [HttpGet("GetAvailableTeamsToDraft")]
+        public List<TeamEntity> GetAvailableTeamsToDraft(string groupId)
+        {
+            return _draftService.GetAvailableTeamsToDraft(groupId);
         }
     }
 }

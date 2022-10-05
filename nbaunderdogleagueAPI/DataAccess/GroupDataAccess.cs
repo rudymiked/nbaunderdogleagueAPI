@@ -41,7 +41,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = _teamService.GetCurrentNBAStandingsDictionary();
 
             // 2. Get Projected Data (from storage)
-            List<TeamEntity> teamsEntities = _teamService.GetTeamsEntity();
+            List<TeamEntity> teamsEntities = _teamService.GetTeams();
 
             // 3. Combine 1 and 2
             foreach (TeamEntity team in teamsEntities) {
@@ -244,7 +244,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Group = groupEntity.Id
             };
 
-            User userResult = _userService.UpserUser(owner);
+            User userResult = _userService.UpsertUser(owner);
 
             if (userResult.Email != owner.Email) {
                 _logger.LogError(AppConstants.SomethingWentWrong);

@@ -23,11 +23,11 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void UpserUsers()
+        public void UpsertUsers()
         {
             if (_userService != null) {
                 User user = new();
-                User newUser = _userService.UpserUser(user);
+                User newUser = _userService.UpsertUser(user);
 
                 Assert.AreEqual(newUser.Email, user.Email);
             } else {

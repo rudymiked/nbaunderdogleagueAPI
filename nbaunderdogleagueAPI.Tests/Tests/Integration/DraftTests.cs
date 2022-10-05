@@ -78,5 +78,17 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.Fail();
             }
         }
+
+        [TestMethod]
+        public void GetAvailableTeamsToDraft()
+        {
+            if (_draftService != null) {
+                List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(TestConstants.GroupId.ToString());
+
+                Assert.AreNotEqual(null, availableTeams);
+            } else {
+                Assert.Fail();
+            }
+        }
     }
 }
