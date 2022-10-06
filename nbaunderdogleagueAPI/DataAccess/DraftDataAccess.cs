@@ -102,17 +102,22 @@ namespace nbaunderdogleagueAPI.DataAccess
                     draftID = groupDraft[0].GroupId;
                 } else {
                     _logger.LogError("Groups should only have one draft. Something is wrong");
-                }
-                
+                } 
             }
 
+            DateTime utcNow = DateTime.UtcNow;
+
             for (int i = 0; i < usersInDraft; i++) {
+                int draftStartMinute = _appConfig.DraftWindowMinutes * (shuffledList[i] -1); // "-1" so first starts at minute :00
+
                 draftEntities.Add(new DraftEntity() {
                     PartitionKey = groupId,
                     RowKey = userEntities[i].Email,
                     GroupId = Guid.Parse(groupId),
                     Id = draftID,
                     DraftOrder = shuffledList[i],
+                    UserStartTime = new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0),
+                    UserEndTime = new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0),
                     Email = userEntities[i].Email,
                     ETag = ETag.All,
                     Timestamp = DateTime.Now
@@ -178,7 +183,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // 1. Is it the user's turn?
-            string usersTurnToDraftResult = UsersTurnToDraft(userInDraft.DraftOrder, userDraft, usersInGroup);
+            string usersTurnToDraftResult = UsersTurnToDraft(userInDraft, userDraft, usersInGroup);
 
             if (usersTurnToDraftResult != AppConstants.Success) {
                 // It's not the user's turn
@@ -199,7 +204,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return string.Empty;
         }
 
-        private string UsersTurnToDraft(int order, List<DraftEntity> draft, List<UserEntity> usersInGroup)
+        private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
             DateTime utcNow = DateTime.UtcNow;
             DateTime draftStartTime = new(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0);
@@ -226,17 +231,17 @@ namespace nbaunderdogleagueAPI.DataAccess
             // nextUpToDraftOrder == order <- it's their turn!
 
             // order starts at 1, but we want it to start at 0 for this calculation
-            DateTime userWindowStart = draftStartTime.AddMinutes((order - 1) * _appConfig.DraftWindowMinutes);
-            
+            DateTimeOffset userWindowStart = userDraftData.UserStartTime; // could also use UserStartTime?
+
             // users will have "draftWindowMinutes" time to draft, starting at their time to start.
             // they can draft anytime before this, as long as their order number is up
-            DateTime userTurnOver = userWindowStart.AddMinutes(_appConfig.DraftWindowMinutes);
+            DateTimeOffset userTurnOver = userDraftData.UserEndTime; // could also use UserEndTime?
 
-            if (nextUpToDraftOrder < order) {
+            if (nextUpToDraftOrder < userDraftData.DraftOrder) {
                 return AppConstants.PleaseWaitToDraft;
             }
 
-            if (utcNow > userTurnOver || nextUpToDraftOrder > order) {
+            if (utcNow > userTurnOver || nextUpToDraftOrder > userDraftData.DraftOrder) {
                 return AppConstants.DraftMissedTurn;
             }
 
