@@ -35,9 +35,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     Group = TestConstants.GroupId.ToString()
                 };
 
-                Dictionary<User, string> user = _draftService.DraftTeam(userDrafted);
+                string draftResult = _draftService.DraftTeam(userDrafted);
 
-                Assert.AreNotEqual(string.Empty, user.Keys.First().Team);
+                Assert.AreNotEqual(string.Empty, draftResult);
             } else {
                 Assert.Fail();
             }
