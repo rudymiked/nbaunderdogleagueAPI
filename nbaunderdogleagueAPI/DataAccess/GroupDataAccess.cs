@@ -102,10 +102,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     var userRsponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
 
-                    if (!userRsponse.Any()) {
-                        return new List<GroupEntity>();
-                    }
-
+                    // groups user is in
                     var userGroups = userRsponse.ToList().Select(user => user.Group);
 
                     List<Guid> groupsUserIsNotIn = groupEntities.Select(group => group.Id).Except(userGroups).ToList();
