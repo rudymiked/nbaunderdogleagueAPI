@@ -20,9 +20,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("DraftTeam")]
-        public Dictionary<User, string> DraftTeam(User user)
+        public ActionResult<string> DraftTeam(User user)
         {
-            return _draftService.DraftTeam(user);
+            return Ok(_draftService.DraftTeam(user));
         }
 
         [HttpPost("SetupDraft")]

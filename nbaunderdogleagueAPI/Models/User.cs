@@ -4,6 +4,6 @@ namespace nbaunderdogleagueAPI
     {
         public string Email { get; set; }
         public string Team { get; set; }
-        public Guid Group { get; set; }
+        public string Group { get; set; }
     }
 }

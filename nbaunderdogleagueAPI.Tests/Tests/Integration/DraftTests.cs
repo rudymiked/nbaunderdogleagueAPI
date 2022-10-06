@@ -32,7 +32,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 User userDrafted = new() {
                     Email = "rudymiked@gmail.com",
                     Team = "76ers",
-                    Group = TestConstants.GroupId
+                    Group = TestConstants.GroupId.ToString()
                 };
 
                 Dictionary<User, string> user = _draftService.DraftTeam(userDrafted);

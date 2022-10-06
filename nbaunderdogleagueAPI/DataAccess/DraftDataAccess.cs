@@ -11,7 +11,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IDraftDataAccess
     {
-        Dictionary<User, string> DraftTeam(User user);
+        string DraftTeam(User user);
         List<DraftEntity> SetupDraft(string groupId);
         List<UserEntity> DraftedTeams(string groupId);
         List<DraftEntity> GetDraft(string groupId);
@@ -35,7 +35,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public Dictionary<User, string> DraftTeam(User user)
+        public string DraftTeam(User user)
         {
             string validation = ValidateUserCanDraftTeam(user);
 
@@ -46,15 +46,15 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 if (!string.IsNullOrEmpty(userResult.Team)) {
                     // Successfully Drafted!
-                    return new Dictionary<User, string> { { user, AppConstants.Success } };
+                    return AppConstants.Success;
                 } else {
                     // Something went wrong while drafting
-                    return new Dictionary<User, string> { { user, AppConstants.SomethingWentWrong } };
+                    return AppConstants.SomethingWentWrong;
                 }
 
             } else {
                 // validation failed
-                return new Dictionary<User, string> { { user, validation } }; ;
+                return validation;
             }
         }
 
@@ -172,7 +172,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // need to get the UserEntity, to ensure the team hasn't already been drafted
-            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == user.Group);
+            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId.ToString() == user.Group);
             List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
 
             // is the user in this draft?

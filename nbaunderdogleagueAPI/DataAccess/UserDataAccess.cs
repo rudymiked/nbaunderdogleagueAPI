@@ -24,12 +24,12 @@ namespace nbaunderdogleagueAPI.DataAccess
         }
         public User UpsertUser(User user)
         {
-            if (user.Group != Guid.Empty && user.Email != string.Empty) {
+            if (Guid.Parse(user.Group) != Guid.Empty && user.Email != string.Empty) {
                 UserEntity entity = new() {
                     PartitionKey = user.Group.ToString(),
                     RowKey = user.Email,
                     Email = user.Email,
-                    Group = user.Group,
+                    Group = Guid.Parse(user.Group),
                     ETag = ETag.All,
                     Team = user.Team,
                     Timestamp = DateTime.Now

@@ -238,7 +238,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             User owner = new() {
                 Email = ownerEmail,
                 Team = "",
-                Group = groupEntity.Id
+                Group = groupEntity.Id.ToString()
             };
 
             User userResult = _userService.UpsertUser(owner);
