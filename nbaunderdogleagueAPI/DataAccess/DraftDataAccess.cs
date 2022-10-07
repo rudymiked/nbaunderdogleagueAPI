@@ -106,10 +106,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
             }
 
-            DateTime utcNow = DateTime.UtcNow;
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
             for (int i = 0; i < usersInDraft; i++) {
-                int draftStartMinute = _appConfig.DraftWindowMinutes * (shuffledList[i] - 1); // "-1" so first starts at minute :00
+                int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
 
                 draftEntities.Add(new DraftEntity() {
                     PartitionKey = groupId,
@@ -121,7 +121,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     UserEndTime = new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0),
                     Email = userEntities[i].Email,
                     ETag = ETag.All,
-                    Timestamp = DateTime.Now
+                    Timestamp = utcNow
                 });
             }
 
@@ -182,7 +182,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // need to get the UserEntity, to ensure the team hasn't already been drafted
-            string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId.ToString() == user.Group);
+            string groupFilter = TableClient.CreateQueryFilter<UserEntity>((userEntity) => userEntity.Group == Guid.Parse(user.Group));
             List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
 
             // is the user in this draft?

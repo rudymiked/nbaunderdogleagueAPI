@@ -9,6 +9,7 @@
         public int DraftStartHour { get; set; }
         public int DraftStartDay { get; set; }
         public int DraftStartMonth { get; set; }
+        public int DraftStartMinute { get; set; }
         public int DraftWindowMinutes { get; set; }
         public int MaxGroupsPerOwner { get; set; }
         public int TestDraft { get; set; }
