@@ -99,14 +99,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             Guid draftID = Guid.NewGuid();
 
             if (groupDraft.Any()) {
-                if (groupDraft.Count == 1) {
-                    draftID = groupDraft[0].GroupId;
-                } else {
-                    _logger.LogError("Groups should only have one draft. Something is wrong");
-                }
+                draftID = groupDraft[0].GroupId;
             }
 
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+            _logger.LogInformation("SetupDraft: " + "UTC now: " + utcNow.Hour);
+            _logger.LogInformation("SetupDraft: " + "From config: " + _appConfig.DraftStartHour);
 
             for (int i = 0; i < usersInDraft; i++) {
                 int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
@@ -216,8 +214,11 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
-            DateTimeOffset utcNow = DateTime.UtcNow;
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
             DateTimeOffset draftStartTime = new DateTimeOffset(new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0), utcNow.Offset);
+
+            _logger.LogInformation("UsersTurnToDraft : draft start time: " + draftStartTime.ToString());
+            _logger.LogInformation("UsersTurnToDraft : draft start local time: " + draftStartTime.ToLocalTime());
 
             // draft has not begun
             if (draftStartTime > utcNow) {
@@ -230,27 +231,21 @@ namespace nbaunderdogleagueAPI.DataAccess
             int nextUpToDraftOrder = usersInGroup.Count;
 
             // need to collect the lowest draft order of a user that has an empty/null team value
-
             foreach (UserEntity user in usersHaventDrafted) {
                 int userOrder = draft.Where(draft => draft.Email == user.Email).FirstOrDefault().DraftOrder;
                 nextUpToDraftOrder = Math.Min(nextUpToDraftOrder, userOrder);
             }
 
-            // "userWindowStart" is the beginning of the user's draft window
-            // however, they should be able to draft as soon as the user in front of them is done drafting.
-            // nextUpToDraftOrder == order <- it's their turn!
-
-            // order starts at 1, but we want it to start at 0 for this calculation
             DateTimeOffset userWindowStart = userDraftData.UserStartTime; // could also use UserStartTime?
-
-            // users will have "draftWindowMinutes" time to draft, starting at their time to start.
-            // they can draft anytime before this, as long as their order number is up
             DateTimeOffset userTurnOver = userDraftData.UserEndTime; // could also use UserEndTime?
 
             if (nextUpToDraftOrder < userDraftData.DraftOrder) {
+                _logger.LogInformation("UsersTurnToDraft: " + AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime());
+                _logger.LogInformation("UsersTurnToDraft : " + AppConstants.PleaseWaitToDraft + " until (utc) " + userWindowStart.ToUniversalTime() + " current time (utc): " + utcNow.ToUniversalTime());
                 return AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime();
             }
 
+            // user missed their turn
             if (utcNow > userTurnOver || nextUpToDraftOrder > userDraftData.DraftOrder) {
                 return AppConstants.DraftMissedTurn;
             }
@@ -265,6 +260,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 return _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result.ToList();
             } else {
+                _logger.LogError("Group Id: " + groupId + " is not valid.");
                 return new List<DraftEntity>();
             }
         }
