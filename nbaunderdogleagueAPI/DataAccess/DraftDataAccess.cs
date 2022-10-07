@@ -115,8 +115,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                     GroupId = Guid.Parse(groupId),
                     Id = draftID,
                     DraftOrder = shuffledList[i],
-                    UserStartTime = new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0),
-                    UserEndTime = new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0),
+                    UserStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0, utcNow.Offset),
+                    UserEndTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0, utcNow.Offset),
                     Email = userEntities[i].Email,
                     ETag = ETag.All,
                     Timestamp = utcNow
@@ -215,7 +215,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-            DateTimeOffset draftStartTime = new DateTimeOffset(new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0), utcNow.Offset);
+            DateTimeOffset draftStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0, utcNow.Offset);
 
             _logger.LogInformation("UsersTurnToDraft : draft start time: " + draftStartTime.ToString());
             _logger.LogInformation("UsersTurnToDraft : draft start local time: " + draftStartTime.ToLocalTime());
@@ -236,8 +236,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                 nextUpToDraftOrder = Math.Min(nextUpToDraftOrder, userOrder);
             }
 
-            DateTimeOffset userWindowStart = userDraftData.UserStartTime; // could also use UserStartTime?
-            DateTimeOffset userTurnOver = userDraftData.UserEndTime; // could also use UserEndTime?
+            DateTimeOffset userWindowStart = userDraftData.UserStartTime;
+            DateTimeOffset userTurnOver = userDraftData.UserEndTime;
 
             if (nextUpToDraftOrder < userDraftData.DraftOrder) {
                 _logger.LogInformation("UsersTurnToDraft: " + AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime());
