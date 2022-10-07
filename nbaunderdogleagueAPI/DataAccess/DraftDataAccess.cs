@@ -216,12 +216,12 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
-            DateTime utcNow = DateTime.UtcNow;
-            DateTime draftStartTime = new(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0);
+            DateTimeOffset utcNow = DateTime.UtcNow;
+            DateTimeOffset draftStartTime = new DateTimeOffset(new DateTime(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0), utcNow.Offset);
 
             // draft has not begun
             if (draftStartTime > utcNow) {
-                return AppConstants.DraftNotStarted;
+                return AppConstants.DraftNotStarted + " draft starts: " + draftStartTime.ToLocalTime();
             }
 
             // current draft order value
@@ -248,7 +248,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             DateTimeOffset userTurnOver = userDraftData.UserEndTime; // could also use UserEndTime?
 
             if (nextUpToDraftOrder < userDraftData.DraftOrder) {
-                return AppConstants.PleaseWaitToDraft;
+                return AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime();
             }
 
             if (utcNow > userTurnOver || nextUpToDraftOrder > userDraftData.DraftOrder) {

@@ -29,13 +29,13 @@
         public static readonly string UsersCouldNotBeUpdated = "Could not update user information group: ";
 
         // Draft 
-        public static readonly string DraftNotStarted = "Draft has not started";
-        public static readonly string DraftMissedTurn = "You missed your turn to draft";
-        public static readonly string PleaseWaitToDraft = "It's not your turn to draft, please wait until: ";
-        public static readonly string UserNotInDraft = "Could not find user in draft";
-        public static readonly string EmptyDraft = "Draft is empty";
+        public static readonly string DraftNotStarted = "Draft has not started.";
+        public static readonly string DraftMissedTurn = "You missed your turn to draft.";
+        public static readonly string PleaseWaitToDraft = "It's not your turn to draft, please wait.";
+        public static readonly string UserNotInDraft = "Could not find user in draft.";
+        public static readonly string EmptyDraft = "Draft is empty.";
         public static readonly string MultipleUser = "Multiple instance of a user in group.";
-        public static readonly string UserAlreadyDrafted = "User already drafted";
+        public static readonly string UserAlreadyDrafted = "User already drafted.";
         public static readonly string TeamAlreadyDrafted = "Team has already been drafted by: ";
 
         // Ints
