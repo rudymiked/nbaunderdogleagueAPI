@@ -248,7 +248,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             DateTimeOffset userTurnOver = userDraftData.UserEndTime; // could also use UserEndTime?
 
             if (nextUpToDraftOrder < userDraftData.DraftOrder) {
-                return AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime();
+                return AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime();
             }
 
             if (utcNow > userTurnOver || nextUpToDraftOrder > userDraftData.DraftOrder) {
