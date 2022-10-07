@@ -26,7 +26,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly ITeamService _teamService;
         private readonly IGroupService _groupService;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public DraftDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITeamService teamService, IGroupService groupService, ITableStorageHelper tableStorageHelper)
+        public DraftDataAccess(IOptions<AppConfig> options, ILogger<DraftDataAccess> logger, IUserService userService, ITeamService teamService, IGroupService groupService, ITableStorageHelper tableStorageHelper)
         {
             _appConfig = options.Value;
             _logger = logger;
