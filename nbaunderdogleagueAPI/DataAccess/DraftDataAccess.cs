@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Linq;
 using System.Text.RegularExpressions;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
@@ -94,7 +95,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // if it does, this method should just re-shuffle the order and pick up new members
 
             List<DraftEntity> groupDraft = GetDraft(groupId);
-            
+
             Guid draftID = Guid.NewGuid();
 
             if (groupDraft.Any()) {
@@ -102,13 +103,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                     draftID = groupDraft[0].GroupId;
                 } else {
                     _logger.LogError("Groups should only have one draft. Something is wrong");
-                } 
+                }
             }
 
             DateTime utcNow = DateTime.UtcNow;
 
             for (int i = 0; i < usersInDraft; i++) {
-                int draftStartMinute = _appConfig.DraftWindowMinutes * (shuffledList[i] -1); // "-1" so first starts at minute :00
+                int draftStartMinute = _appConfig.DraftWindowMinutes * (shuffledList[i] - 1); // "-1" so first starts at minute :00
 
                 draftEntities.Add(new DraftEntity() {
                     PartitionKey = groupId,
@@ -124,9 +125,18 @@ namespace nbaunderdogleagueAPI.DataAccess
                 });
             }
 
-            var response = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
+            // if users have already drafted, remove their picks
+            userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
 
-            return (response != null && !response.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
+            var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
+
+            if (userResponse == null) {
+                _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
+            }
+
+            var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
+
+            return (draftResponse != null && !draftResponse.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
         }
 
         public List<UserEntity> DraftedTeams(string groupId)

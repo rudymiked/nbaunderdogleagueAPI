@@ -25,6 +25,9 @@
         public static readonly string UserAlreadyInGroup = "User already in group: ";
         public static readonly string JoinGroupError = "Something went wrong joining group: ";
 
+        // User 
+        public static readonly string UsersCouldNotBeUpdated = "Could not update user information group: ";
+
         // Draft 
         public static readonly string DraftNotStarted = "Draft has not started";
         public static readonly string DraftMissedTurn = "You missed your turn to draft";
