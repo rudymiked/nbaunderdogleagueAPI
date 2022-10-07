@@ -203,7 +203,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // 3. someone already drafted this team
-            UserEntity draftedUser = usersInGroup.Where(usersInGroup => usersInGroup.Team == user.Team).First();
+            UserEntity draftedUser = usersInGroup.Where(usersInGroup => usersInGroup.Team == user.Team).FirstOrDefault();
 
             if (draftedUser != null) {
                 return AppConstants.TeamAlreadyDrafted + draftedUser.Email;
