@@ -217,9 +217,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
             DateTimeOffset draftStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0, utcNow.Offset);
 
-            _logger.LogInformation("UsersTurnToDraft : draft start time: " + draftStartTime.ToString());
-            _logger.LogInformation("UsersTurnToDraft : draft start local time: " + draftStartTime.ToLocalTime());
-
             // draft has not begun
             if (draftStartTime > utcNow) {
                 return AppConstants.DraftNotStarted + " draft starts: " + draftStartTime.ToLocalTime();
@@ -239,15 +236,14 @@ namespace nbaunderdogleagueAPI.DataAccess
             DateTimeOffset userWindowStart = userDraftData.UserStartTime;
             DateTimeOffset userTurnOver = userDraftData.UserEndTime;
 
-            if (nextUpToDraftOrder < userDraftData.DraftOrder) {
-                _logger.LogInformation("UsersTurnToDraft: " + AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime());
-                _logger.LogInformation("UsersTurnToDraft : " + AppConstants.PleaseWaitToDraft + " until (utc) " + userWindowStart.ToUniversalTime() + " current time (utc): " + utcNow.ToUniversalTime());
-                return AppConstants.PleaseWaitToDraft + " until " + userWindowStart.ToLocalTime() + " current time: " + utcNow.ToLocalTime();
+            // user missed their turn
+            if (utcNow > userTurnOver) {
+                return AppConstants.DraftMissedTurn;
             }
 
-            // user missed their turn
-            if (utcNow > userTurnOver || nextUpToDraftOrder > userDraftData.DraftOrder) {
-                return AppConstants.DraftMissedTurn;
+            // it's possible that players drafted early
+            if (nextUpToDraftOrder < userDraftData.DraftOrder) {
+                return AppConstants.PleaseWaitToDraft;
             }
 
             return AppConstants.Success;
