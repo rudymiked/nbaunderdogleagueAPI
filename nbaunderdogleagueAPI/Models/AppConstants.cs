@@ -24,6 +24,7 @@
         public static readonly string GroupNoUsersFound = "No users found in group: ";
         public static readonly string UserAlreadyInGroup = "User already in group: ";
         public static readonly string JoinGroupError = "Something went wrong joining group: ";
+        public static readonly string UserNotFound = "User not found.";
 
         // User 
         public static readonly string UsersCouldNotBeUpdated = "Could not update user information group: ";

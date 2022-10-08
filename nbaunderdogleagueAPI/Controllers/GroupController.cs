@@ -31,20 +31,20 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("CreateGroup")]
-        public ActionResult<GroupEntity> CreateGroup(string name, string ownerEmail)
+        public ActionResult<GroupEntity> CreateGroup(CreateGroupRequest createGroupRequest)
         {
-            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(ownerEmail)) {
-                return Ok(_groupService.CreateGroup(name, ownerEmail));
+            if (!string.IsNullOrEmpty(createGroupRequest.Name) && !string.IsNullOrEmpty(createGroupRequest.OwnerEmail)) {
+                return Ok(_groupService.CreateGroup(createGroupRequest.Name, createGroupRequest.OwnerEmail));
             } else {
                 return NoContent();
             }
         }
 
         [HttpPost("JoinGroup")]
-        public ActionResult<string> JoinGroup(string groupId, string email)
+        public ActionResult<string> JoinGroup(JoinGroupRequest joinGroupRequest)
         {
-            if (!string.IsNullOrEmpty(groupId) && !string.IsNullOrEmpty(email)) {
-                return Ok(_groupService.JoinGroup(groupId, email));
+            if (!string.IsNullOrEmpty(joinGroupRequest.GroupId) && !string.IsNullOrEmpty(joinGroupRequest.Email)) {
+                return Ok(_groupService.JoinGroup(joinGroupRequest.GroupId, joinGroupRequest.Email));
             } else {
                 return NoContent();
             }

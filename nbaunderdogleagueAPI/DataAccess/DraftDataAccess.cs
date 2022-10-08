@@ -186,15 +186,20 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.EmptyDraft;
             }
 
-            // need to get the UserEntity, to ensure the team hasn't already been drafted
-            string groupFilter = TableClient.CreateQueryFilter<UserEntity>((userEntity) => userEntity.Group == Guid.Parse(user.Group));
-            List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
-
             // is the user in this draft?
             DraftEntity userInDraft = userDraft.Where(draft => draft.Email == user.Email).First();
 
             if (userInDraft == null) {
                 return AppConstants.UserNotInDraft;
+            }
+
+            // need to get the UserEntity, to ensure the team hasn't already been drafted
+            string groupFilter = TableClient.CreateQueryFilter<UserEntity>((userEntity) => userEntity.Group == Guid.Parse(user.Group));
+            List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
+
+            // No Users in group
+            if (usersInGroup.Count == 0) {
+                return AppConstants.GroupNoUsersFound + user.Group;
             }
 
             // 1. Is it the user's turn?
@@ -205,9 +210,17 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return usersTurnToDraftResult;
             }
 
-            if (usersInGroup.Count == 0) {
-                return AppConstants.GroupNoUsersFound + user.Group;
+            // 2. Has the user already drafted?
+            UserEntity userEntity = usersInGroup.Where((userRow) => userRow.Email == user.Email).FirstOrDefault();
+
+            if (userEntity != null) {
+                if (!string.IsNullOrEmpty(userEntity.Team)) {
+                    return AppConstants.UserAlreadyDrafted + " " + userEntity.Team;
+                }
+            } else {
+                return AppConstants.UserNotFound;
             }
+
 
             // 3. someone already drafted this team
             UserEntity draftedUser = usersInGroup.Where(usersInGroup => usersInGroup.Team == user.Team).FirstOrDefault();
@@ -227,7 +240,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 // draft has not begun
                 if (draftStartTime > utcNow) {
-                    return AppConstants.DraftNotStarted + " draft starts: " + draftStartTime.ToLocalTime();
+                    return AppConstants.DraftNotStarted;
                 }
 
                 // current draft order value
