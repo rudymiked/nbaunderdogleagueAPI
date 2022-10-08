@@ -61,80 +61,87 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<DraftEntity> SetupDraft(string groupId)
         {
-            // 1. query group, if it doesn't exist, return empty list
-            GroupEntity groupEntity = _groupService.GetGroup(groupId);
+            try {
+                // 1. query group, if it doesn't exist, return empty list
+                GroupEntity groupEntity = _groupService.GetGroup(groupId);
 
-            if (groupEntity.Id.ToString() == string.Empty) {
-                // No group Found
-                _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
-                return new List<DraftEntity>();
+                if (groupEntity.Id.ToString() == string.Empty) {
+                    // No group Found
+                    _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
+                    return new List<DraftEntity>();
+                }
+
+                // 2. get all users from group
+
+                List<UserEntity> userEntities = _userService.GetUsers(groupId);
+
+                if (!userEntities.Any()) {
+                    // no users found in group
+                    // should be at least 1 (owner)
+                    _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
+
+                    return new List<DraftEntity>();
+                }
+
+                // 3. set in random draft order
+
+                int usersInDraft = userEntities.Count;
+                Random rnd = new();
+
+                var shuffledList = Enumerable.Range(1, usersInDraft).OrderBy(a => rnd.Next()).ToList();
+
+                List<DraftEntity> draftEntities = new();
+
+                // need to ensure that draft for this group doesn't already exist
+                // if it does, this method should just re-shuffle the order and pick up new members
+
+                List<DraftEntity> groupDraft = GetDraft(groupId);
+
+                Guid draftID = Guid.NewGuid();
+
+                if (groupDraft.Any()) {
+                    draftID = groupDraft[0].GroupId;
+                }
+
+                DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+                _logger.LogInformation("SetupDraft: " + "UTC now: " + utcNow.Hour);
+                _logger.LogInformation("SetupDraft: " + "From config: " + _appConfig.DraftStartHour);
+
+                for (int i = 0; i < usersInDraft; i++) {
+                    int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
+
+                    draftEntities.Add(new DraftEntity() {
+                        PartitionKey = groupId,
+                        RowKey = userEntities[i].Email,
+                        GroupId = Guid.Parse(groupId),
+                        Id = draftID,
+                        DraftOrder = shuffledList[i],
+                        UserStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0, utcNow.Offset),
+                        UserEndTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0, utcNow.Offset),
+                        Email = userEntities[i].Email,
+                        ETag = ETag.All,
+                        Timestamp = utcNow
+                    });
+                }
+
+                // if users have already drafted, remove their picks
+                userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
+
+                var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
+
+                if (userResponse == null) {
+                    _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
+                }
+
+                var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
+
+                return (draftResponse != null && !draftResponse.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
+            } 
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
             }
 
-            // 2. get all users from group
-
-            List<UserEntity> userEntities = _userService.GetUsers(groupId);
-
-            if (!userEntities.Any()) {
-                // no users found in group
-                // should be at least 1 (owner)
-                _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
-
-                return new List<DraftEntity>();
-            }
-
-            // 3. set in random draft order
-
-            int usersInDraft = userEntities.Count;
-            Random rnd = new();
-
-            var shuffledList = Enumerable.Range(1, usersInDraft).OrderBy(a => rnd.Next()).ToList();
-
-            List<DraftEntity> draftEntities = new();
-
-            // need to ensure that draft for this group doesn't already exist
-            // if it does, this method should just re-shuffle the order and pick up new members
-
-            List<DraftEntity> groupDraft = GetDraft(groupId);
-
-            Guid draftID = Guid.NewGuid();
-
-            if (groupDraft.Any()) {
-                draftID = groupDraft[0].GroupId;
-            }
-
-            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-            _logger.LogInformation("SetupDraft: " + "UTC now: " + utcNow.Hour);
-            _logger.LogInformation("SetupDraft: " + "From config: " + _appConfig.DraftStartHour);
-
-            for (int i = 0; i < usersInDraft; i++) {
-                int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
-
-                draftEntities.Add(new DraftEntity() {
-                    PartitionKey = groupId,
-                    RowKey = userEntities[i].Email,
-                    GroupId = Guid.Parse(groupId),
-                    Id = draftID,
-                    DraftOrder = shuffledList[i],
-                    UserStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0, utcNow.Offset),
-                    UserEndTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0, utcNow.Offset),
-                    Email = userEntities[i].Email,
-                    ETag = ETag.All,
-                    Timestamp = utcNow
-                });
-            }
-
-            // if users have already drafted, remove their picks
-            userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
-
-            var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
-
-            if (userResponse == null) {
-                _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
-            }
-
-            var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
-
-            return (draftResponse != null && !draftResponse.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
+            return new List<DraftEntity>();
         }
 
         public List<UserEntity> DraftedTeams(string groupId)
@@ -214,39 +221,46 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
-            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-            DateTimeOffset draftStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0, utcNow.Offset);
+            try {
+                DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+                DateTimeOffset draftStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0, utcNow.Offset);
 
-            // draft has not begun
-            if (draftStartTime > utcNow) {
-                return AppConstants.DraftNotStarted + " draft starts: " + draftStartTime.ToLocalTime();
+                // draft has not begun
+                if (draftStartTime > utcNow) {
+                    return AppConstants.DraftNotStarted + " draft starts: " + draftStartTime.ToLocalTime();
+                }
+
+                // current draft order value
+                List<UserEntity> usersHaventDrafted = usersInGroup.Where(user => string.IsNullOrEmpty(user.Team)).ToList();
+
+                int nextUpToDraftOrder = usersInGroup.Count;
+
+                // need to collect the lowest draft order of a user that has an empty/null team value
+                foreach (UserEntity user in usersHaventDrafted) {
+                    int userOrder = draft.Where(draft => draft.Email == user.Email).FirstOrDefault().DraftOrder;
+                    nextUpToDraftOrder = Math.Min(nextUpToDraftOrder, userOrder);
+                }
+
+                DateTimeOffset userWindowStart = userDraftData.UserStartTime;
+                DateTimeOffset userTurnOver = userDraftData.UserEndTime;
+
+                // user missed their turn
+                if (utcNow > userTurnOver) {
+                    return AppConstants.DraftMissedTurn;
+                }
+
+                // it's possible that players drafted early
+                if (nextUpToDraftOrder < userDraftData.DraftOrder) {
+                    return AppConstants.PleaseWaitToDraft;
+                }
+
+                return AppConstants.Success;
+            } 
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
             }
 
-            // current draft order value
-            List<UserEntity> usersHaventDrafted = usersInGroup.Where(user => string.IsNullOrEmpty(user.Team)).ToList();
-
-            int nextUpToDraftOrder = usersInGroup.Count;
-
-            // need to collect the lowest draft order of a user that has an empty/null team value
-            foreach (UserEntity user in usersHaventDrafted) {
-                int userOrder = draft.Where(draft => draft.Email == user.Email).FirstOrDefault().DraftOrder;
-                nextUpToDraftOrder = Math.Min(nextUpToDraftOrder, userOrder);
-            }
-
-            DateTimeOffset userWindowStart = userDraftData.UserStartTime;
-            DateTimeOffset userTurnOver = userDraftData.UserEndTime;
-
-            // user missed their turn
-            if (utcNow > userTurnOver) {
-                return AppConstants.DraftMissedTurn;
-            }
-
-            // it's possible that players drafted early
-            if (nextUpToDraftOrder < userDraftData.DraftOrder) {
-                return AppConstants.PleaseWaitToDraft;
-            }
-
-            return AppConstants.Success;
+            return AppConstants.SomethingWentWrong;
         }
 
         public List<DraftEntity> GetDraft(string groupId)
