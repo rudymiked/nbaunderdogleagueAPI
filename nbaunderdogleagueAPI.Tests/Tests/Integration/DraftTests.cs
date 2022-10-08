@@ -47,7 +47,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void SetupDraftTest()
         {
             if (_draftService != null) {
-                List<DraftEntity> draftResults = _draftService.SetupDraft(TestConstants.GroupId.ToString());
+
+                DateTime draftStartDate = new DateTime();
+
+                SetupDraftRequest setupDraftRequest = new() {
+                    GroupId = TestConstants.GroupId.ToString(),
+                    Email = TestConstants.Email,
+                    ClearTeams = true,
+                    DraftStartDateTime = draftStartDate,
+                    DraftWindow = 5
+                };
+
+                List<DraftEntity> draftResults = _draftService.SetupDraft(setupDraftRequest);
 
                 Assert.AreNotEqual(0, draftResults.Count);
             } else {

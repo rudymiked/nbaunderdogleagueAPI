@@ -13,7 +13,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     public interface IDraftDataAccess
     {
         string DraftTeam(User user);
-        List<DraftEntity> SetupDraft(string groupId);
+        List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest);
         List<UserEntity> DraftedTeams(string groupId);
         List<DraftEntity> GetDraft(string groupId);
         List<TeamEntity> GetAvailableTeamsToDraft(string groupId);
@@ -59,15 +59,32 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
         }
 
-        public List<DraftEntity> SetupDraft(string groupId)
+        public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
             try {
+                string groupId = setupDraftRequest.GroupId;
+                string ownerEmail = setupDraftRequest.Email;
+                bool clearTeams = setupDraftRequest.ClearTeams;
+
+                int draftStartYear = setupDraftRequest.DraftStartDateTime.Year;
+                int draftStartMonth = setupDraftRequest.DraftStartDateTime.Month;
+                int draftStartDay = setupDraftRequest.DraftStartDateTime.Day;
+                int draftStartHour = setupDraftRequest.DraftStartDateTime.Hour;
+                int draftStartMinute = setupDraftRequest.DraftStartDateTime.Minute;
+                int draftWindow = setupDraftRequest.DraftWindow;
+
                 // 1. query group, if it doesn't exist, return empty list
                 GroupEntity groupEntity = _groupService.GetGroup(groupId);
 
                 if (groupEntity.Id.ToString() == string.Empty) {
                     // No group Found
                     _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
+                    return new List<DraftEntity>();
+                }
+
+                if (groupEntity.Owner != ownerEmail) {
+                    // User does not own this group
+                    _logger.LogError(AppConstants.NotOwner + " : " + groupId);
                     return new List<DraftEntity>();
                 }
 
@@ -105,13 +122,13 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
-                DateTimeOffset draftStart = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0, utcNow.Offset);
+                DateTimeOffset draftStart = new DateTimeOffset(draftStartYear, draftStartMonth, draftStartDay, draftStartHour, 0, 0, utcNow.Offset);
 
                 for (int i = 0; i < usersInDraft; i++) {
-                    int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
+                    int userStartMinute = draftStartMinute + (draftWindow * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
 
-                    DateTimeOffset userDraftStart = draftStart.AddMinutes(draftStartMinute);
-                    DateTimeOffset userDraftEnd = userDraftStart.AddMinutes(_appConfig.DraftWindowMinutes);
+                    DateTimeOffset userDraftStart = draftStart.AddMinutes(userStartMinute);
+                    DateTimeOffset userDraftEnd = userDraftStart.AddMinutes(draftWindow);
 
                     draftEntities.Add(new DraftEntity() {
                         PartitionKey = groupId,
@@ -127,13 +144,15 @@ namespace nbaunderdogleagueAPI.DataAccess
                     });
                 }
 
-                // if users have already drafted, remove their picks
-                userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
+                if (clearTeams) {
+                    // if users have already drafted, remove their picks
+                    userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
 
-                var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
+                    var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
 
-                if (userResponse == null) {
-                    _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
+                    if (userResponse == null) {
+                        _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
+                    }
                 }
 
                 var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
@@ -238,8 +257,21 @@ namespace nbaunderdogleagueAPI.DataAccess
         private string UsersTurnToDraft(DraftEntity userDraftData, List<DraftEntity> draft, List<UserEntity> usersInGroup)
         {
             try {
+
+                // collect draft start and end time
+                DateTimeOffset draftStartDateTime = draft.OrderBy(draftEntity => draftEntity.UserStartTime).FirstOrDefault().UserStartTime;
+                DateTimeOffset draftEndDateTime = draft.OrderByDescending(draftEntity => draftEntity.UserStartTime).FirstOrDefault().UserEndTime;
+
+
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-                DateTimeOffset draftStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, _appConfig.DraftStartMinute, 0, utcNow.Offset);
+                DateTimeOffset draftStartTime = new DateTimeOffset(
+                                                    draftStartDateTime.Year, 
+                                                    draftStartDateTime.Month, 
+                                                    draftStartDateTime.Day, 
+                                                    draftStartDateTime.Hour,
+                                                    draftStartDateTime.Minute, 
+                                                    0, 
+                                                    utcNow.Offset);
 
                 // draft has not begun
                 if (draftStartTime > utcNow) {

@@ -26,9 +26,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("SetupDraft")]
-        public List<DraftEntity> SetupDraft(string groupId)
+        public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
-            return _draftService.SetupDraft(groupId);
+            return _draftService.SetupDraft(setupDraftRequest);
         }
 
         [HttpGet("DraftedTeams")]

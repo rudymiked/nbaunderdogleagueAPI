@@ -43,7 +43,10 @@ namespace nbaunderdogleagueAPI.DataAccess
             // 2. Get Projected Data (from storage)
             List<TeamEntity> teamsEntities = _teamService.GetTeams();
 
-            // 3. Combine 1 and 2
+            // 3. Get Users and their teams
+            List<UserEntity> userEntities = _userService.GetUsers(groupId);
+
+            // 4. Combine 1, 2, and 3
             foreach (TeamEntity team in teamsEntities) {
                 CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
 
@@ -58,17 +61,21 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 string playoffs = currentNBAStanding.Playoffs; // PreseasonPlayoffs(currentNBAStanding.Playoffs);
 
-                standings.Add(new GroupStandings() {
-                    Governor = "", // Could add user here or in UI
-                    TeamName = team.Name,
-                    TeamCity = team.City,
-                    ProjectedWin = projectedWin,
-                    ProjectedLoss = projectedLoss,
-                    Win = win,
-                    Loss = loss,
-                    Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
-                    Playoffs = playoffs
-                });
+                UserEntity userEntity = userEntities.Where((gov) => gov.Team == team.Name).FirstOrDefault();
+
+                if (userEntity != null) {
+                    standings.Add(new GroupStandings() {
+                        Governor = userEntity.Email,
+                        TeamName = team.Name,
+                        TeamCity = team.City,
+                        ProjectedWin = projectedWin,
+                        ProjectedLoss = projectedLoss,
+                        Win = win,
+                        Loss = loss,
+                        Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
+                        Playoffs = playoffs
+                    });
+                }
             }
 
             return standings.OrderByDescending(group => group.Score).ToList();

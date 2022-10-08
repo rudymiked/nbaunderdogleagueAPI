@@ -6,7 +6,7 @@ namespace nbaunderdogleagueAPI.Services
     public interface IDraftService
     {
         string DraftTeam(User user);
-        List<DraftEntity> SetupDraft(string groupId);
+        List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest);
         List<UserEntity> DraftedTeams(string groupId);
         List<DraftEntity> GetDraft(string groupId);
         List<TeamEntity> GetAvailableTeamsToDraft(string groupId);
@@ -22,9 +22,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _draftRepository.DraftTeam(user);
         }
-        public List<DraftEntity> SetupDraft(string groupId)
+        public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
-            return _draftRepository.SetupDraft(groupId);
+            return _draftRepository.SetupDraft(setupDraftRequest);
         }
         public List<UserEntity> DraftedTeams(string groupId)
         {
