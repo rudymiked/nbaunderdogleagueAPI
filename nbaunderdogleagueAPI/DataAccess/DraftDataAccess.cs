@@ -104,11 +104,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-                _logger.LogInformation("SetupDraft: " + "UTC now: " + utcNow.Hour);
-                _logger.LogInformation("SetupDraft: " + "From config: " + _appConfig.DraftStartHour);
+
+                DateTimeOffset draftStart = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, 0, 0, utcNow.Offset);
 
                 for (int i = 0; i < usersInDraft; i++) {
                     int draftStartMinute = _appConfig.DraftStartMinute + (_appConfig.DraftWindowMinutes * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
+
+                    DateTimeOffset userDraftStart = draftStart.AddMinutes(draftStartMinute);
+                    DateTimeOffset userDraftEnd = userDraftStart.AddMinutes(_appConfig.DraftWindowMinutes);
 
                     draftEntities.Add(new DraftEntity() {
                         PartitionKey = groupId,
@@ -116,8 +119,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                         GroupId = Guid.Parse(groupId),
                         Id = draftID,
                         DraftOrder = shuffledList[i],
-                        UserStartTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute, 0, utcNow.Offset),
-                        UserEndTime = new DateTimeOffset(utcNow.Year, _appConfig.DraftStartMonth, _appConfig.DraftStartDay, _appConfig.DraftStartHour, draftStartMinute + _appConfig.DraftWindowMinutes, 0, utcNow.Offset),
+                        UserStartTime = userDraftStart,
+                        UserEndTime = userDraftEnd,
                         Email = userEntities[i].Email,
                         ETag = ETag.All,
                         Timestamp = utcNow

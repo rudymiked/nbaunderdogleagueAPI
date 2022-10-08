@@ -49,7 +49,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_draftService != null) {
                 List<DraftEntity> draftResults = _draftService.SetupDraft(TestConstants.GroupId.ToString());
 
-                Assert.AreNotEqual(string.Empty, draftResults.Count);
+                Assert.AreNotEqual(0, draftResults.Count);
             } else {
                 Assert.Fail();
             }
