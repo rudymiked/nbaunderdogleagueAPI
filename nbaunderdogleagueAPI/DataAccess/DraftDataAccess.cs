@@ -82,8 +82,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                     return new List<DraftEntity>();
                 }
 
-                if (groupEntity.Owner != ownerEmail) {
+                if (groupEntity.Owner != ownerEmail && ownerEmail != AppConstants.AdminEmail) {
                     // User does not own this group
+                    // User is not admin
                     _logger.LogError(AppConstants.NotOwner + " : " + groupId);
                     return new List<DraftEntity>();
                 }
