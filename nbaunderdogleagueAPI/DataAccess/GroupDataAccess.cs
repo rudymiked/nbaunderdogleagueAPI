@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -15,7 +16,9 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
-        string JoinGroup(string id, string email);
+        string JoinGroup(JoinGroupRequest joinGroupRequest);
+
+        string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
     }
     public class GroupDataAccess : IGroupDataAccess
     {
@@ -155,8 +158,10 @@ namespace nbaunderdogleagueAPI.DataAccess
             return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
-        public string JoinGroup(string groupId, string email)
+        public string JoinGroup(JoinGroupRequest joinGroupRequest)
         {
+            string groupId = joinGroupRequest.GroupId;
+            string email = joinGroupRequest.Email;
             // 1. query group, if it doesn't exist, return empty list
 
             GroupEntity groupEntity = GetGroup(groupId);
@@ -167,7 +172,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.GroupNotFound + " : " + groupId;
             }
 
-            // 2. get all users from group, see if user doesn't already exist
+            // 2. get all users from group, see if user exists
 
             List<UserEntity> userEntities = _userService.GetUsers(groupEntity.Id.ToString());
 
@@ -200,6 +205,54 @@ namespace nbaunderdogleagueAPI.DataAccess
             var response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
 
             return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + email + " group: " + groupId;
+        }
+
+        public string LeaveGroup(LeaveGroupRequest leaveGroupRequest)
+        {
+            string groupId = leaveGroupRequest.GroupId;
+            string email = leaveGroupRequest.Email;
+
+            // 1. query group, if it doesn't exist, return empty list
+
+            GroupEntity groupEntity = GetGroup(groupId);
+
+            if (groupEntity.Id.ToString() == string.Empty) {
+                // No group Found
+                _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
+                return AppConstants.GroupNotFound + " : " + groupId;
+            }
+
+            // 2. get all users from group, see if user exists
+
+            List<UserEntity> userEntities = _userService.GetUsers(groupEntity.Id.ToString());
+
+            if (!userEntities.Any()) {
+                // no users found in group
+                // should be at least 1 (owner)
+                _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
+
+                return AppConstants.GroupNoUsersFound + groupId;
+            }
+
+            UserEntity userInGroup = userEntities.Where(user => user.Email == email && user.Group.ToString() == groupId).FirstOrDefault();
+
+            string filter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.Email == email && draft.GroupId.ToString() == groupId);
+
+            DraftEntity userInDraft = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, filter).Result.FirstOrDefault();
+
+            if (userInGroup == null) {
+                return AppConstants.SomethingWentWrong;
+            }
+
+            // delete user from group 
+
+            var userDeleteResponse = _tableStorageHelper.DeleteEntity(userInGroup, AppConstants.UsersTable).Result;
+
+            // delete user from group's draft
+
+            var draftDeleteResponse = _tableStorageHelper.DeleteEntity(userInDraft, AppConstants.DraftTable).Result;
+
+            return (userDeleteResponse != null && !userDeleteResponse.IsError) ? AppConstants.Success : AppConstants.LeaveGroupError + "email: " + email + " group: " + groupId;
         }
 
         public GroupEntity CreateGroup(string name, string ownerEmail)

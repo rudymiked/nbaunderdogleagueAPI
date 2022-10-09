@@ -10,6 +10,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
         Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
+        Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new();
     }
 
     public class TableStorageHelper : ITableStorageHelper
@@ -20,6 +21,20 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         {
             _appConfig = options.Value;
             _logger = logger;
+        }
+
+        public async Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new()
+        {
+            try {
+                TableClient tableClient = new(_appConfig.TableConnection, table);
+                await tableClient.CreateIfNotExistsAsync();
+
+                return tableClient.DeleteEntity(entity.PartitionKey, entity.RowKey);
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
         }
 
         public async Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new()

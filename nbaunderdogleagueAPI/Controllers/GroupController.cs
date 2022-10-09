@@ -44,7 +44,17 @@ namespace nbaunderdogleagueAPI.Controllers
         public ActionResult<string> JoinGroup(JoinGroupRequest joinGroupRequest)
         {
             if (!string.IsNullOrEmpty(joinGroupRequest.GroupId) && !string.IsNullOrEmpty(joinGroupRequest.Email)) {
-                return Ok(_groupService.JoinGroup(joinGroupRequest.GroupId, joinGroupRequest.Email));
+                return Ok(_groupService.JoinGroup(joinGroupRequest));
+            } else {
+                return NoContent();
+            }
+        }
+
+        [HttpPost("LeaveGroup")]
+        public ActionResult<string> LeaveGroup(LeaveGroupRequest leaveGroupRequest)
+        {
+            if (!string.IsNullOrEmpty(leaveGroupRequest.GroupId) && !string.IsNullOrEmpty(leaveGroupRequest.Email)) {
+                return Ok(_groupService.LeaveGroup(leaveGroupRequest));
             } else {
                 return NoContent();
             }

@@ -88,7 +88,31 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void JoinGroup()
         {
             if (_groupService != null) {
-                string groupResult = _groupService.JoinGroup("09fa8ea1-1284-4ad8-b6d1-6f1377fdbac7", TestConstants.Email);
+
+                JoinGroupRequest joinGroupRequest = new() {
+                    GroupId = TestConstants.GroupId.ToString(),
+                    Email = TestConstants.Email
+                };
+
+                string groupResult = _groupService.JoinGroup(joinGroupRequest);
+
+                Assert.AreEqual(AppConstants.Success, groupResult);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void LeaveGroup()
+        {
+            if (_groupService != null) {
+
+                LeaveGroupRequest leaveGroupRequest = new() {
+                    GroupId = TestConstants.GroupId.ToString(),
+                    Email = TestConstants.Email
+                };
+
+                string groupResult = _groupService.LeaveGroup(leaveGroupRequest);
 
                 Assert.AreEqual(AppConstants.Success, groupResult);
             } else {
