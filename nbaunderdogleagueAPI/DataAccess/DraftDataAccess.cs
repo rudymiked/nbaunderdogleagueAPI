@@ -275,20 +275,24 @@ namespace nbaunderdogleagueAPI.DataAccess
                                                     utcNow.Offset);
 
                 // draft has not begun
-                if (draftStartTime > utcNow) {
+                if (utcNow < draftStartTime) {
                     return AppConstants.DraftNotStarted;
                 }
 
                 // current draft order value
-                List<UserEntity> usersHaventDrafted = usersInGroup.Where(user => string.IsNullOrEmpty(user.Team)).ToList();
 
-                int nextUpToDraftOrder = usersInGroup.Count;
+                int lastOrderToDraft = 0;
+                int nextUpToDraftOrder = 0;
 
                 // need to collect the lowest draft order of a user that has an empty/null team value
-                foreach (UserEntity user in usersHaventDrafted) {
-                    int userOrder = draft.Where(draft => draft.Email == user.Email).FirstOrDefault().DraftOrder;
-                    nextUpToDraftOrder = Math.Min(nextUpToDraftOrder, userOrder);
+                foreach (UserEntity user in usersInGroup) {
+                    if (!string.IsNullOrEmpty(user.Team)) {
+                        int userWhoHasntDraftedOrder = draft.Where((d) => d.Email == user.Email).FirstOrDefault().DraftOrder;
+                        lastOrderToDraft = Math.Max(lastOrderToDraft, userWhoHasntDraftedOrder);
+                    }
                 }
+
+                nextUpToDraftOrder = lastOrderToDraft + 1;
 
                 DateTimeOffset userWindowStart = userDraftData.UserStartTime;
                 DateTimeOffset userTurnOver = userDraftData.UserEndTime;
@@ -299,7 +303,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
 
                 // it's possible that players drafted early
-                if (nextUpToDraftOrder < userDraftData.DraftOrder) {
+                // if nextUpToDraftOrder == userDraftData.DraftOrder => they can draft!
+                if (nextUpToDraftOrder != userDraftData.DraftOrder && utcNow < userWindowStart) {
                     return AppConstants.PleaseWaitToDraft;
                 }
 

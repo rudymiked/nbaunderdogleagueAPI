@@ -30,8 +30,8 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_draftService != null) {
                 User userDrafted = new() {
-                    Email = "rudymiked@gmail.com",
-                    Team = "76ers",
+                    Email = "laurenfpotter@live.com",
+                    Team = "Jazz",
                     Group = TestConstants.GroupId.ToString()
                 };
 
