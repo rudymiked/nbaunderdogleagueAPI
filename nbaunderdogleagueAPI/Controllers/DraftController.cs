@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Controllers
 {
@@ -22,31 +23,51 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpPost("DraftTeam")]
         public ActionResult<string> DraftTeam(User user)
         {
-            return Ok(_draftService.DraftTeam(user));
+            if (!string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(user.Team)) {
+                return Ok(_draftService.DraftTeam(user));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpPost("SetupDraft")]
-        public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
+        public ActionResult<List<DraftEntity>> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
-            return _draftService.SetupDraft(setupDraftRequest);
+            if (!string.IsNullOrEmpty(setupDraftRequest.GroupId)) {
+                return _draftService.SetupDraft(setupDraftRequest);
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("DraftedTeams")]
-        public List<UserEntity> DraftedTeams(string groupId)
+        public ActionResult<List<UserEntity>> DraftedTeams(string groupId)
         {
-            return _draftService.DraftedTeams(groupId);
+            if (!string.IsNullOrEmpty(groupId)) {
+                return Ok(_draftService.DraftedTeams(groupId));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("GetDraft")]
-        public List<DraftEntity> GetDraft(string groupId)
+        public ActionResult<List<DraftEntity>> GetDraft(string groupId)
         {
-            return _draftService.GetDraft(groupId);
+            if (!string.IsNullOrEmpty(groupId)) {
+                return Ok(_draftService.GetDraft(groupId));
+            } else {
+                return NoContent();
+            }
         }
 
         [HttpGet("GetAvailableTeamsToDraft")]
-        public List<TeamEntity> GetAvailableTeamsToDraft(string groupId)
+        public ActionResult<List<TeamEntity>> GetAvailableTeamsToDraft(string groupId)
         {
-            return _draftService.GetAvailableTeamsToDraft(groupId);
+            if (!string.IsNullOrEmpty(groupId)) {
+                return Ok(_draftService.GetAvailableTeamsToDraft(groupId));
+            } else {
+                return NoContent();
+            }
         }
     }
 }
