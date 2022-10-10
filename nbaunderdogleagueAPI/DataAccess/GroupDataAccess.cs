@@ -17,7 +17,6 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
         string JoinGroup(JoinGroupRequest joinGroupRequest);
-
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
     }
     public class GroupDataAccess : IGroupDataAccess
@@ -160,16 +159,14 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public string JoinGroup(JoinGroupRequest joinGroupRequest)
         {
-            string groupId = joinGroupRequest.GroupId;
-            string email = joinGroupRequest.Email;
             // 1. query group, if it doesn't exist, return empty list
 
-            GroupEntity groupEntity = GetGroup(groupId);
+            GroupEntity groupEntity = GetGroup(joinGroupRequest.GroupId);
 
             if (groupEntity.Id.ToString() == string.Empty) {
                 // No group Found
-                _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
-                return AppConstants.GroupNotFound + " : " + groupId;
+                _logger.LogError(AppConstants.GroupNotFound + " : " + joinGroupRequest.GroupId);
+                return AppConstants.GroupNotFound + " : " + joinGroupRequest.GroupId;
             }
 
             // 2. get all users from group, see if user exists
@@ -179,32 +176,32 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (!userEntities.Any()) {
                 // no users found in group
                 // should be at least 1 (owner)
-                _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
+                _logger.LogError(AppConstants.GroupNoUsersFound + joinGroupRequest.GroupId);
 
-                return AppConstants.GroupNoUsersFound + groupId;
+                return AppConstants.GroupNoUsersFound + joinGroupRequest.GroupId;
             }
 
-            List<UserEntity> usersGroups = userEntities.Where(user => user.Email == email && user.Group.ToString() == groupId).ToList();
+            List<UserEntity> usersGroups = userEntities.Where(user => user.Email == joinGroupRequest.Email && user.Group.ToString() == joinGroupRequest.GroupId).ToList();
 
             if (usersGroups.Any()) {
                 // user already in group
                 // do nothing
-                return AppConstants.UserAlreadyInGroup + groupId;
+                return AppConstants.UserAlreadyInGroup + joinGroupRequest.GroupId;
             }
 
             // 3. add group to user data
             UserEntity userEntity = new() {
-                PartitionKey = groupId,
-                RowKey = email,
-                Email = email,
-                Group = Guid.Parse(groupId),
+                PartitionKey = joinGroupRequest.GroupId,
+                RowKey = joinGroupRequest.Email,
+                Email = joinGroupRequest.Email,
+                Group = Guid.Parse(joinGroupRequest.GroupId),
                 ETag = ETag.All,
                 Timestamp = DateTime.Now
             };
 
             var response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
 
-            return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + email + " group: " + groupId;
+            return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + joinGroupRequest.Email + " group: " + joinGroupRequest.GroupId;
         }
 
         public string LeaveGroup(LeaveGroupRequest leaveGroupRequest)

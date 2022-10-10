@@ -62,41 +62,30 @@ namespace nbaunderdogleagueAPI.DataAccess
         public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
             try {
-                string groupId = setupDraftRequest.GroupId;
-                string ownerEmail = setupDraftRequest.Email;
-                bool clearTeams = setupDraftRequest.ClearTeams;
-
-                int draftStartYear = setupDraftRequest.DraftStartDateTime.Year;
-                int draftStartMonth = setupDraftRequest.DraftStartDateTime.Month;
-                int draftStartDay = setupDraftRequest.DraftStartDateTime.Day;
-                int draftStartHour = setupDraftRequest.DraftStartDateTime.Hour;
-                int draftStartMinute = setupDraftRequest.DraftStartDateTime.Minute;
-                int draftWindow = setupDraftRequest.DraftWindow;
-
                 // 1. query group, if it doesn't exist, return empty list
-                GroupEntity groupEntity = _groupService.GetGroup(groupId);
+                GroupEntity groupEntity = _groupService.GetGroup(setupDraftRequest.GroupId);
 
                 if (groupEntity.Id.ToString() == string.Empty) {
                     // No group Found
-                    _logger.LogError(AppConstants.GroupNotFound + " : " + groupId);
+                    _logger.LogError(AppConstants.GroupNotFound + " : " + setupDraftRequest.GroupId);
                     return new List<DraftEntity>();
                 }
 
-                if (groupEntity.Owner != ownerEmail && ownerEmail != AppConstants.AdminEmail) {
+                if (groupEntity.Owner != setupDraftRequest.Email && setupDraftRequest.Email != AppConstants.AdminEmail) {
                     // User does not own this group
                     // User is not admin
-                    _logger.LogError(AppConstants.NotOwner + " : " + groupId);
+                    _logger.LogError(AppConstants.NotOwner + " : " + setupDraftRequest.GroupId);
                     return new List<DraftEntity>();
                 }
 
                 // 2. get all users from group
 
-                List<UserEntity> userEntities = _userService.GetUsers(groupId);
+                List<UserEntity> userEntities = _userService.GetUsers(setupDraftRequest.GroupId);
 
                 if (!userEntities.Any()) {
                     // no users found in group
                     // should be at least 1 (owner)
-                    _logger.LogError(AppConstants.GroupNoUsersFound + groupId);
+                    _logger.LogError(AppConstants.GroupNoUsersFound + setupDraftRequest.GroupId);
 
                     return new List<DraftEntity>();
                 }
@@ -113,7 +102,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 // need to ensure that draft for this group doesn't already exist
                 // if it does, this method should just re-shuffle the order and pick up new members
 
-                List<DraftEntity> groupDraft = GetDraft(groupId);
+                List<DraftEntity> groupDraft = GetDraft(setupDraftRequest.GroupId);
 
                 Guid draftID = Guid.NewGuid();
 
@@ -123,18 +112,25 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
-                DateTimeOffset draftStart = new DateTimeOffset(draftStartYear, draftStartMonth, draftStartDay, draftStartHour, 0, 0, utcNow.Offset);
+                DateTimeOffset draftStart = new DateTimeOffset(
+                                                setupDraftRequest.DraftStartDateTime.Year,
+                                                setupDraftRequest.DraftStartDateTime.Month, 
+                                                setupDraftRequest.DraftStartDateTime.Day,
+                                                setupDraftRequest.DraftStartDateTime.Hour, 
+                                                0, 
+                                                0, 
+                                                utcNow.Offset);
 
                 for (int i = 0; i < usersInDraft; i++) {
-                    int userStartMinute = draftStartMinute + (draftWindow * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
+                    int userStartMinute = setupDraftRequest.DraftStartDateTime.Minute + (setupDraftRequest.DraftWindow * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
 
                     DateTimeOffset userDraftStart = draftStart.AddMinutes(userStartMinute);
-                    DateTimeOffset userDraftEnd = userDraftStart.AddMinutes(draftWindow);
+                    DateTimeOffset userDraftEnd = userDraftStart.AddMinutes(setupDraftRequest.DraftWindow);
 
                     draftEntities.Add(new DraftEntity() {
-                        PartitionKey = groupId,
+                        PartitionKey = setupDraftRequest.GroupId,
                         RowKey = userEntities[i].Email,
-                        GroupId = Guid.Parse(groupId),
+                        GroupId = Guid.Parse(setupDraftRequest.GroupId),
                         Id = draftID,
                         DraftOrder = shuffledList[i],
                         UserStartTime = userDraftStart,
@@ -145,14 +141,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                     });
                 }
 
-                if (clearTeams) {
+                if (setupDraftRequest.ClearTeams) {
                     // if users have already drafted, remove their picks
                     userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
 
                     var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
 
                     if (userResponse == null) {
-                        _logger.LogError(AppConstants.UsersCouldNotBeUpdated + groupId);
+                        _logger.LogError(AppConstants.UsersCouldNotBeUpdated + setupDraftRequest.GroupId);
                     }
                 }
 
