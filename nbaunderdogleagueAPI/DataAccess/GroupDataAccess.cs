@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {

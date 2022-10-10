@@ -30,11 +30,11 @@ namespace nbaunderdogleagueAPI.Business
         public List<UserEntity> DraftedTeams(string groupId)
         {
             return _draftDataAccess.DraftedTeams(groupId);
-        }        
+        }
         public List<DraftEntity> GetDraft(string groupId)
         {
             return _draftDataAccess.GetDraft(groupId);
-        }       
+        }
         public List<TeamEntity> GetAvailableTeamsToDraft(string groupId)
         {
             return _draftDataAccess.GetAvailableTeamsToDraft(groupId);

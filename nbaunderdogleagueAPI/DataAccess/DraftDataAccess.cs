@@ -4,9 +4,6 @@ using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Linq;
-using System.Text.RegularExpressions;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -114,11 +111,11 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 DateTimeOffset draftStart = new DateTimeOffset(
                                                 setupDraftRequest.DraftStartDateTime.Year,
-                                                setupDraftRequest.DraftStartDateTime.Month, 
+                                                setupDraftRequest.DraftStartDateTime.Month,
                                                 setupDraftRequest.DraftStartDateTime.Day,
-                                                setupDraftRequest.DraftStartDateTime.Hour, 
-                                                0, 
-                                                0, 
+                                                setupDraftRequest.DraftStartDateTime.Hour,
+                                                0,
+                                                0,
                                                 utcNow.Offset);
 
                 for (int i = 0; i < usersInDraft; i++) {
@@ -155,8 +152,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
 
                 return (draftResponse != null && !draftResponse.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
-            } 
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -262,12 +258,12 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
                 DateTimeOffset draftStartTime = new DateTimeOffset(
-                                                    draftStartDateTime.Year, 
-                                                    draftStartDateTime.Month, 
-                                                    draftStartDateTime.Day, 
+                                                    draftStartDateTime.Year,
+                                                    draftStartDateTime.Month,
+                                                    draftStartDateTime.Day,
                                                     draftStartDateTime.Hour,
-                                                    draftStartDateTime.Minute, 
-                                                    0, 
+                                                    draftStartDateTime.Minute,
+                                                    0,
                                                     utcNow.Offset);
 
                 // draft has not begun
@@ -305,8 +301,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
 
                 return AppConstants.Success;
-            } 
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
