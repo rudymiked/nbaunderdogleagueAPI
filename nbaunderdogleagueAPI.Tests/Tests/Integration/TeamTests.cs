@@ -32,7 +32,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetCurrentNBAStandingsTest()
         {
             if (_teamService != null) {
-                List<CurrentNBAStanding> currentNBAStandings = _teamService.GetCurrentNBAStandingsList();
+                List<CurrentNBAStanding> currentNBAStandings = _teamService.CurrentNBAStandingsList();
 
                 Assert.AreNotEqual(0, currentNBAStandings.Count);
 

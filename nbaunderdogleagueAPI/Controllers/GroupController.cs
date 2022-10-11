@@ -19,8 +19,8 @@ namespace nbaunderdogleagueAPI.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("GetGroupStandings")]
-        public ActionResult<List<GroupStandings>> Get(string groupId)
+        [HttpGet("GroupStandings")]
+        public ActionResult<List<GroupStandings>> GroupStandings(string groupId)
         {
             if (!string.IsNullOrEmpty(groupId)) {
                 return Ok(_groupService.GetGroupStandings(groupId));
@@ -60,7 +60,7 @@ namespace nbaunderdogleagueAPI.Controllers
             }
         }
 
-        [HttpGet("GetGroup")]
+        [HttpGet("Group")]
         public ActionResult<GroupEntity> GetGroup(string groupId)
         {
             if (!string.IsNullOrEmpty(groupId)) {
@@ -70,20 +70,24 @@ namespace nbaunderdogleagueAPI.Controllers
             }
         }
 
-        [HttpGet("GetAllGroupsUserIsInByYear")]
+        [HttpGet("AllGroupsUserIsInByYear")]
         public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(string email, int year)
         {
-            if (!string.IsNullOrEmpty(email) && year > AppConstants.MinYear) {
+            if (!string.IsNullOrEmpty(email) && year >= AppConstants.MinYear) {
                 return Ok(_groupService.GetAllGroupsUserIsInByYear(email, year));
             } else {
                 return NoContent();
             }
         }
 
-        [HttpGet("GetAllGroupsByYear")]
+        [HttpGet("AllGroupsByYear")]
         public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year, bool includeUser, string email)
         {
-            return Ok(_groupService.GetAllGroupsByYear(year, includeUser, email));
+            if (year >= AppConstants.MinYear && !string.IsNullOrEmpty(email)) {
+                return Ok(_groupService.GetAllGroupsByYear(year, includeUser, email));
+            } else {
+                return NoContent();
+            }
         }
     }
 }

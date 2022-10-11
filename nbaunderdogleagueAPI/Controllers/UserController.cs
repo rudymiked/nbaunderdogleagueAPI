@@ -14,8 +14,8 @@ namespace nbaunderdogleagueAPI.Controllers
             _userService = userService;
         }
 
-        [HttpGet("GetUsers")]
-        public ActionResult<IEnumerable<UserEntity>> Get(string groupId)
+        [HttpGet("Users")]
+        public ActionResult<IEnumerable<UserEntity>> Users(string groupId)
         {
             if (groupId != null && groupId != string.Empty) {
                 return Ok(_userService.GetUsers(groupId));

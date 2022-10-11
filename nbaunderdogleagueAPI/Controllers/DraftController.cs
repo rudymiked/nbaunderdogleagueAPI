@@ -50,7 +50,7 @@ namespace nbaunderdogleagueAPI.Controllers
             }
         }
 
-        [HttpGet("GetDraft")]
+        [HttpGet("Draft")]
         public ActionResult<List<DraftEntity>> GetDraft(string groupId)
         {
             if (!string.IsNullOrEmpty(groupId)) {
@@ -60,7 +60,7 @@ namespace nbaunderdogleagueAPI.Controllers
             }
         }
 
-        [HttpGet("GetAvailableTeamsToDraft")]
+        [HttpGet("AvailableTeamsToDraft")]
         public ActionResult<List<TeamEntity>> GetAvailableTeamsToDraft(string groupId)
         {
             if (!string.IsNullOrEmpty(groupId)) {

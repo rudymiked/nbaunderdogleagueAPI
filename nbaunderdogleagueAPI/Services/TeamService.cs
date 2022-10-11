@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<CurrentNBAStanding> GetCurrentNBAStandingsList();
+        List<CurrentNBAStanding> CurrentNBAStandingsList();
         Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary();
     }
     public class TeamService : ITeamService
@@ -28,9 +28,9 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.AddTeams(teamsEntities);
         }
 
-        public List<CurrentNBAStanding> GetCurrentNBAStandingsList()
+        public List<CurrentNBAStanding> CurrentNBAStandingsList()
         {
-            return _teamRepository.GetCurrentNBAStandingsList();
+            return _teamRepository.CurrentNBAStandingsList();
         }
 
         public Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary()

@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Business
     {
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<CurrentNBAStanding> GetCurrentNBAStandingsList();
+        List<CurrentNBAStanding> CurrentNBAStandingsList();
         Dictionary<string, CurrentNBAStanding> GetCurrentNBAStandingsDictionary();
     }
 
@@ -29,7 +29,7 @@ namespace nbaunderdogleagueAPI.Business
             return _teamDataAccess.AddTeams(teamsEntities);
         }
 
-        public List<CurrentNBAStanding> GetCurrentNBAStandingsList()
+        public List<CurrentNBAStanding> CurrentNBAStandingsList()
         {
             return _teamDataAccess.GetCurrentNBAStandings().Result.Values.OrderByDescending(team => team.Win).ToList();
         }

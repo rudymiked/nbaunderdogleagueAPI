@@ -43,6 +43,6 @@
         public static readonly string TeamAlreadyDrafted = "Team has already been drafted by: ";
 
         // Ints
-        public static readonly int MinYear = 2020;
+        public static readonly int MinYear = 2022; // first year of the app
     }
 }

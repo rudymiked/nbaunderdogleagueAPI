@@ -17,22 +17,26 @@ namespace nbaunderdogleagueAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet("GetCurrentNBAStandings")]
-        public IEnumerable<CurrentNBAStanding> GetCurrentNBAStandings()
+        [HttpGet("CurrentNBAStandings")]
+        public ActionResult<IEnumerable<CurrentNBAStanding>> CurrentNBAStandings()
         {
-            return _teamService.GetCurrentNBAStandingsList();
+            return Ok(_teamService.CurrentNBAStandingsList());
         }
 
-        [HttpGet("GetTeamsTable")]
-        public IEnumerable<TeamEntity> GetTeamsTable()
+        [HttpGet("TeamsTable")]
+        public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
         {
-            return _teamService.GetTeams();
+            return Ok(_teamService.GetTeams());
         }
 
         [HttpPost("AddTeams")]
-        public IEnumerable<TeamEntity> AddTeams(TeamEntity[] teams)
+        public ActionResult<IEnumerable<TeamEntity>> AddTeams(TeamEntity[] teams)
         {
-            return _teamService.AddTeams(teams.ToList());
+            if (teams.Length > 0) {
+                return Ok(_teamService.AddTeams(teams.ToList()));
+            } else {
+                return NoContent();
+            }
         }
     }
 }
