@@ -88,11 +88,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
 
                 // 3. set in random draft order
-
-                int usersInDraft = userEntities.Count;
                 Random rnd = new();
 
-                var shuffledList = Enumerable.Range(1, usersInDraft).OrderBy(a => rnd.Next()).ToList();
+                var shuffledList = Enumerable.Range(1, userEntities.Count).OrderBy(a => rnd.Next()).ToList();
 
                 List<DraftEntity> draftEntities = new();
 
@@ -101,11 +99,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<DraftEntity> groupDraft = GetDraft(setupDraftRequest.GroupId);
 
-                Guid draftID = Guid.NewGuid();
-
-                if (groupDraft.Any()) {
-                    draftID = groupDraft[0].GroupId;
-                }
+                Guid draftID = groupDraft.Any() ? groupDraft[0].GroupId : Guid.NewGuid();
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
@@ -118,7 +112,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                                                 0,
                                                 utcNow.Offset);
 
-                for (int i = 0; i < usersInDraft; i++) {
+                for (int i = 0; i < userEntities.Count; i++) {
                     int userStartMinute = setupDraftRequest.DraftStartDateTime.Minute + (setupDraftRequest.DraftWindow * (shuffledList[i] - 1)); // "-1" so first starts at minute :00
 
                     DateTimeOffset userDraftStart = draftStart.AddMinutes(userStartMinute);

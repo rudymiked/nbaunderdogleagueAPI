@@ -23,6 +23,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
         }
+
         public User UpsertUser(User user)
         {
             if (Guid.Parse(user.Group) != Guid.Empty && user.Email != string.Empty) {
