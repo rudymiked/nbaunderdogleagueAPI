@@ -30,9 +30,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_draftService != null) {
                 User userDrafted = new() {
-                    Email = "laurenfpotter@live.com",
+                    Email = TestConstants.Email,
                     Team = "Jazz",
-                    Group = TestConstants.GroupId.ToString()
+                    Group = TestConstants.GroupId.ToString(),
+                    Username = "",
                 };
 
                 string draftResult = _draftService.DraftTeam(userDrafted);

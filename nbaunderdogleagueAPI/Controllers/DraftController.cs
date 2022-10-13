@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Controllers
 {

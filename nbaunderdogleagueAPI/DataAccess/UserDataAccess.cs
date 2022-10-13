@@ -10,6 +10,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         List<UserEntity> GetUsers(string groupId);
         User UpsertUser(User user);
+        User UpdateUser(User user);
     }
     public class UserDataAccess : IUserDataAccess
     {
@@ -30,12 +31,35 @@ namespace nbaunderdogleagueAPI.DataAccess
                     RowKey = user.Email,
                     Email = user.Email,
                     Group = Guid.Parse(user.Group),
-                    ETag = ETag.All,
                     Team = user.Team,
-                    Timestamp = DateTime.Now
+                    Username = user.Username,
+                    Timestamp = DateTime.Now,
+                    ETag = ETag.All
                 };
 
                 var response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
+
+                return (response != null && !response.IsError) ? user : new User();
+            }
+
+            return new User();
+        }
+
+        public User UpdateUser(User user)
+        {
+            if (Guid.Parse(user.Group) != Guid.Empty && user.Email != string.Empty) {
+                UserEntity entity = new() {
+                    PartitionKey = user.Group.ToString(),
+                    RowKey = user.Email,
+                    Email = user.Email,
+                    Group = Guid.Parse(user.Group),
+                    Team = !string.IsNullOrEmpty(user.Team) ? user.Team : null,
+                    Username = !string.IsNullOrEmpty(user.Username) ? user.Username : null,
+                    Timestamp = DateTime.Now,
+                    ETag = ETag.All
+                };
+
+                var response = _tableStorageHelper.UpdateEntity(entity, AppConstants.UsersTable).Result;
 
                 return (response != null && !response.IsError) ? user : new User();
             }

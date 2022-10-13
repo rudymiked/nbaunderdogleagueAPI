@@ -6,6 +6,7 @@ namespace nbaunderdogleagueAPI.Business
     {
         List<UserEntity> GetUsers(string groupId);
         User UpsertUser(User user);
+        User UpdateUser(User user);
     }
 
     public class UserRepository : IUserRepository
@@ -22,6 +23,10 @@ namespace nbaunderdogleagueAPI.Business
         public User UpsertUser(User user)
         {
             return _userDataAccess.UpsertUser(user);
+        }
+        public User UpdateUser(User user)
+        {
+            return _userDataAccess.UpdateUser(user);
         }
     }
 }

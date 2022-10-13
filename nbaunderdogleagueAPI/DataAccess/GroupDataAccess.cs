@@ -51,8 +51,8 @@ namespace nbaunderdogleagueAPI.DataAccess
             foreach (TeamEntity team in teamsEntities) {
                 CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
 
-                int win = currentNBAStanding.Win; //PreseasonValue(currentNBAStanding.Win);
-                int loss = currentNBAStanding.Loss; //PreseasonValue(currentNBAStanding.Loss);
+                int win = currentNBAStanding.Win;
+                int loss = currentNBAStanding.Loss;
                 int projectedWin = team.ProjectedWin;
                 int projectedLoss = team.ProjectedLoss;
 
@@ -60,13 +60,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                 double actualDiff = (double)(win / (double)(win + loss));
                 double score = (double)(actualDiff / (double)projectedDiff);
 
-                string playoffs = currentNBAStanding.Playoffs; // PreseasonPlayoffs(currentNBAStanding.Playoffs);
+                string playoffs = currentNBAStanding.Playoffs;
 
                 UserEntity userEntity = userEntities.Where((gov) => gov.Team == team.Name).FirstOrDefault();
 
                 if (userEntity != null) {
                     standings.Add(new GroupStandings() {
-                        Governor = userEntity.Email,
+                        Governor = userEntity.Username ?? userEntity.Email.Split("@")[0],
+                        Email = userEntity.Email,
                         TeamName = team.Name,
                         TeamCity = team.City,
                         ProjectedWin = projectedWin,
@@ -193,6 +194,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 PartitionKey = joinGroupRequest.GroupId,
                 RowKey = joinGroupRequest.Email,
                 Email = joinGroupRequest.Email,
+                Username = "",
                 Group = Guid.Parse(joinGroupRequest.GroupId),
                 ETag = ETag.All,
                 Timestamp = DateTime.Now
@@ -310,22 +312,14 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18); // nba start date
 
-            if (DateTime.Now < nbaStartDate) {
-                return 0;
-            } else {
-                return value;
-            }
+            return DateTime.Now < nbaStartDate ? 0 : value;
         }
 
         private static string PreseasonPlayoffs(string value)
         {
             DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18);
 
-            if (DateTime.Now < nbaStartDate) {
-                return "";
-            } else {
-                return value;
-            }
+            return DateTime.Now < nbaStartDate ? "" : value;
         }
     }
 }

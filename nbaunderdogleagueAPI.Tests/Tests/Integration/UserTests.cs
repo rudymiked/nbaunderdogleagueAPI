@@ -26,7 +26,30 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void UpsertUsers()
         {
             if (_userService != null) {
-                User user = new();
+                User user = new() {
+                    Email = TestConstants.Email,
+                    Team = "Jazz",
+                    Group = TestConstants.GroupId.ToString(),
+                    Username = null,
+                };
+                User newUser = _userService.UpsertUser(user);
+
+                Assert.AreEqual(newUser.Email, user.Email);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void UpdateUsername()
+        {
+            if (_userService != null) {
+                User user = new() {
+                    Email = TestConstants.Email,
+                    Team = "Jazz",
+                    Group = TestConstants.GroupId.ToString(),
+                    Username = "New Username" + DateTime.Now.ToString(),
+                };
                 User newUser = _userService.UpsertUser(user);
 
                 Assert.AreEqual(newUser.Email, user.Email);

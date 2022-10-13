@@ -10,6 +10,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
         Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
+        Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new();
         Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new();
     }
 
@@ -37,13 +38,27 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             return null;
         }
 
+        public async Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new()
+        {
+            try {
+                TableClient tableClient = new(_appConfig.TableConnection, table);
+                await tableClient.CreateIfNotExistsAsync();
+
+                return tableClient.UpdateEntity(entity, entity.ETag, TableUpdateMode.Merge);
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
-                return tableClient.UpsertEntity(entity, TableUpdateMode.Replace);
+                return tableClient.UpsertEntity(entity, TableUpdateMode.Merge);
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }

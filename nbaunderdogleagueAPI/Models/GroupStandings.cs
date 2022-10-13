@@ -3,6 +3,7 @@
     public class GroupStandings
     {
         public string Governor { get; set; }
+        public string Email { get; set; }
         public string TeamName { get; set; }
         public string TeamCity { get; set; }
         public int ProjectedWin { get; set; }

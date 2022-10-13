@@ -17,7 +17,7 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("Users")]
         public ActionResult<IEnumerable<UserEntity>> Users(string groupId)
         {
-            if (groupId != null && groupId != string.Empty) {
+            if (!string.IsNullOrEmpty(groupId)) {
                 return Ok(_userService.GetUsers(groupId));
             }
 
@@ -27,7 +27,16 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpPost("UpsertUser")]
         public ActionResult<User> UpsertUser(User user)
         {
-            if (user != null && user.Group.ToString() != string.Empty) {
+            if (user != null && !string.IsNullOrEmpty(user.Group.ToString())) {
+                return _userService.UpsertUser(user);
+            }
+
+            return NoContent();
+        }
+        [HttpPost("UpdateUser")]
+        public ActionResult<User> UpdateUser(User user)
+        {
+            if (user != null && !string.IsNullOrEmpty(user.Group.ToString())) {
                 return _userService.UpsertUser(user);
             }
 
