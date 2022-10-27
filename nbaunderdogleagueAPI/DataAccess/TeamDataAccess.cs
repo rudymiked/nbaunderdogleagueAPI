@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        Task<Dictionary<string, TeamStats>> GetTeamStats();
+        Dictionary<string, TeamStats> GetTeamStats();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
@@ -41,7 +41,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
         }
 
-        public async Task<Dictionary<string, TeamStats>> GetTeamStats()
+        public Dictionary<string, TeamStats> GetTeamStats()
         {
             try {
                 string season = "2022-23";
@@ -49,6 +49,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                 string baseURL = "https://stats.nba.com/";
                 string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
                 string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
+
+                _logger.LogInformation(baseURL + parameters);
 
                 HttpClient httpClient = new() {
                     BaseAddress = new Uri(baseURL)
@@ -62,7 +64,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-                string content = await httpClient.GetStringAsync(baseURL + parameters);
+                string content = httpClient.GetStringAsync(baseURL + parameters).Result;
 
                 LeagueStandingsRootObject output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
 
