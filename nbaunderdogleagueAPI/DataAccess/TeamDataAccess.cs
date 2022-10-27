@@ -50,7 +50,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
                 string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
 
-                _logger.LogInformation(baseURL + parameters);
+                _logger.LogError(baseURL + parameters);
 
                 HttpClient httpClient = new() {
                     BaseAddress = new Uri(baseURL)
