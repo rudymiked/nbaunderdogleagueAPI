@@ -41,6 +41,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             // 1. Get Current NBA Standings Data (from NBA stats)
             Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionary();
 
+            // something went wrong.
+            if (teamStatsDict.Count == 0) {
+                _logger.LogError(AppConstants.EmptyTeamStats);
+                return new List<GroupStandings>();
+            }
+
             // 2. Get Projected Data (from storage)
             List<TeamEntity> teamsEntities = _teamService.GetTeams();
 

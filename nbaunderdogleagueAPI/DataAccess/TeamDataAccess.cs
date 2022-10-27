@@ -78,7 +78,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                  * 
                  */
 
-                List<TeamStats> teamStats = output.ExtractTeamStats(season);
+                List<TeamStats> teamStats = output.ExtractTeamStats(season, _logger);
 
                 Dictionary<string, TeamStats> teamStatsDict = new();
 

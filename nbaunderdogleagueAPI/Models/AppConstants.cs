@@ -27,6 +27,7 @@
         public static readonly string LeaveGroupError = "Something went wrong leaving group: ";
         public static readonly string UserNotFound = "User not found.";
         public static readonly string NotOwner = "User not owner of this group.";
+        public static readonly string EmptyTeamStats = "TeamStats data is empty.";
 
         // User 
         public static readonly string UsersCouldNotBeUpdated = "Could not update user information group: ";

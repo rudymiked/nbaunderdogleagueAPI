@@ -29,7 +29,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 User user = new() {
                     Email = TestConstants.Email,
                     Team = "Jazz",
-                    Group = TestConstants.GroupId.ToString(),
+                    Group = TestConstants.PostGroupId.ToString(),
                     Username = null,
                 };
                 User newUser = _userService.UpsertUser(user);
@@ -47,7 +47,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 User user = new() {
                     Email = TestConstants.Email,
                     Team = "Jazz",
-                    Group = TestConstants.GroupId.ToString(),
+                    Group = TestConstants.PostGroupId.ToString(),
                     Username = "New Username" + DateTime.Now.ToString(),
                 };
                 User newUser = _userService.UpsertUser(user);
@@ -63,7 +63,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_userService != null) {
                 // need to query for a real league ID
-                List<UserEntity> users = _userService.GetUsers(TestConstants.GroupId.ToString());
+                List<UserEntity> users = _userService.GetUsers(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(0, users.Count);
             } else {

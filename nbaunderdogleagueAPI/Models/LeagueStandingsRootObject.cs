@@ -4,7 +4,7 @@
     {
         public List<ResultSet> ResultSets { get; set; }
 
-        public List<TeamStats> ExtractTeamStats(string season)
+        public List<TeamStats> ExtractTeamStats(string season, ILogger logger)
         {
             IEnumerable<TeamStats> output = new List<TeamStats>();
 
@@ -42,7 +42,7 @@
                 }
 
             } catch (Exception ex) {
-                return output.ToList();
+                logger.LogError(ex, ex.Message);
             }
 
             return output.ToList();

@@ -32,7 +32,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 User userDrafted = new() {
                     Email = TestConstants.Email,
                     Team = "Jazz",
-                    Group = TestConstants.GroupId.ToString(),
+                    Group = TestConstants.PostGroupId.ToString(),
                     Username = "",
                 };
 
@@ -52,7 +52,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 DateTime draftStartDate = new DateTime();
 
                 SetupDraftRequest setupDraftRequest = new() {
-                    GroupId = TestConstants.GroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId.ToString(),
                     Email = TestConstants.Email,
                     ClearTeams = true,
                     DraftStartDateTime = draftStartDate,
@@ -71,7 +71,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftedTeamsTest()
         {
             if (_draftService != null) {
-                List<UserEntity> draftedTeams = _draftService.DraftedTeams(TestConstants.GroupId.ToString());
+                List<UserEntity> draftedTeams = _draftService.DraftedTeams(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(null, draftedTeams);
             } else {
@@ -83,7 +83,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftTest()
         {
             if (_draftService != null) {
-                List<DraftEntity> draftResults = _draftService.GetDraft(TestConstants.GroupId.ToString());
+                List<DraftEntity> draftResults = _draftService.GetDraft(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(null, draftResults);
             } else {
@@ -95,7 +95,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAvailableTeamsToDraft()
         {
             if (_draftService != null) {
-                List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(TestConstants.GroupId.ToString());
+                List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(null, availableTeams);
             } else {

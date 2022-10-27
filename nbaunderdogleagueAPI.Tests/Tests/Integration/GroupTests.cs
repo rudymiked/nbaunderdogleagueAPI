@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroupStandingsTest()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GroupId.ToString());
+                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
@@ -52,7 +52,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroup()
         {
             if (_groupService != null) {
-                GroupEntity group = _groupService.GetGroup(TestConstants.GroupId.ToString());
+                GroupEntity group = _groupService.GetGroup(TestConstants.GetGroupId.ToString());
 
                 Assert.AreNotEqual(string.Empty, group.Name);
             } else {
@@ -90,7 +90,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
 
                 JoinGroupRequest joinGroupRequest = new() {
-                    GroupId = TestConstants.GroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId.ToString(),
                     Email = TestConstants.Email
                 };
 
@@ -108,7 +108,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
 
                 LeaveGroupRequest leaveGroupRequest = new() {
-                    GroupId = TestConstants.GroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId.ToString(),
                     Email = TestConstants.Email
                 };
 
