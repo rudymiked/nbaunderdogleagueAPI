@@ -13,7 +13,6 @@
         public static readonly string DraftTable = "Drafts";
         public static readonly string AppName = "NBAUnderdogLeague";
         public static readonly string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
-        public static readonly string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
         public static readonly string AdminEmail = "rudymiked@gmail.com";
 
         // Results

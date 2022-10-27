@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
-using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
-using System.Text.Json;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        Task<Dictionary<string, CurrentNBAStanding>> GetCurrentNBAStandings();
+        Task<Dictionary<string, TeamStats>> GetTeamStats();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
@@ -41,29 +41,55 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
         }
 
-        public async Task<Dictionary<string, CurrentNBAStanding>> GetCurrentNBAStandings()
+        public async Task<Dictionary<string, TeamStats>> GetTeamStats()
         {
-            HttpClient httpClient = new();
+            try {
+                string season = "2022-23";
+                string origin = "https://www.nba.com";
+                string baseURL = "https://stats.nba.com/";
+                string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
+                string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
 
-            Stream stream = await httpClient.GetStreamAsync(AppConstants.CurrentNBAStandingsJSON);
+                HttpClient httpClient = new() {
+                    BaseAddress = new Uri(baseURL)
+                };
 
-            using JsonDocument resp = await JsonDocument.ParseAsync(stream);
+                httpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                httpClient.DefaultRequestHeaders.Add("Origin", origin);
+                httpClient.DefaultRequestHeaders.Add("Referer", origin);
+                httpClient.DefaultRequestHeaders.Add("Host", "stats.nba.com");
+                httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
 
-            Root data = resp.Deserialize<Root>();
+                string content = await httpClient.GetStringAsync(baseURL + parameters);
 
-            Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = new();
+                LeagueStandingsRootObject output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
 
-            foreach (Team team in data.league.standard.teams) {
-                currentNBAStandingsDict.Add(team.teamSitesOnly.teamNickname, new() {
-                    TeamName = team.teamSitesOnly.teamNickname,
-                    TeamCity = team.teamSitesOnly.teamName,
-                    Win = int.Parse(team.win),
-                    Loss = int.Parse(team.loss),
-                    Playoffs = team.clinchedPlayoffsCode
-                });
+                /*
+                 * 
+                 * "headers":["LeagueID","SeasonID","TeamID","TeamCity","TeamName","TeamSlug","Conference","ConferenceRecord","PlayoffRank","ClinchIndicator","Division","DivisionRecord","DivisionRank","WINS","LOSSES","WinPCT",
+                 * "LeagueRank","Record","HOME","ROAD","L10","Last10Home","Last10Road","OT","ThreePTSOrLess","TenPTSOrMore",
+                 * "LongHomeStreak","strLongHomeStreak","LongRoadStreak","strLongRoadStreak","LongWinStreak","LongLossStreak","CurrentHomeStreak","strCurrentHomeStreak","CurrentRoadStreak","strCurrentRoadStreak","CurrentStreak","strCurrentStreak",
+                 * "ConferenceGamesBack","DivisionGamesBack","ClinchedConferenceTitle","ClinchedDivisionTitle","ClinchedPlayoffBirth","ClinchedPlayIn","EliminatedConference","EliminatedDivision","AheadAtHalf",
+                 * "BehindAtHalf","TiedAtHalf","AheadAtThird","BehindAtThird","TiedAtThird","Score100PTS","OppScore100PTS","OppOver500","LeadInFGPCT","LeadInReb","FewerTurnovers","PointsPG","OppPointsPG","DiffPointsPG",
+                 * "vsEast","vsAtlantic","vsCentral","vsSoutheast","vsWest","vsNorthwest","vsPacific","vsSouthwest",
+                 * "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Score_80_Plus","Opp_Score_80_Plus","Score_Below_80","Opp_Score_Below_80"]
+                 * 
+                 */
+
+                List<TeamStats> teamStats = output.ExtractTeamStats(season);
+
+                Dictionary<string, TeamStats> teamStatsDict = new();
+
+                teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
+
+                return teamStatsDict;
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
             }
 
-            return currentNBAStandingsDict;
+            return new Dictionary<string, TeamStats>();
         }
     }
 }

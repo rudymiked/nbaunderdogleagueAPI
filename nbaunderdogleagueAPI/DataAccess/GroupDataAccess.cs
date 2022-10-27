@@ -39,7 +39,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<GroupStandings> standings = new();
 
             // 1. Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, CurrentNBAStanding> currentNBAStandingsDict = _teamService.GetCurrentNBAStandingsDictionary();
+            Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionary();
 
             // 2. Get Projected Data (from storage)
             List<TeamEntity> teamsEntities = _teamService.GetTeams();
@@ -49,10 +49,10 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // 4. Combine 1, 2, and 3
             foreach (TeamEntity team in teamsEntities) {
-                CurrentNBAStanding currentNBAStanding = currentNBAStandingsDict[team.Name];
+                TeamStats teamStats = teamStatsDict[team.Name];
 
                 double projectedDiff = (double)(team.ProjectedWin / (double)(team.ProjectedWin + team.ProjectedLoss));
-                double actualDiff = (double)(currentNBAStanding.Win / (double)(currentNBAStanding.Win + currentNBAStanding.Loss));
+                double actualDiff = (double)(teamStats.Wins / (double)(teamStats.Wins + teamStats.Losses));
                 double score = (double)(actualDiff / (double)projectedDiff);
 
                 UserEntity userEntity = userEntities.Where((gov) => gov.Team == team.Name).FirstOrDefault();
@@ -65,10 +65,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                         TeamCity = team.City,
                         ProjectedWin = team.ProjectedWin,
                         ProjectedLoss = team.ProjectedLoss,
-                        Win = currentNBAStanding.Win,
-                        Loss = currentNBAStanding.Loss,
+                        Win = teamStats.Wins,
+                        Loss = teamStats.Losses,
                         Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
-                        Playoffs = currentNBAStanding.Playoffs,
+                        Playoffs = teamStats.ClinchedPlayoffBirth == 1 ? "Yes" : "",
                     });
                 }
             }

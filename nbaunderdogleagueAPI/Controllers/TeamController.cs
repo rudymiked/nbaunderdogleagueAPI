@@ -17,10 +17,10 @@ namespace nbaunderdogleagueAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet("CurrentNBAStandings")]
-        public ActionResult<IEnumerable<CurrentNBAStanding>> CurrentNBAStandings()
+        [HttpGet("TeamStats")]
+        public ActionResult<IEnumerable<TeamStats>> TeamStats()
         {
-            return Ok(_teamService.CurrentNBAStandingsList());
+            return Ok(_teamService.TeamStatsList());
         }
 
         [HttpGet("TeamsTable")]
