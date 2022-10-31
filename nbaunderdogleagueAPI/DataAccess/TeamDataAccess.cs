@@ -4,6 +4,7 @@ using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -11,7 +12,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        Task<Dictionary<string, TeamStats>> GetTeamStats();
+        Dictionary<string, TeamStats> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
@@ -44,46 +45,54 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
         }
 
-        public async Task<Dictionary<string, TeamStats>> GetTeamStats()
+        private async Task<string> GetNBAStandingsData(string season)
+        {
+            string origin = "https://www.nba.com";
+            string baseURL = "https://stats.nba.com/";
+            string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
+            string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
+
+            _logger.LogError(baseURL + parameters);
+
+            HttpClient httpClient = new() {
+                BaseAddress = new Uri(baseURL)
+            };
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
+                request.Headers.Referrer = new Uri(origin);
+                request.Headers.Add("Origin", origin);
+                request.Headers.Add("User-Agent", userAgent);
+                request.Headers.Add("Host", "stats.nba.com");
+                request.Headers.Add("Connection", "keep-alive");
+                request.Headers.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                _logger.LogError(request.Headers.ToString());
+
+                HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                _logger.LogError(response.StatusCode.ToString());
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        public Dictionary<string, TeamStats> GetTeamStats()
         {
             try {
                 string season = "2022-23";
-                string origin = "https://www.nba.com";
-                string baseURL = "https://stats.nba.com/";
-                string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
-                string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
-
-                _logger.LogError(baseURL + parameters);
-
-                HttpClient httpClient = new() {
-                    BaseAddress = new Uri(baseURL)
-                };
 
                 LeagueStandingsRootObject output;
 
-                using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
-                    request.Headers.Referrer = new Uri(origin);
-                    request.Headers.Add("Origin", origin);
-                    request.Headers.Add("User-Agent", userAgent);
-                    request.Headers.Add("Host", "stats.nba.com");
-                    request.Headers.Add("Connection", "keep-alive");
-                    request.Headers.Accept.Add(
-                        new MediaTypeWithQualityHeaderValue("application/json"));
+                string content = GetNBAStandingsData(season).Result;
 
-                    _logger.LogError(request.Headers.ToString());
+                _logger.LogError(content);
 
-                    HttpResponseMessage response = await httpClient.SendAsync(request);
+                output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
 
-                    _logger.LogError(response.StatusCode.ToString());
-
-                    response.EnsureSuccessStatusCode();
-
-                    string content = await response.Content.ReadAsStringAsync();
-
-                    _logger.LogError(content);
-
-                    output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
-                }
+                _logger.LogError(output.ResultSets.Count().ToString());
 
                 /*
                  * 
@@ -102,6 +111,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Dictionary<string, TeamStats> teamStatsDict = new();
 
                 teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
+
+                _logger.LogError(teamStats.ToString());
 
                 return teamStatsDict;
             } catch (Exception ex) {
