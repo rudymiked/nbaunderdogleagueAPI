@@ -33,12 +33,12 @@ namespace nbaunderdogleagueAPI.Business
 
         public List<TeamStats> TeamStatsList()
         {
-            return _teamDataAccess.GetTeamStats().Values.OrderByDescending(team => team.Wins).ToList();
+            return _teamDataAccess.GetTeamStats().Result.Values.OrderByDescending(team => team.Wins).ToList();
         }
 
         public Dictionary<string, TeamStats> GetTeamStatsDictionary()
         {
-            return _teamDataAccess.GetTeamStats();
+            return _teamDataAccess.GetTeamStats().Result;
         }
         public List<TeamStats> TeamStatsListV1()
         {

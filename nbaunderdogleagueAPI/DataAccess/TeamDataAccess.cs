@@ -11,7 +11,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
-        Dictionary<string, TeamStats> GetTeamStats();
+        Task<Dictionary<string, TeamStats>> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
@@ -44,7 +44,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
         }
 
-        public Dictionary<string, TeamStats> GetTeamStats()
+        public async Task<Dictionary<string, TeamStats>> GetTeamStats()
         {
             try {
                 string season = "2022-23";
@@ -67,7 +67,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-                string content = httpClient.GetStringAsync(baseURL + parameters).Result;
+                string content = await httpClient.GetStringAsync(baseURL + parameters);
 
                 LeagueStandingsRootObject output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
 
