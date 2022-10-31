@@ -4,6 +4,7 @@ using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -60,7 +61,10 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
                 request.Headers.Referrer = new Uri(origin);
+                request.RequestUri = new Uri(baseURL + parameters);
                 request.Headers.Add("Origin", origin);
+                request.Headers.Add("Sec-Fetch-Mode", "cors");
+                request.Headers.Add("Access-Control-Allow-Origin", origin);
                 request.Headers.Add("User-Agent", userAgent);
                 request.Headers.Add("Host", "stats.nba.com");
                 request.Headers.Add("Connection", "keep-alive");
@@ -69,7 +73,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 _logger.LogError(request.Headers.ToString());
 
-                HttpResponseMessage response = await httpClient.SendAsync(request);
+                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                 _logger.LogError(response.StatusCode.ToString());
 
