@@ -11,6 +11,7 @@
         public static readonly string UsersTable = "Users";
         public static readonly string GroupsTable = "Groups";
         public static readonly string DraftTable = "Drafts";
+        public static readonly string ManualTeamStats = "ManualTeamStats";
         public static readonly string AppName = "NBAUnderdogLeague";
         public static readonly string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
         public static readonly string AdminEmail = "rudymiked@gmail.com";

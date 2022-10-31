@@ -32,11 +32,11 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetTeamStatsTest()
         {
             if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.TeamStatsList();
+                List<TeamStats> teamStats = _teamService.TeamStatsList(0);
 
                 Assert.AreNotEqual(0, teamStats.Count);
 
-                Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionary();
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(0);
 
                 Assert.AreNotEqual(0, teamStatsDict.Count);
             } else {
@@ -48,11 +48,27 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetTeamStatsTestV1()
         {
             if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.TeamStatsListV1();
+                List<TeamStats> teamStats = _teamService.TeamStatsList(1);
 
                 Assert.AreNotEqual(0, teamStats.Count);
 
-                Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionaryV1();
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(1);
+
+                Assert.AreNotEqual(0, teamStatsDict.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetTeamStatsTestV2()
+        {
+            if (_teamService != null) {
+                List<TeamStats> teamStats = _teamService.TeamStatsList(2);
+
+                Assert.AreNotEqual(0, teamStats.Count);
+
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(2);
 
                 Assert.AreNotEqual(0, teamStatsDict.Count);
             } else {
@@ -67,6 +83,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 List<TeamEntity> teams = _teamService.GetTeams();
 
                 Assert.AreNotEqual(0, teams.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void UpdateTeamStatsManually()
+        {
+            if (_teamService != null) {
+                List<TeamStats> teamStats = _teamService.UpdateTeamStatsManually();
+
+                Assert.AreNotEqual(0, teamStats.Count);
             } else {
                 Assert.Fail();
             }

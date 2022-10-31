@@ -7,10 +7,9 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> TeamStatsList();
-        List<TeamStats> TeamStatsListV1();
-        Dictionary<string, TeamStats> GetTeamStatsDictionary();
-        Dictionary<string, TeamStats> GetTeamStatsDictionaryV1();
+        List<TeamStats> TeamStatsList(int version);
+        Dictionary<string, TeamStats> TeamStatsDictionary(int version);
+        List<TeamStats> UpdateTeamStatsManually();
     }
     public class TeamService : ITeamService
     {
@@ -30,23 +29,19 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.AddTeams(teamsEntities);
         }
 
-        public List<TeamStats> TeamStatsList()
+        public List<TeamStats> TeamStatsList(int version)
         {
-            return _teamRepository.TeamStatsList();
+            return _teamRepository.TeamStatsList(version);
         }
 
-        public Dictionary<string, TeamStats> GetTeamStatsDictionary()
+        public Dictionary<string, TeamStats> TeamStatsDictionary(int version)
         {
-            return _teamRepository.GetTeamStatsDictionary();
-        }
-        public List<TeamStats> TeamStatsListV1()
-        {
-            return _teamRepository.TeamStatsListV1();
+            return _teamRepository.TeamStatsDictionary(version);
         }
 
-        public Dictionary<string, TeamStats> GetTeamStatsDictionaryV1()
+        public List<TeamStats> UpdateTeamStatsManually()
         {
-            return _teamRepository.GetTeamStatsDictionaryV1();
+            return _teamRepository.UpdateTeamStatsManually();
         }
     }
 }

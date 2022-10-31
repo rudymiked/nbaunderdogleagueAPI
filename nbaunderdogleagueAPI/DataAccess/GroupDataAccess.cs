@@ -39,17 +39,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<GroupStandings> standings = new();
 
             // 1. Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, TeamStats> teamStatsDict = new();
-
-            switch (version) {
-                case 0:
-                    teamStatsDict = _teamService.GetTeamStatsDictionary();
-                    break;
-                case 1:
-                    teamStatsDict = _teamService.GetTeamStatsDictionaryV1();
-                    break;
-            }
-
+            Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(version);
 
             // something went wrong.
             if (teamStatsDict.Count == 0) {

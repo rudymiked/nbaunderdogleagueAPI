@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure;
+using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
@@ -15,6 +16,8 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         Dictionary<string, TeamStats> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
+        Dictionary<string, TeamStats> GetTeamStatsV2();
+        List<TeamStats> UpdateTeamStatsManually();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
@@ -156,6 +159,60 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return currentNBAStandingsDict;
+        }
+
+        public Dictionary<string, TeamStats> GetTeamStatsV2()
+        {
+            var response = _tableStorageHelper.QueryEntities<ManualTeamStatsEntity>(AppConstants.ManualTeamStats).Result;
+
+            List<ManualTeamStatsEntity> manualTeamStats = response.ToList();
+            List<TeamStats> teamStats = new();
+
+            manualTeamStats.ForEach(teamData => teamStats.Add(new TeamStats() {
+                TeamID = teamData.TeamID,
+                TeamCity = teamData.TeamCity,
+                TeamName = teamData.TeamName,
+                Conference = teamData.Conference,
+                Wins = teamData.Wins,
+                Losses = teamData.Losses,
+                Standing = teamData.Standing,
+                Ratio = teamData.Ratio,
+                Streak = teamData.Streak,
+                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth
+            }));
+
+            Dictionary<string, TeamStats> teamStatsDict = new();
+
+            teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
+
+            return teamStatsDict;
+        }
+
+        public List<TeamStats> UpdateTeamStatsManually()
+        {
+            List<TeamStats> teamStats = GetTeamStats().Values.OrderByDescending(team => team.Wins).ToList();
+            List<ManualTeamStatsEntity> manualTeamStats = new();
+
+            teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+                PartitionKey = "TeamStats",
+                RowKey = teamData.TeamID.ToString(),
+                TeamID = teamData.TeamID,
+                TeamCity = teamData.TeamCity,
+                TeamName = teamData.TeamName,
+                Conference = teamData.Conference,
+                Wins = teamData.Wins,
+                Losses = teamData.Losses,
+                Standing = teamData.Standing,
+                Ratio = teamData.Ratio,
+                Streak = teamData.Streak,
+                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                ETag = ETag.All,
+                Timestamp = DateTime.Now
+            }));
+
+            var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+
+            return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
         }
     }
 }
