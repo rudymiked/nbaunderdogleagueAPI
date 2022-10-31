@@ -1,15 +1,18 @@
 ﻿using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface ITeamDataAccess
     {
         Dictionary<string, TeamStats> GetTeamStats();
+        Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
     }
@@ -92,6 +95,36 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new Dictionary<string, TeamStats>();
+        }
+
+        public async Task<Dictionary<string, TeamStats>> GetTeamStatsV1()
+        {
+            HttpClient httpClient = new();
+
+            Stream stream = await httpClient.GetStreamAsync(AppConstants.CurrentNBAStandingsJSON);
+
+            using JsonDocument resp = await JsonDocument.ParseAsync(stream);
+
+            Root data = resp.Deserialize<Root>();
+
+            Dictionary<string, TeamStats> currentNBAStandingsDict = new();
+
+            foreach (Team team in data.league.standard.teams) {
+                currentNBAStandingsDict.Add(team.teamSitesOnly.teamNickname, new() {
+                    TeamID = int.Parse(team.teamId),
+                    TeamName = team.teamSitesOnly.teamNickname,
+                    TeamCity = team.teamSitesOnly.teamName,
+                    Conference = "",
+                    Standing = int.Parse(team.confRank),
+                    Wins = int.Parse(team.win),
+                    Losses = int.Parse(team.loss),
+                    Ratio = double.Parse(team.winPctV2),
+                    Streak = int.Parse(team.streak),
+                    ClinchedPlayoffBirth = string.IsNullOrEmpty(team.clinchedPlayoffsCode) ? 0 : 1
+                });
+            }
+
+            return currentNBAStandingsDict;
         }
     }
 }

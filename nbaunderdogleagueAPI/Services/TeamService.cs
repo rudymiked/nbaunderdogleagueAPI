@@ -8,7 +8,9 @@ namespace nbaunderdogleagueAPI.Services
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> TeamStatsList();
+        List<TeamStats> TeamStatsListV1();
         Dictionary<string, TeamStats> GetTeamStatsDictionary();
+        Dictionary<string, TeamStats> GetTeamStatsDictionaryV1();
     }
     public class TeamService : ITeamService
     {
@@ -36,6 +38,15 @@ namespace nbaunderdogleagueAPI.Services
         public Dictionary<string, TeamStats> GetTeamStatsDictionary()
         {
             return _teamRepository.GetTeamStatsDictionary();
+        }
+        public List<TeamStats> TeamStatsListV1()
+        {
+            return _teamRepository.TeamStatsListV1();
+        }
+
+        public Dictionary<string, TeamStats> GetTeamStatsDictionaryV1()
+        {
+            return _teamRepository.GetTeamStatsDictionaryV1();
         }
     }
 }

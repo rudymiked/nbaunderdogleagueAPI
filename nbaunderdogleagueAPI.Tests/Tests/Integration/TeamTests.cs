@@ -45,6 +45,22 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
+        public void GetTeamStatsTestV1()
+        {
+            if (_teamService != null) {
+                List<TeamStats> teamStats = _teamService.TeamStatsListV1();
+
+                Assert.AreNotEqual(0, teamStats.Count);
+
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionaryV1();
+
+                Assert.AreNotEqual(0, teamStatsDict.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void GetTeamsEntityTest()
         {
             if (_teamService != null) {

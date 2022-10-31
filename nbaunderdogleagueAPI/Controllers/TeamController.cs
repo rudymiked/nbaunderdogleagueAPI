@@ -23,6 +23,12 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_teamService.TeamStatsList());
         }
 
+        [HttpGet("TeamStatsV1")]
+        public ActionResult<IEnumerable<TeamStats>> TeamStatsV1()
+        {
+            return Ok(_teamService.TeamStatsListV1());
+        }
+
         [HttpGet("TeamsTable")]
         public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
         {

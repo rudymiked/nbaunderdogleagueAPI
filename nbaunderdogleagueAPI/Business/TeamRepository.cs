@@ -8,7 +8,9 @@ namespace nbaunderdogleagueAPI.Business
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> TeamStatsList();
+        List<TeamStats> TeamStatsListV1();
         Dictionary<string, TeamStats> GetTeamStatsDictionary();
+        Dictionary<string, TeamStats> GetTeamStatsDictionaryV1();
     }
 
     public class TeamRepository : ITeamRepository
@@ -37,6 +39,15 @@ namespace nbaunderdogleagueAPI.Business
         public Dictionary<string, TeamStats> GetTeamStatsDictionary()
         {
             return _teamDataAccess.GetTeamStats();
+        }
+        public List<TeamStats> TeamStatsListV1()
+        {
+            return _teamDataAccess.GetTeamStatsV1().Result.Values.OrderByDescending(team => team.Wins).ToList();
+        }
+
+        public Dictionary<string, TeamStats> GetTeamStatsDictionaryV1()
+        {
+            return _teamDataAccess.GetTeamStatsV1().Result;
         }
     }
 }

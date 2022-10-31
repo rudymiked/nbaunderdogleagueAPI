@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IGroupDataAccess
     {
-        List<GroupStandings> GetGroupStandings(string groupId);
+        List<GroupStandings> GetGroupStandings(string groupId, int version);
         GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
@@ -34,12 +34,22 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public List<GroupStandings> GetGroupStandings(string groupId)
+        public List<GroupStandings> GetGroupStandings(string groupId, int version)
         {
             List<GroupStandings> standings = new();
 
             // 1. Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, TeamStats> teamStatsDict = _teamService.GetTeamStatsDictionary();
+            Dictionary<string, TeamStats> teamStatsDict = new();
+
+            switch (version) {
+                case 0:
+                    teamStatsDict = _teamService.GetTeamStatsDictionary();
+                    break;
+                case 1:
+                    teamStatsDict = _teamService.GetTeamStatsDictionaryV1();
+                    break;
+            }
+
 
             // something went wrong.
             if (teamStatsDict.Count == 0) {

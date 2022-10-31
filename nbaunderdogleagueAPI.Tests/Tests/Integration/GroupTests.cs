@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroupStandingsTest()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString());
+                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString(), 1);
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
