@@ -59,17 +59,25 @@ namespace nbaunderdogleagueAPI.DataAccess
                     BaseAddress = new Uri(baseURL)
                 };
 
-                httpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-                httpClient.DefaultRequestHeaders.Add("Origin", origin);
-                httpClient.DefaultRequestHeaders.Add("Referer", origin);
-                httpClient.DefaultRequestHeaders.Add("Host", "stats.nba.com");
-                httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-                httpClient.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+                LeagueStandingsRootObject output;
 
-                string content = await httpClient.GetStringAsync(baseURL + parameters);
+                using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
+                    request.Headers.Referrer = new Uri(origin);
+                    request.Headers.Add("Origin", origin);
+                    request.Headers.Add("User-Agent", userAgent);
+                    request.Headers.Add("Host", "stats.nba.com");
+                    request.Headers.Add("Connection", "keep-alive");
+                    request.Headers.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
 
-                LeagueStandingsRootObject output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
+                    var response = await httpClient.SendAsync(request);
+
+                    response.EnsureSuccessStatusCode();
+
+                    var content = await response.Content.ReadAsStringAsync();
+
+                    output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
+                }
 
                 /*
                  * 
