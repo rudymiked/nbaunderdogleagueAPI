@@ -62,8 +62,10 @@ namespace nbaunderdogleagueAPI.DataAccess
             using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
                 request.Headers.Referrer = new Uri(origin);
                 request.RequestUri = new Uri(baseURL + parameters);
-                request.Headers.Add("Origin", origin);
+                request.Headers.Add("Origin", baseURL);
                 request.Headers.Add("Sec-Fetch-Mode", "cors");
+                request.Headers.Add("accept-encoding", "Accepflate, sdch");
+                request.Headers.Add("Accept-Language", "en");
                 request.Headers.Add("Access-Control-Allow-Origin", origin);
                 request.Headers.Add("User-Agent", userAgent);
                 request.Headers.Add("Host", "stats.nba.com");
