@@ -70,11 +70,17 @@ namespace nbaunderdogleagueAPI.DataAccess
                     request.Headers.Accept.Add(
                         new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    var response = await httpClient.SendAsync(request);
+                    _logger.LogError(request.Headers.ToString());
+
+                    HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                    _logger.LogError(response.StatusCode.ToString());
 
                     response.EnsureSuccessStatusCode();
 
-                    var content = await response.Content.ReadAsStringAsync();
+                    string content = await response.Content.ReadAsStringAsync();
+
+                    _logger.LogError(content);
 
                     output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
                 }
