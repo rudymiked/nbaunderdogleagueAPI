@@ -1,7 +1,5 @@
 ﻿using nbaunderdogleagueAPI.DataAccess;
 using nbaunderdogleagueAPI.Models;
-using System;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace nbaunderdogleagueAPI.Business
 {
