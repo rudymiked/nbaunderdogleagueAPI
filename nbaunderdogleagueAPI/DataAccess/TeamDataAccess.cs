@@ -7,6 +7,7 @@ using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -90,17 +91,16 @@ namespace nbaunderdogleagueAPI.DataAccess
         public Dictionary<string, TeamStats> GetTeamStats()
         {
             try {
-                string season = "2022-23";
+                // season starts in October, switch season on site in September
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                string season = now.Month >= 9 ? string.Concat(now.Year.ToString(), "-", (now.Year + 1).ToString().AsSpan(2)) 
+                                               : string.Concat((now.Year - 1).ToString(), "-", now.Year.ToString().AsSpan(2));
 
                 LeagueStandingsRootObject output;
 
                 string content = GetNBAStandingsData(season).Result;
 
-                _logger.LogError(content);
-
                 output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
-
-                _logger.LogError(output.ResultSets.Count().ToString());
 
                 /*
                  * 
@@ -119,8 +119,6 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Dictionary<string, TeamStats> teamStatsDict = new();
 
                 teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
-
-                _logger.LogError(teamStats.ToString());
 
                 return teamStatsDict;
             } catch (Exception ex) {
