@@ -36,6 +36,7 @@
 
         // Draft 
         public static readonly string DraftNotStarted = "Draft has not started.";
+        public static readonly string DraftStarted = "Draft has started.";
         public static readonly string DraftMissedTurn = "You missed your turn to draft.";
         public static readonly string PleaseWaitToDraft = "It's not your turn to draft, please wait.";
         public static readonly string UserNotInDraft = "Could not find user in draft.";

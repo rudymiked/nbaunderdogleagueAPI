@@ -59,6 +59,20 @@ namespace nbaunderdogleagueAPI.DataAccess
         public List<DraftEntity> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
             try {
+                // 0. need to check if the draft has already happened,
+                //      if so, exit
+
+                List<DraftEntity> draftEntities = GetDraft(setupDraftRequest.GroupId);
+
+                if (draftEntities.Count > 0) {
+                    DateTimeOffset draftStartTime = draftEntities.Select(draft => draft.UserStartTime).Min();
+
+                    if (draftStartTime < DateTimeOffset.UtcNow) {
+                        _logger.LogError(AppConstants.DraftStarted + " : " + setupDraftRequest.GroupId);
+                        return new List<DraftEntity>();
+                    }
+                }
+
                 // 1. query group, if it doesn't exist, return empty list
                 GroupEntity groupEntity = _groupService.GetGroup(setupDraftRequest.GroupId);
 
@@ -92,7 +106,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 var shuffledList = Enumerable.Range(1, userEntities.Count).OrderBy(a => rnd.Next()).ToList();
 
-                List<DraftEntity> draftEntities = new();
+                draftEntities = new(); // clear draft entities object
 
                 // need to ensure that draft for this group doesn't already exist
                 // if it does, this method should just re-shuffle the order and pick up new members
