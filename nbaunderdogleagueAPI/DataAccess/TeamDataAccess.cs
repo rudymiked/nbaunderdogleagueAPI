@@ -50,43 +50,52 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private async Task<string> GetNBAStandingsData(string season)
         {
-            string origin = "https://www.nba.com";
-            string baseURL = "https://stats.nba.com/";
-            string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
-            string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
+            try {
+                string origin = "https://www.nba.com";
+                string baseURL = "https://stats.nba.com/";
+                string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
+                string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
 
-            _logger.LogError(baseURL + parameters);
+                _logger.LogError(baseURL + parameters);
 
-            HttpClient httpClient = new() {
-                BaseAddress = new Uri(baseURL)
-            };
+                HttpClient httpClient = new() {
+                    BaseAddress = new Uri(baseURL)
+                };
 
-            using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
-                request.Headers.Referrer = new Uri(origin);
-                request.RequestUri = new Uri(baseURL + parameters);
-                request.Headers.Add("Origin", origin);
-                request.Headers.Add("Sec-Fetch-Mode", "cors");
-                request.Headers.Add("Sec-Fetch-Site", "same=site");
-                request.Headers.Add("accept-encoding", "Accepflate, sdch");
-                request.Headers.Add("Accept-Language", "en");
-                request.Headers.Add("Access-Control-Allow-Origin", origin);
-                request.Headers.Add("User-Agent", userAgent);
-                request.Headers.Add("Host", "stats.nba.com");
-                request.Headers.Add("Connection", "keep-alive");
-                request.Headers.Add("X-Version", "1");
-                request.Headers.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
+                using (var request = new HttpRequestMessage(HttpMethod.Get, baseURL + parameters)) {
+                    request.Headers.Referrer = new Uri(origin);
+                    request.RequestUri = new Uri(baseURL + parameters);
+                    request.Headers.Add("Origin", origin);
+                    request.Headers.Add("Sec-Fetch-Mode", "cors");
+                    request.Headers.Add("Sec-Fetch-Site", "same-site");
+                    request.Headers.Add("Sec-Fetch-Dest", "empty");
+                    request.Headers.Add("accept-encoding", "Accepflate, sdch");
+                    request.Headers.Add("Accept-Language", "en");
+                    request.Headers.Add("Accept", "*/*");
+                    request.Headers.Add("Access-Control-Allow-Origin", origin);
+                    request.Headers.Add("User-Agent", userAgent);
+                    request.Headers.Add("Host", "stats.nba.com");
+                    request.Headers.Add("Connection", "keep-alive");
+                    request.Headers.Add("X-Version", "1");
+                    request.Headers.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
 
-                _logger.LogError(request.Headers.ToString());
+                    _logger.LogError(request.Headers.ToString());
 
-                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                    HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
-                _logger.LogError(response.StatusCode.ToString());
+                    _logger.LogError(response.StatusCode.ToString());
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadAsStringAsync();
+                    return await response.Content.ReadAsStringAsync();
+                }
             }
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
         }
 
         public Dictionary<string, TeamStats> GetTeamStats()
@@ -100,6 +109,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                 LeagueStandingsRootObject output;
 
                 string content = GetNBAStandingsData(season).Result;
+
+                if (string.IsNullOrEmpty(content)) {
+                    return new Dictionary<string, TeamStats>();
+                }
 
                 output = JsonConvert.DeserializeObject<LeagueStandingsRootObject>(content);
 
