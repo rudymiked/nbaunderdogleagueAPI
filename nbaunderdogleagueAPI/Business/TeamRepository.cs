@@ -15,10 +15,8 @@ namespace nbaunderdogleagueAPI.Business
     public class TeamRepository : ITeamRepository
     {
         private readonly ITeamDataAccess _teamDataAccess;
-        private readonly ILogger _logger;
-        public TeamRepository(ITeamDataAccess teamDataAccess, ILogger<TeamRepository> logger)
+        public TeamRepository(ITeamDataAccess teamDataAccess)
         {
-            _logger = logger;
             _teamDataAccess = teamDataAccess;
         }
 
@@ -34,14 +32,8 @@ namespace nbaunderdogleagueAPI.Business
 
         public List<TeamStats> TeamStatsList(int version)
         {
-            List<TeamStats> nbaStatsDataList = _teamDataAccess.GetTeamStats().Values.OrderByDescending(team => team.Wins).ToList();
-
-            if (nbaStatsDataList.Count == 0) {
-                _logger.LogError("NBA Stats Data Failed To Load.");
-            }
-
             return version switch {
-                0 => nbaStatsDataList.Count > 0 ? nbaStatsDataList : _teamDataAccess.GetTeamStatsV2().Values.OrderByDescending(team => team.Wins).ToList(),
+                0 => _teamDataAccess.GetTeamStats().Values.OrderByDescending(team => team.Wins).ToList(),
                 1 => _teamDataAccess.GetTeamStatsV1().Result.Values.OrderByDescending(team => team.Wins).ToList(),
                 2 => _teamDataAccess.GetTeamStatsV2().Values.OrderByDescending(team => team.Wins).ToList(),
                 _ => _teamDataAccess.GetTeamStatsV2().Values.OrderByDescending(team => team.Wins).ToList(),
@@ -50,14 +42,8 @@ namespace nbaunderdogleagueAPI.Business
 
         public Dictionary<string, TeamStats> TeamStatsDictionary(int version)
         {
-            Dictionary<string, TeamStats> nbaStatsData = _teamDataAccess.GetTeamStats();
-
-            if (nbaStatsData.Keys.Count == 0) {
-                _logger.LogError("NBA Stats Data Failed To Load.");
-            }
-
             return version switch {
-                0 => nbaStatsData.Keys.Count > 0 ? nbaStatsData : _teamDataAccess.GetTeamStatsV2(),
+                0 => _teamDataAccess.GetTeamStats(),
                 1 => _teamDataAccess.GetTeamStatsV1().Result,
                 2 => _teamDataAccess.GetTeamStatsV2(),
                 _ => _teamDataAccess.GetTeamStatsV2(),
