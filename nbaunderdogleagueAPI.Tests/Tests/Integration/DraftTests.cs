@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -23,7 +21,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             });
 
             _draftService = application.Services.GetService<IDraftService>();
-        }    
+        }
 
         [TestMethod]
         public void DraftTeamTest()
@@ -32,7 +30,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 User userDrafted = new() {
                     Email = TestConstants.Email,
                     Team = "Jazz",
-                    Group = TestConstants.PostGroupId.ToString(),
+                    Group = TestConstants.PostGroupId_TEST.ToString(),
                     Username = "",
                 };
 
@@ -52,7 +50,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 DateTime draftStartDate = new DateTime();
 
                 SetupDraftRequest setupDraftRequest = new() {
-                    GroupId = TestConstants.PostGroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
                     Email = TestConstants.Email,
                     ClearTeams = true,
                     DraftStartDateTime = draftStartDate,
@@ -71,7 +69,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftedTeamsTest()
         {
             if (_draftService != null) {
-                List<UserEntity> draftedTeams = _draftService.DraftedTeams(TestConstants.GetGroupId.ToString());
+                List<UserEntity> draftedTeams = _draftService.DraftedTeams(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(null, draftedTeams);
             } else {
@@ -83,7 +81,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetDraftTest()
         {
             if (_draftService != null) {
-                List<DraftEntity> draftResults = _draftService.GetDraft(TestConstants.GetGroupId.ToString());
+                List<DraftEntity> draftResults = _draftService.GetDraft(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(null, draftResults);
             } else {
@@ -95,7 +93,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAvailableTeamsToDraft()
         {
             if (_draftService != null) {
-                List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(TestConstants.GetGroupId.ToString());
+                List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(null, availableTeams);
             } else {

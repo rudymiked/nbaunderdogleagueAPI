@@ -1,10 +1,8 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
-using Newtonsoft.Json;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {

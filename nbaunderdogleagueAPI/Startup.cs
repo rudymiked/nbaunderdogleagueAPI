@@ -57,6 +57,10 @@ public class Startup
             services.AddSingleton<IDraftRepository, DraftRepository>();
             services.AddSingleton<IDraftDataAccess, DraftDataAccess>();
 
+            services.AddSingleton<IArchiveService, ArchiveService>();
+            services.AddSingleton<IArchiveRepository, ArchiveRepository>();
+            services.AddSingleton<IArchiveDataAccess, ArchiveDataAccess>();
+
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
             services.AddSwaggerGen();

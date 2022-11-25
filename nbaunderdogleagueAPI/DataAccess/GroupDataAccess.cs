@@ -75,6 +75,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Loss = teamStats.Losses,
                         Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
                         Playoffs = teamStats.ClinchedPlayoffBirth == 1 ? "Yes" : "",
+                        PlayoffWins = teamStats.PlayoffWins
                     });
                 }
             }

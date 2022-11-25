@@ -9,6 +9,7 @@
         public static readonly string Tenant = "Tenant";
         public static readonly string TeamsTable = "Teams";
         public static readonly string UsersTable = "Users";
+        public static readonly string ArchiveTable = "Archive";
         public static readonly string GroupsTable = "Groups";
         public static readonly string DraftTable = "Drafts";
         public static readonly string ManualTeamStats = "ManualTeamStats";
@@ -47,5 +48,12 @@
 
         // Ints
         public static readonly int MinYear = 2022; // first year of the app
+
+        // Groups
+        public static readonly Guid Group_2022 = Guid.Parse("cee48957-9221-46b7-a80d-ba21b6ccb303");
+        public static readonly Guid Group_2021 = Guid.Parse("b7c38436-42b8-4deb-b79d-14d4d5dc5533");
+        public static readonly Guid Group_2020 = Guid.Parse("94c57d13-db05-4065-aaf9-8bd5eb81b2d6");
+        public static readonly Guid Group_2019 = Guid.Parse("958c0634-715d-452e-b8a2-06c02fd8ac30");
+        public static readonly Guid Group_2018 = Guid.Parse("a8b1d131-58ef-422f-ad10-9ad145af9564");
     }
 }

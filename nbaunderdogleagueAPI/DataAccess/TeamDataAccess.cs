@@ -7,7 +7,6 @@ using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -90,8 +89,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     return await response.Content.ReadAsStringAsync();
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -103,7 +101,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             try {
                 // season starts in October, switch season on site in September
                 DateTimeOffset now = DateTimeOffset.UtcNow;
-                string season = now.Month >= 9 ? string.Concat(now.Year.ToString(), "-", (now.Year + 1).ToString().AsSpan(2)) 
+                string season = now.Month >= 9 ? string.Concat(now.Year.ToString(), "-", (now.Year + 1).ToString().AsSpan(2))
                                                : string.Concat((now.Year - 1).ToString(), "-", now.Year.ToString().AsSpan(2));
 
                 LeagueStandingsRootObject output;
@@ -185,6 +183,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TeamName = teamData.TeamName,
                 Conference = teamData.Conference,
                 Wins = teamData.Wins,
+                PlayoffWins = teamData.PlayoffWins,
                 Losses = teamData.Losses,
                 Standing = teamData.Standing,
                 Ratio = teamData.Ratio,
@@ -212,6 +211,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TeamName = teamData.TeamName,
                 Conference = teamData.Conference,
                 Wins = teamData.Wins,
+                PlayoffWins = teamData.PlayoffWins,
                 Losses = teamData.Losses,
                 Standing = teamData.Standing,
                 Ratio = teamData.Ratio,

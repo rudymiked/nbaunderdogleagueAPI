@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 
@@ -28,37 +27,37 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroupStandingsTestV0()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString(), 0);
+                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 0);
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
                 Assert.Fail();
             }
-        }         
-        
+        }
+
         [TestMethod]
         public void GetGroupStandingsTestV1()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString(), 1);
+                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 1);
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
                 Assert.Fail();
             }
-        }   
+        }
 
         [TestMethod]
         public void GetGroupStandingsTestV2()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(TestConstants.GetGroupId.ToString(), 2);
+                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 2);
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
                 Assert.Fail();
             }
-        }        
+        }
 
         [TestMethod]
         public void CreateGroup()
@@ -76,7 +75,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroup()
         {
             if (_groupService != null) {
-                GroupEntity group = _groupService.GetGroup(TestConstants.GetGroupId.ToString());
+                GroupEntity group = _groupService.GetGroup(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(string.Empty, group.Name);
             } else {
@@ -114,7 +113,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
 
                 JoinGroupRequest joinGroupRequest = new() {
-                    GroupId = TestConstants.PostGroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
                     Email = TestConstants.Email
                 };
 
@@ -132,7 +131,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
 
                 LeaveGroupRequest leaveGroupRequest = new() {
-                    GroupId = TestConstants.PostGroupId.ToString(),
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
                     Email = TestConstants.Email
                 };
 
