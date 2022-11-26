@@ -27,6 +27,14 @@ namespace nbaunderdogleagueAPI.Controllers
             return seasonArchiveEntities.Count > 0 ? Ok(seasonArchiveEntities) : NoContent();
         }
 
+        [HttpGet("ArchiveSummary")]
+        public ActionResult<List<ArchiveSummary>> ArchiveSummary(string email)
+        {
+            List<ArchiveSummary> archiveSummaries = _archiveService.GetArchiveSummary(email);
+
+            return archiveSummaries.Count > 0 ? Ok(archiveSummaries) : NoContent();
+        }
+
         [HttpPost("ArchiveCurrentSeason")]
         public ActionResult<List<SeasonArchiveEntity>> ArchiveCurrentSeason(string groupId)
         {
