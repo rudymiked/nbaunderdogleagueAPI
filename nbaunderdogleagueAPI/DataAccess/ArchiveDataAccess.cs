@@ -12,6 +12,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId);
         List<SeasonArchiveEntity> GetSeasonArchive(string groupId);
+        List<SeasonArchiveEntity> UpdateArchives();
         SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive);
         List<ArchiveSummary> GetArchiveSummary(string email);
     }
@@ -123,6 +124,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 foreach (SeasonArchiveEntity archive in seasonArchiveEntities) {
                     archiveSummaries.Add(new ArchiveSummary() {
+                        Year = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.PartitionKey)?.Year,
                         Email = archive.Email,
                         Governor = archive.Governor,
                         GroupId = archive.PartitionKey,
@@ -149,6 +151,37 @@ namespace nbaunderdogleagueAPI.DataAccess
             var response = _tableStorageHelper.QueryEntities<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
 
             return response.Any() ? response.ToList() : new List<SeasonArchiveEntity>();
+        }
+
+        public List<SeasonArchiveEntity> UpdateArchives()
+        {
+            try {
+                int updatedCount = 0;
+
+                List<SeasonArchiveEntity> resultList = new();
+                List<GroupEntity> groups = _groupService.GetAllGroups();
+                
+                foreach (GroupEntity group in groups) {
+                    List<SeasonArchiveEntity> seasonArchiveEntities = GetSeasonArchive(group.Id.ToString());
+
+                    for (int i = 0; i< seasonArchiveEntities.Count; i++) {
+                        seasonArchiveEntities[i].Year = group.Year;
+                        seasonArchiveEntities[i].GroupId = group.Id.ToString();
+                    }
+
+                    resultList.AddRange(seasonArchiveEntities);
+
+                    var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities, AppConstants.ArchiveTable).Result;
+
+                    updatedCount += (response != null && !response.GetRawResponse().IsError) ? seasonArchiveEntities.Count : 0;
+                }
+
+                return updatedCount == resultList.Count ? resultList : new List<SeasonArchiveEntity>();
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+            return new List<SeasonArchiveEntity>();
         }
     }
 }

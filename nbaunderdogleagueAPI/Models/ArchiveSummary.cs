@@ -2,6 +2,7 @@
 {
     public class ArchiveSummary
     {
+        public int? Year { get; set; }
         public string Email { get; set; }
         public string Governor { get; set; }
         public string GroupId { get; set; }

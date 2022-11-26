@@ -65,12 +65,21 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
 
             Assert.AreNotEqual(0, seasonArchiveEntities.Count);
         }
+
         [TestMethod]
         public void GetArchiveSummaryTest()
         {
             List<ArchiveSummary> archiveSummaries = _archiveService.GetArchiveSummary(TestConstants.Email);
 
             Assert.AreNotEqual(0, archiveSummaries.Count);
+        }       
+        
+        [TestMethod]
+        public void UpdateArchivesTest()
+        {
+            List<SeasonArchiveEntity> updatedArchives = _archiveService.UpdateArchives();
+
+            Assert.AreNotEqual(0, updatedArchives.Count);
         }
     }
 }
