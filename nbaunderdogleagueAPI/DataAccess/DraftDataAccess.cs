@@ -14,6 +14,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<UserEntity> DraftedTeams(string groupId);
         List<DraftEntity> GetDraft(string groupId);
         List<TeamEntity> GetAvailableTeamsToDraft(string groupId);
+        List<DraftResults> GetDraftResults(string groupId);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -234,7 +235,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // 2. Has the user already drafted?
-            UserEntity userEntity = usersInGroup.Where((userRow) => userRow.Email == user.Email).FirstOrDefault();
+            UserEntity userEntity = usersInGroup.FirstOrDefault((userRow) => userRow.Email == user.Email);
 
             if (userEntity != null) {
                 if (!string.IsNullOrEmpty(userEntity.Team)) {
@@ -246,7 +247,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
 
             // 3. someone already drafted this team
-            UserEntity draftedUser = usersInGroup.Where(usersInGroup => usersInGroup.Team == user.Team).FirstOrDefault();
+            UserEntity draftedUser = usersInGroup.FirstOrDefault(usersInGroup => usersInGroup.Team == user.Team);
 
             if (draftedUser != null) {
                 return AppConstants.TeamAlreadyDrafted + draftedUser.Email;
@@ -287,7 +288,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 // need to collect the lowest draft order of a user that has an empty/null team value
                 foreach (UserEntity user in usersInGroup) {
                     if (!string.IsNullOrEmpty(user.Team)) {
-                        int userWhoHasntDraftedOrder = draft.Where((d) => d.Email == user.Email).FirstOrDefault().DraftOrder;
+                        int userWhoHasntDraftedOrder = draft.FirstOrDefault((d) => d.Email == user.Email).DraftOrder;
                         lastOrderToDraft = Math.Max(lastOrderToDraft, userWhoHasntDraftedOrder);
                     }
                 }
@@ -347,6 +348,49 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return teamsNotDrafted;
+        }
+
+        public List<DraftResults> GetDraftResults(string groupId)
+        {
+            try {
+                // 1. Query users in group
+
+                List<UserEntity> users = _userService.GetUsers(groupId);
+
+                // 2. Query draft data for group
+
+                List<DraftEntity> draft = GetDraft(groupId);
+
+                // 3. Query team information
+
+                List<TeamEntity> teamEntities = _teamService.GetTeams();
+
+                // 4. Combine
+                List<DraftResults> draftResults = new();
+
+                foreach (DraftEntity d in draft) {
+                    UserEntity userEntity = users.FirstOrDefault(user => user.Email == d.Email);
+                    TeamEntity teamEntity = teamEntities.FirstOrDefault(team => userEntity?.Team == team.Name);
+
+                    draftResults.Add(new DraftResults() {
+                        Id = d.Id,
+                        GroupId = Guid.Parse(groupId),
+                        Email = d.Email,
+                        DraftOrder = d.DraftOrder,
+                        UserStartTime = d.UserStartTime,
+                        UserEndTime = d.UserEndTime,
+                        TeamID = teamEntity?.ID,
+                        TeamName = teamEntity?.Name,
+                        TeamCity = teamEntity?.City,
+                    });
+                }
+
+                return draftResults;
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new List<DraftResults>();
         }
     }
 }

@@ -42,21 +42,21 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
-        [TestMethod]
-        public void GetTeamStatsTestV1()
-        {
-            if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.TeamStatsList(1);
+        //[TestMethod]
+        //public void GetTeamStatsTestV1()
+        //{
+        //    if (_teamService != null) {
+        //        List<TeamStats> teamStats = _teamService.TeamStatsList(1);
 
-                Assert.AreNotEqual(0, teamStats.Count);
+        //        Assert.AreNotEqual(0, teamStats.Count);
 
-                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(1);
+        //        Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(1);
 
-                Assert.AreNotEqual(0, teamStatsDict.Count);
-            } else {
-                Assert.Fail();
-            }
-        }
+        //        Assert.AreNotEqual(0, teamStatsDict.Count);
+        //    } else {
+        //        Assert.Fail();
+        //    }
+        //}
 
         [TestMethod]
         public void GetTeamStatsTestV2()
@@ -98,7 +98,6 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
-        // do not use, only for testing purposes
         //[TestMethod]
         //public void AddTeamsTest()
         //{
@@ -108,7 +107,21 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
         //        string jsonString = r.ReadToEnd();
 
-        //        var data = JsonConvert.DeserializeObject<TeamEntity[]>(jsonString);
+        //        List<ImportTeam> data = JsonConvert.DeserializeObject<List<ImportTeam>>(jsonString);
+
+        //        for(int i = 0; i < data.Count; i++) {
+        //            teamsEntities.Add(new TeamEntity() {
+        //                PartitionKey = data[i].PartitionKey,
+        //                RowKey = data[i].RowKey,
+        //                ID = 0,
+        //                City = data[i].City,
+        //                Name = data[i].Name,
+        //                ProjectedLoss = data[i].ProjectedLoss,
+        //                ProjectedWin = data[i].ProjectedWin,
+        //                Timestamp = data[i].Timestamp,
+        //                ETag = ETag.All
+        //            });
+        //        }
 
         //        List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
 

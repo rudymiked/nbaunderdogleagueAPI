@@ -12,6 +12,7 @@ namespace nbaunderdogleagueAPI.Business
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
+        List<GroupEntity> GetAllGroups();
     }
 
     public class GroupRepository : IGroupRepository
@@ -48,6 +49,10 @@ namespace nbaunderdogleagueAPI.Business
         public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)
         {
             return _groupDataAccess.GetAllGroupsUserIsInByYear(email, year);
+        }
+        public List<GroupEntity> GetAllGroups()
+        {
+            return _groupDataAccess.GetAllGroups();
         }
     }
 }

@@ -2,7 +2,9 @@
 using Azure.Data.Tables;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
+using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -11,6 +13,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId);
         List<SeasonArchiveEntity> GetSeasonArchive(string groupId);
         SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive);
+        List<ArchiveSummary> GetArchiveSummary(string email);
     }
     public class ArchiveDataAccess : IArchiveDataAccess
     {
@@ -44,7 +47,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 List<SeasonArchiveEntity> seasonArchiveEntities = new();
 
                 foreach (GroupStandings standings in groupStandings) {
-                    TeamStats teamStats = teamEntities.Where(team => team.TeamName == standings.TeamName).FirstOrDefault();
+                    TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == standings.TeamName);
 
                     seasonArchiveEntities.Add(new SeasonArchiveEntity() {
                         PartitionKey = groupId,
@@ -93,7 +96,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<TeamStats> teamEntities = _teamService.TeamStatsList(version);
 
-                TeamStats teamStats = teamEntities.Where(team => team.TeamName == seasonArchiveEntity.TeamName).FirstOrDefault();
+                TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == seasonArchiveEntity.TeamName);
 
                 seasonArchiveEntity.TeamID = teamStats != null ? teamStats.TeamID : 0;
 
@@ -105,6 +108,47 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new SeasonArchiveEntity();
+        }
+
+        public List<ArchiveSummary> GetArchiveSummary(string email)
+        {
+            try {
+                // 1. Query Archive data
+                List<SeasonArchiveEntity> seasonArchiveEntities = GetAllUserArchives(email);
+
+                // 2. Query Group data
+                List<GroupEntity> groupEntities = _groupService.GetAllGroups();
+
+                List<ArchiveSummary> archiveSummaries = new();
+
+                foreach (SeasonArchiveEntity archive in seasonArchiveEntities) {
+                    archiveSummaries.Add(new ArchiveSummary() {
+                        Email = archive.Email,
+                        Governor = archive.Governor,
+                        GroupId = archive.PartitionKey,
+                        GroupName = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.PartitionKey)?.Name,
+                        Score = Utils.CalculateScore(archive.ProjectedWin, archive.ProjectedLoss, archive.Wins, archive.Losses, (int)archive.PlayoffWins),
+                        TeamCity = archive.TeamCity,
+                        TeamName = archive.TeamName,
+                        Standing = archive.Standing
+                    });
+                }
+
+                return archiveSummaries;
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new List<ArchiveSummary>();
+        }
+
+        List<SeasonArchiveEntity> GetAllUserArchives(string email)
+        {
+            string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((group) => group.Email == email);
+
+            var response = _tableStorageHelper.QueryEntities<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
+
+            return response.Any() ? response.ToList() : new List<SeasonArchiveEntity>();
         }
     }
 }

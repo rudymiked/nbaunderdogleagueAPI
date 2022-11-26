@@ -1,9 +1,7 @@
 ﻿using Azure;
-using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
-using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -21,15 +19,11 @@ namespace nbaunderdogleagueAPI.DataAccess
     }
     public class TeamDataAccess : ITeamDataAccess
     {
-        private readonly AppConfig _appConfig;
         private readonly ILogger _logger;
-        private readonly IUserService _userService;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, IUserService userService, ITableStorageHelper tableStorageHelper)
+        public TeamDataAccess(ILogger<TeamDataAccess> logger, ITableStorageHelper tableStorageHelper)
         {
-            _appConfig = options.Value;
             _logger = logger;
-            _userService = userService;
             _tableStorageHelper = tableStorageHelper;
         }
 
@@ -42,6 +36,13 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<TeamEntity> AddTeams(List<TeamEntity> teamEntities)
         {
+            // query for team ID
+            Dictionary<string, TeamStats> teamStats = GetTeamStatsV2(); // V2 is manual data
+
+            for (int i = 0; i < teamEntities.Count; i++) {
+                teamEntities[i].ID = teamStats[teamEntities[i].Name].TeamID;
+            }
+
             var response = _tableStorageHelper.UpsertEntities(teamEntities, AppConstants.TeamsTable).Result;
 
             return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
@@ -163,7 +164,8 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Losses = int.Parse(team.loss),
                     Ratio = double.Parse(team.winPctV2),
                     Streak = int.Parse(team.streak),
-                    ClinchedPlayoffBirth = string.IsNullOrEmpty(team.clinchedPlayoffsCode) ? 0 : 1
+                    ClinchedPlayoffBirth = string.IsNullOrEmpty(team.clinchedPlayoffsCode) ? 0 : 1,
+                    PlayoffWins = 0,
                 });
             }
 

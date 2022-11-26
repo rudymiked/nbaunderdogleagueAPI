@@ -1,6 +1,6 @@
 [
     {
-      "partitionKey": "Team",
+      "partitionKey": "2022",
       "rowKey": "Celtics",
       "name": "Celtics",
       "city": "Boston",
@@ -10,7 +10,7 @@
       "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Suns",
         "name": "Suns",
         "city": "Pheonix",
@@ -20,7 +20,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Bucks",
         "name": "Bucks",
         "city": "Milwaukee",
@@ -30,7 +30,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Clippers",
         "name": "Clippers",
         "city": "Los Angeles",
@@ -40,7 +40,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Warriors",
         "name": "Warriors",
         "city": "Golden State",
@@ -50,7 +50,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "76ers",
         "name": "76ers",
         "city": "Philadelphia",
@@ -60,7 +60,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Nuggets",
         "name": "Nuggets",
         "city": "Denver",
@@ -70,7 +70,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Nets",
         "name": "Nets",
         "city": "Brooklyn",
@@ -80,7 +80,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Grizzlies",
         "name": "Grizzlies",
         "city": "Memphis",
@@ -90,7 +90,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Heat",
         "name": "Heat",
         "city": "Miami",
@@ -100,7 +100,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Timberwolves",
         "name": "Timberwolves",
         "city": "Minnesota",
@@ -110,7 +110,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Mavericks",
         "name": "Mavericks",
         "city": "Dallas",
@@ -120,7 +120,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Cavaliers",
         "name": "Cavaliers",
         "city": "Cleveland",
@@ -130,7 +130,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Raptors",
         "name": "Raptors",
         "city": "Toronto",
@@ -140,7 +140,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Hawks",
         "name": "Hawks",
         "city": "Atlanta",
@@ -150,7 +150,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Lakers",
         "name": "Lakers",
         "city": "Los Angeles",
@@ -160,7 +160,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Pelicans",
         "name": "Pelicans",
         "city": "New Orleans",
@@ -170,7 +170,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Bulls",
         "name": "Bulls",
         "city": "Chicago",
@@ -180,7 +180,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Trail Blazers",
         "name": "Trail Blazers",
         "city": "Portland",
@@ -190,7 +190,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Knicks",
         "name": "Knicks",
         "city": "New York",
@@ -200,7 +200,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Hornets",
         "name": "Hornets",
         "city": "Charlotte",
@@ -210,7 +210,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Wizards",
         "name": "Wizards",
         "city": "Washington",
@@ -220,7 +220,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Kings",
         "name": "Kings",
         "city": "Sacramento",
@@ -230,7 +230,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Pistons",
         "name": "Pistons",
         "city": "Detroit",
@@ -240,7 +240,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Magic",
         "name": "Magic",
         "city": "Orlando",
@@ -250,7 +250,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Jazz",
         "name": "Jazz",
         "city": "Utah",
@@ -260,7 +260,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Thunder",
         "name": "Thunder",
         "city": "Oklahoma City",
@@ -270,7 +270,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Pacers",
         "name": "Pacers",
         "city": "Indiana",
@@ -280,7 +280,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Rockets",
         "name": "Rockets",
         "city": "Houston",
@@ -290,7 +290,7 @@
         "eTag": "*"
     },
     {
-        "partitionKey": "Team",
+        "partitionKey": "2022",
         "rowKey": "Spurs",
         "name": "Spurs",
         "city": "San Antonio",

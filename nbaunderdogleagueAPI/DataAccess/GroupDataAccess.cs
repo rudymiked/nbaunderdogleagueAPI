@@ -56,12 +56,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // 4. Combine 1, 2, and 3
             foreach (TeamEntity team in teamsEntities) {
                 TeamStats teamStats = teamStatsDict[team.Name];
-
-                double projectedDiff = (double)(team.ProjectedWin / (double)(team.ProjectedWin + team.ProjectedLoss));
-                double actualDiff = (double)(teamStats.Wins / (double)(teamStats.Wins + teamStats.Losses));
-                double score = (double)(actualDiff / (double)projectedDiff);
-
-                UserEntity userEntity = userEntities.Where((gov) => gov.Team == team.Name).FirstOrDefault();
+                UserEntity userEntity = userEntities.FirstOrDefault((gov) => gov.Team == team.Name);
 
                 if (userEntity != null) {
                     standings.Add(new GroupStandings() {
@@ -73,7 +68,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         ProjectedLoss = team.ProjectedLoss,
                         Win = teamStats.Wins,
                         Loss = teamStats.Losses,
-                        Score = double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2),
+                        Score = Utils.CalculateScore(team.ProjectedWin, team.ProjectedLoss, teamStats.Wins, teamStats.Losses, teamStats.PlayoffWins),
                         Playoffs = teamStats.ClinchedPlayoffBirth == 1 ? "Yes" : "",
                         PlayoffWins = teamStats.PlayoffWins
                     });
@@ -229,9 +224,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.GroupNoUsersFound + leaveGroupRequest.GroupId;
             }
 
-            UserEntity userInGroup = userEntities.Where(user => user.Email == leaveGroupRequest.Email && user.Group.ToString() == leaveGroupRequest.GroupId).FirstOrDefault();
+            UserEntity userInGroup = userEntities.FirstOrDefault(user => user.Email == leaveGroupRequest.Email && user.Group.ToString() == leaveGroupRequest.GroupId);
 
-            string filter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.Email == leaveGroupRequest.Email && draft.GroupId.ToString() == leaveGroupRequest.GroupId);
+            string filter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.Email == leaveGroupRequest.Email && draft.GroupId == Guid.Parse(leaveGroupRequest.GroupId));
 
             DraftEntity userInDraft = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, filter).Result.FirstOrDefault();
 
@@ -240,14 +235,19 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // delete user from group 
-
-            var userDeleteResponse = _tableStorageHelper.DeleteEntity(userInGroup, AppConstants.UsersTable).Result;
+            if (userInGroup != null) {
+                var userDeleteResponse = _tableStorageHelper.DeleteEntity(userInGroup, AppConstants.UsersTable).Result;
+                return (userDeleteResponse != null && !userDeleteResponse.IsError) ? 
+                    AppConstants.Success :
+                    AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
+            }
 
             // delete user from group's draft
+            if (userInDraft != null) {
+                var draftDeleteResponse = _tableStorageHelper.DeleteEntity(userInDraft, AppConstants.DraftTable).Result;
+            }
 
-            var draftDeleteResponse = _tableStorageHelper.DeleteEntity(userInDraft, AppConstants.DraftTable).Result;
-
-            return (userDeleteResponse != null && !userDeleteResponse.IsError) ? AppConstants.Success : AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
+            return AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
         }
 
         public GroupEntity CreateGroup(string name, string ownerEmail)

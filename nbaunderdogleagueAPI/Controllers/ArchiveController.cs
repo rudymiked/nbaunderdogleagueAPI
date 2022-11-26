@@ -20,7 +20,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("SeasonArchive")]
-        public ActionResult SeasonArchive(string groupId)
+        public ActionResult<List<SeasonArchiveEntity>> SeasonArchive(string groupId)
         {
             List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.GetSeasonArchive(groupId);
 
@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpPost("ArchiveCurrentSeason")]
-        public ActionResult ArchiveCurrentSeason(string groupId)
+        public ActionResult<List<SeasonArchiveEntity>> ArchiveCurrentSeason(string groupId)
         {
             List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveCurrentSeason(groupId);
 

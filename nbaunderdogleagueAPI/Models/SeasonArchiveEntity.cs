@@ -5,7 +5,7 @@ namespace nbaunderdogleagueAPI.Models
 {
     public class SeasonArchiveEntity : ITableEntity
     {
-        public string PartitionKey { get; set; }
+        public string PartitionKey { get; set; } // groupId
         public string RowKey { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
@@ -20,6 +20,6 @@ namespace nbaunderdogleagueAPI.Models
         public int Wins { get; set; }
         public int Losses { get; set; }
         public int? ClinchedPlayoffBirth { get; set; }
-        public int? PlayoffWins { get; set; }
+        public int PlayoffWins { get; set; }
     }
 }

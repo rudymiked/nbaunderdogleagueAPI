@@ -8,6 +8,7 @@ namespace nbaunderdogleagueAPI.Business
         List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId);
         List<SeasonArchiveEntity> GetSeasonArchive(string groupId);
         SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive);
+        List<ArchiveSummary> GetArchiveSummary(string email);
     }
     public class ArchiveRepository : IArchiveRepository
     {
@@ -27,6 +28,10 @@ namespace nbaunderdogleagueAPI.Business
         public SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive)
         {
             return _archiveDataAccess.ArchiveUser(userArchive);
+        }
+        public List<ArchiveSummary> GetArchiveSummary(string email)
+        {
+            return _archiveDataAccess.GetArchiveSummary(email);
         }
     }
 }

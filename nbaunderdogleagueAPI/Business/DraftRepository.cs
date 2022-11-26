@@ -10,6 +10,7 @@ namespace nbaunderdogleagueAPI.Business
         List<UserEntity> DraftedTeams(string groupId);
         List<DraftEntity> GetDraft(string groupId);
         List<TeamEntity> GetAvailableTeamsToDraft(string groupId);
+        List<DraftResults> GetDraftResults(string groupId);
     }
 
     public class DraftRepository : IDraftRepository
@@ -38,6 +39,10 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamEntity> GetAvailableTeamsToDraft(string groupId)
         {
             return _draftDataAccess.GetAvailableTeamsToDraft(groupId);
+        }
+        public List<DraftResults> GetDraftResults(string groupId)
+        {
+            return _draftDataAccess.GetDraftResults(groupId);
         }
     }
 }

@@ -68,5 +68,15 @@ namespace nbaunderdogleagueAPI.Controllers
                 return NoContent();
             }
         }
+
+        [HttpGet("DraftResults")]
+        public ActionResult<List<DraftResults>> GetDraftResults(string groupId)
+        {
+            if (!string.IsNullOrEmpty(groupId)) {
+                return Ok(_draftService.GetDraftResults(groupId));
+            } else {
+                return NoContent();
+            }
+        }
     }
 }
