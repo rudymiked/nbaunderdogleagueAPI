@@ -68,6 +68,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Wins = standings.Win,
                         Losses = standings.Loss,
                         PlayoffWins = standings.PlayoffWins,
+                        Score = Utils.CalculateScore(standings.ProjectedWin, standings.ProjectedLoss, standings.Win, standings.Loss, standings.PlayoffWins),
                         ClinchedPlayoffBirth = standings.Playoffs == "Yes" ? 1 : 0
                     });
                 }
@@ -131,7 +132,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Governor = archive.Governor,
                         GroupId = archive.GroupId,
                         GroupName = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.GroupId)?.Name,
-                        Score = Utils.CalculateScore(archive.ProjectedWin, archive.ProjectedLoss, archive.Wins, archive.Losses, (int)archive.PlayoffWins),
+                        Score = archive.Score,
                         TeamCity = archive.TeamCity,
                         TeamName = archive.TeamName,
                         Standing = archive.Standing
@@ -167,8 +168,15 @@ namespace nbaunderdogleagueAPI.DataAccess
                     List<SeasonArchiveEntity> seasonArchiveEntities = GetSeasonArchive(group.Id.ToString());
 
                     for (int i = 0; i< seasonArchiveEntities.Count; i++) {
+                        int wins = seasonArchiveEntities[i].Wins;
+                        int losses = seasonArchiveEntities[i].Losses;
+                        int projectedWins = seasonArchiveEntities[i].ProjectedWin;
+                        int projectedLosses = seasonArchiveEntities[i].ProjectedLoss;
+                        int playoffWins = seasonArchiveEntities[i].PlayoffWins;
+
                         seasonArchiveEntities[i].Year = group.Year;
                         seasonArchiveEntities[i].GroupId = group.Id.ToString();
+                        seasonArchiveEntities[i].Score = Utils.CalculateScore(projectedWins, projectedLosses, wins, losses, playoffWins);
                     }
 
                     resultList.AddRange(seasonArchiveEntities);
