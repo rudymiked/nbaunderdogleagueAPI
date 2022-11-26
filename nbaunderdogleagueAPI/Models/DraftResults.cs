@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid GroupId { get; set; }
+        public string User { get; set; }
         public string Email { get; set; }
         public int DraftOrder { get; set; }
         public DateTimeOffset UserStartTime { get; set; }

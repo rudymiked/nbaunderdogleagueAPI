@@ -376,6 +376,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Id = d.Id,
                         GroupId = Guid.Parse(groupId),
                         Email = d.Email,
+                        User = string.IsNullOrEmpty(userEntity.Username) ? d.Email.Split('@')[0] : userEntity.Username,
                         DraftOrder = d.DraftOrder,
                         UserStartTime = d.UserStartTime,
                         UserEndTime = d.UserEndTime,
