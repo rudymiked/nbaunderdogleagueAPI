@@ -67,13 +67,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                     request.RequestUri = new Uri(baseURL + parameters);
                     request.Headers.Add("Origin", origin);
                     request.Headers.Add("Sec-Fetch-Mode", "cors");
+                    request.Headers.Add("cache-control", "max-age=0");
                     request.Headers.Add("Sec-Fetch-Site", "same-site");
                     request.Headers.Add("Sec-Fetch-Dest", "empty");
                     request.Headers.Add("accept-encoding", "Accepflate, sdch");
                     request.Headers.Add("Accept-Language", "en");
                     request.Headers.Add("Accept", "*/*");
                     request.Headers.Add("Access-Control-Allow-Origin", origin);
-                    request.Headers.Add("User-Agent", userAgent);
+                    request.Headers.Add("User-Agent", "PostmanRuntime/7.4.0");
                     request.Headers.Add("Host", "stats.nba.com");
                     request.Headers.Add("Connection", "keep-alive");
                     request.Headers.Add("X-Version", "1");
@@ -223,9 +224,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Timestamp = DateTime.Now
             }));
 
-            var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+            if (teamStats.Count != 0) {
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
-            return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+                return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+            } else {
+                return new List<TeamStats>();
+            }
         }
     }
 }
