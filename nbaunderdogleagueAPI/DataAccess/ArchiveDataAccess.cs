@@ -124,11 +124,11 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 foreach (SeasonArchiveEntity archive in seasonArchiveEntities) {
                     archiveSummaries.Add(new ArchiveSummary() {
-                        Year = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.PartitionKey)?.Year,
+                        Year = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.GroupId)?.Year,
                         Email = archive.Email,
                         Governor = archive.Governor,
-                        GroupId = archive.PartitionKey,
-                        GroupName = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.PartitionKey)?.Name,
+                        GroupId = archive.GroupId,
+                        GroupName = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.GroupId)?.Name,
                         Score = Utils.CalculateScore(archive.ProjectedWin, archive.ProjectedLoss, archive.Wins, archive.Losses, (int)archive.PlayoffWins),
                         TeamCity = archive.TeamCity,
                         TeamName = archive.TeamName,
