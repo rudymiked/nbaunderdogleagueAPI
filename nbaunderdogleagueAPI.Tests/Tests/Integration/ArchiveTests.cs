@@ -35,21 +35,21 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         public void ArchiveUser()
         {
             SeasonArchiveEntity userArchive = new() {
-                PartitionKey = AppConstants.Group_2018.ToString(),
-                RowKey = "davidhigh@gmail.com",
+                PartitionKey = AppConstants.Group_2019.ToString(),
+                RowKey = "will@gmail.com",
                 ETag = ETag.All,
                 Timestamp = DateTime.UtcNow,
                 TeamID = 0,
-                TeamCity = "LA",
-                TeamName = "Clippers",
-                Governor = "D High",
-                Email = "davidhigh@gmail.com",
-                Standing = 5,
-                ProjectedWin = 41,
-                ProjectedLoss = 41,
-                Wins = 38,
-                Losses = 44,
-                PlayoffWins = 2,
+                TeamCity = "Portland",
+                TeamName = "Trail Blazers",
+                Governor = "Will",
+                Email = "will@gmail.com",
+                Standing = 12,
+                ProjectedWin = 40,
+                ProjectedLoss = 42,
+                Wins = 26,
+                Losses = 33,
+                PlayoffWins = 1,
                 ClinchedPlayoffBirth = 1
             };
 

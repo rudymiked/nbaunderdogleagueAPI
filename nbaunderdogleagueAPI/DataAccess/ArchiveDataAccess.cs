@@ -103,6 +103,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == seasonArchiveEntity.TeamName);
 
                 seasonArchiveEntity.TeamID = teamStats != null ? teamStats.TeamID : 0;
+                seasonArchiveEntity.Score = Utils.CalculateScore(seasonArchiveEntity.ProjectedWin, seasonArchiveEntity.ProjectedLoss, seasonArchiveEntity.Wins, seasonArchiveEntity.Losses, seasonArchiveEntity.PlayoffWins);
 
                 var response = _tableStorageHelper.UpsertEntities(new List<SeasonArchiveEntity>() { seasonArchiveEntity }, AppConstants.ArchiveTable).Result;
 
@@ -167,6 +168,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                 foreach (GroupEntity group in groups) {
                     List<SeasonArchiveEntity> seasonArchiveEntities = GetSeasonArchive(group.Id.ToString());
 
+                    if (seasonArchiveEntities.Count == 0) {
+                        continue;
+                    }
+
                     for (int i = 0; i< seasonArchiveEntities.Count; i++) {
                         int wins = seasonArchiveEntities[i].Wins;
                         int losses = seasonArchiveEntities[i].Losses;
@@ -177,6 +182,18 @@ namespace nbaunderdogleagueAPI.DataAccess
                         seasonArchiveEntities[i].Year = group.Year;
                         seasonArchiveEntities[i].GroupId = group.Id.ToString();
                         seasonArchiveEntities[i].Score = Utils.CalculateScore(projectedWins, projectedLosses, wins, losses, playoffWins);
+                    }
+
+                    // order by score to get standings
+                    seasonArchiveEntities = seasonArchiveEntities.OrderByDescending(season => season.Score).ToList();
+
+                    for (int i = 0; i < seasonArchiveEntities.Count; i++) {
+                        // set same standing is user's have the same score
+                        if (i > 0 && seasonArchiveEntities[i-1].Score == seasonArchiveEntities[i].Score) {
+                            seasonArchiveEntities[i].Standing = seasonArchiveEntities[i - 1].Standing;
+                        } else {
+                            seasonArchiveEntities[i].Standing = i + 1;
+                        }
                     }
 
                     resultList.AddRange(seasonArchiveEntities);
