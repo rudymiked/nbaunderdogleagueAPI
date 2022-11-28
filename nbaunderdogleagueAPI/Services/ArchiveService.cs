@@ -33,7 +33,7 @@ namespace nbaunderdogleagueAPI.Services
         public List<ArchiveSummary> GetArchiveSummary(string email)
         {
             return _archiveRepository.GetArchiveSummary(email);
-        } 
+        }
         public List<SeasonArchiveEntity> UpdateArchives()
         {
             return _archiveRepository.UpdateArchives();

@@ -2,9 +2,7 @@
 using Azure.Data.Tables;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
-using nbaunderdogleagueAPI.Models.NBAModels;
 using nbaunderdogleagueAPI.Services;
-using System.Text.RegularExpressions;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -164,7 +162,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<SeasonArchiveEntity> resultList = new();
                 List<GroupEntity> groups = _groupService.GetAllGroups();
-                
+
                 foreach (GroupEntity group in groups) {
                     List<SeasonArchiveEntity> seasonArchiveEntities = GetSeasonArchive(group.Id.ToString());
 
@@ -172,7 +170,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         continue;
                     }
 
-                    for (int i = 0; i< seasonArchiveEntities.Count; i++) {
+                    for (int i = 0; i < seasonArchiveEntities.Count; i++) {
                         int wins = seasonArchiveEntities[i].Wins;
                         int losses = seasonArchiveEntities[i].Losses;
                         int projectedWins = seasonArchiveEntities[i].ProjectedWin;
@@ -189,7 +187,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     for (int i = 0; i < seasonArchiveEntities.Count; i++) {
                         // set same standing is user's have the same score
-                        if (i > 0 && seasonArchiveEntities[i-1].Score == seasonArchiveEntities[i].Score) {
+                        if (i > 0 && seasonArchiveEntities[i - 1].Score == seasonArchiveEntities[i].Score) {
                             seasonArchiveEntities[i].Standing = seasonArchiveEntities[i - 1].Standing;
                         } else {
                             seasonArchiveEntities[i].Standing = i + 1;
@@ -204,8 +202,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 }
 
                 return updatedCount == resultList.Count ? resultList : new List<SeasonArchiveEntity>();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
             return new List<SeasonArchiveEntity>();

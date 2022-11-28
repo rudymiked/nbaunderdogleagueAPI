@@ -237,7 +237,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // delete user from group 
             if (userInGroup != null) {
                 var userDeleteResponse = _tableStorageHelper.DeleteEntity(userInGroup, AppConstants.UsersTable).Result;
-                return (userDeleteResponse != null && !userDeleteResponse.IsError) ? 
+                return (userDeleteResponse != null && !userDeleteResponse.IsError) ?
                     AppConstants.Success :
                     AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
             }

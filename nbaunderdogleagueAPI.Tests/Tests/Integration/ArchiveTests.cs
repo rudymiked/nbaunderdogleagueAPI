@@ -72,8 +72,8 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
             List<ArchiveSummary> archiveSummaries = _archiveService.GetArchiveSummary(TestConstants.Email);
 
             Assert.AreNotEqual(0, archiveSummaries.Count);
-        }       
-        
+        }
+
         [TestMethod]
         public void UpdateArchivesTest()
         {
