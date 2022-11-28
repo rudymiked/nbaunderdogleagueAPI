@@ -98,6 +98,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
+        [TestMethod]
+        public void UpdateTeamStatsFromRapidAPI()
+        {
+            if (_teamService != null) {
+                List<TeamStats> teamStats = _teamService.UpdateTeamStatsFromRapidAPI();
+
+                Assert.AreNotEqual(0, teamStats.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
         //[TestMethod]
         //public void AddTeamsTest()
         //{

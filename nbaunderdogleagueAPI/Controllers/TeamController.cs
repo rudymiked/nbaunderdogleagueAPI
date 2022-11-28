@@ -41,6 +41,12 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_teamService.UpdateTeamStatsManually());
         }
 
+        [HttpGet("UpdateTeamStatsFromRapidAPI")]
+        public ActionResult<IEnumerable<TeamStats>> UpdateTeamStatsFromRapidAPI()
+        {
+            return Ok(_teamService.UpdateTeamStatsFromRapidAPI());
+        }
+
         [HttpGet("TeamsTable")]
         public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
         {

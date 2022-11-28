@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.NBAModels;
@@ -13,16 +14,21 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<string, TeamStats> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         Dictionary<string, TeamStats> GetTeamStatsV2();
-        List<TeamStats> UpdateTeamStatsManually();
+        Dictionary<string, TeamStats> GetTeamStatsV3();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
+        List<TeamStats> UpdateTeamStatsManually();
+        List<TeamStats> UpdateTeamStatsFromRapidAPI();
+        Task<string> GetNBAStandingsDataFromRapidAPI(string season);
     }
     public class TeamDataAccess : ITeamDataAccess
     {
         private readonly ILogger _logger;
+        private readonly AppConfig _appConfig;
         private readonly ITableStorageHelper _tableStorageHelper;
-        public TeamDataAccess(ILogger<TeamDataAccess> logger, ITableStorageHelper tableStorageHelper)
+        public TeamDataAccess(IOptions<AppConfig> options, ILogger<TeamDataAccess> logger, ITableStorageHelper tableStorageHelper)
         {
+            _appConfig = options.Value;
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
         }
@@ -54,7 +60,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 string origin = "https://www.nba.com";
                 string baseURL = "https://stats.nba.com/";
                 string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
-                string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
+                //string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
 
                 _logger.LogError(baseURL + parameters);
 
@@ -208,7 +214,97 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
                 PartitionKey = "TeamStats",
-                RowKey = teamData.TeamID.ToString(),
+                RowKey = teamData.TeamName,
+                TeamID = teamData.TeamID,
+                TeamCity = teamData.TeamCity,
+                TeamName = teamData.TeamName,
+                Conference = teamData.Conference,
+                Wins = teamData.Wins,
+                PlayoffWins = teamData.PlayoffWins,
+                Losses = teamData.Losses,
+                Standing = teamData.Standing,
+                Ratio = teamData.Ratio,
+                Streak = teamData.Streak,
+                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                ETag = ETag.All,
+                Timestamp = DateTime.Now
+            }));
+
+            if (teamStats.Count != 0) {
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+
+                return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+            } else {
+                return new List<TeamStats>();
+            }
+        }
+
+        // Rapid API Methods
+        public async Task<string> GetNBAStandingsDataFromRapidAPI(string season)
+        {
+            try {
+                HttpClient httpClient = new();
+                HttpRequestMessage request = new() {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri("https://api-nba-v1.p.rapidapi.com/standings?league=standard&season=" + season),
+                    Headers =
+                    {
+                        { "X-RapidAPI-Key", _appConfig.RapidAPIKey },
+                        { "X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com" },
+                    },
+                };
+
+                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadAsStringAsync();
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+        }
+
+        public Dictionary<string, TeamStats> GetTeamStatsV3()
+        {
+            try {
+                // season starts in October, switch season on site in September
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                string season = now.Month >= 9 ? now.Year.ToString() : (now.Year - 1).ToString();
+
+                RapidAPI_NBA.Root output;
+
+                string content = GetNBAStandingsDataFromRapidAPI(season).Result;
+
+                if (string.IsNullOrEmpty(content)) {
+                    return new Dictionary<string, TeamStats>();
+                }
+
+                output = JsonConvert.DeserializeObject<RapidAPI_NBA.Root>(content);
+
+                List<TeamStats> teamStats = output.ExtractTeamStats(_logger);
+
+                Dictionary<string, TeamStats> teamStatsDict = new();
+
+                teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
+
+                return teamStatsDict;
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new Dictionary<string, TeamStats>();
+        }
+
+        public List<TeamStats> UpdateTeamStatsFromRapidAPI()
+        {
+            List<TeamStats> teamStats = GetTeamStatsV3().Values.OrderByDescending(team => team.Wins).ToList();
+            List<ManualTeamStatsEntity> manualTeamStats = new();
+
+            teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+                PartitionKey = "TeamStats",
+                RowKey = teamData.TeamName,
                 TeamID = teamData.TeamID,
                 TeamCity = teamData.TeamCity,
                 TeamName = teamData.TeamName,

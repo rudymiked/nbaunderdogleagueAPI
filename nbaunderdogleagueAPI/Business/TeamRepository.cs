@@ -9,6 +9,7 @@ namespace nbaunderdogleagueAPI.Business
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> TeamStatsList(int version);
         List<TeamStats> UpdateTeamStatsManually();
+        List<TeamStats> UpdateTeamStatsFromRapidAPI();
         Dictionary<string, TeamStats> TeamStatsDictionary(int version);
     }
 
@@ -53,6 +54,11 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamStats> UpdateTeamStatsManually()
         {
             return _teamDataAccess.UpdateTeamStatsManually();
+        }
+
+        public List<TeamStats> UpdateTeamStatsFromRapidAPI()
+        {
+            return _teamDataAccess.UpdateTeamStatsFromRapidAPI();
         }
     }
 }
