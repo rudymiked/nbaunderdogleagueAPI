@@ -321,12 +321,18 @@ namespace nbaunderdogleagueAPI.DataAccess
             }));
 
             if (teamStats.Count != 0) {
-                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                if (teamStats.Count == 30) {
+                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
-                return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+                    return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+                } else {
+                    _logger.LogError("Team Stats not fetched for all teams, count: " + teamStats.Count);
+                }
             } else {
-                return new List<TeamStats>();
+                _logger.LogError("Team Stats is zero");
             }
+
+            return new List<TeamStats>();
         }
     }
 }
