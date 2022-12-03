@@ -17,6 +17,7 @@ namespace nbaunderdogleagueAPI.Models
         public int Losses { get; set; }
         public double Ratio { get; set; }
         public int? Streak { get; set; }
+        public string Logo { get; set; }
         public int? ClinchedPlayoffBirth { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }

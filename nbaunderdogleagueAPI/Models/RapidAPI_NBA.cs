@@ -3,6 +3,11 @@
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class RapidAPI_NBA
     {
+        public class RapidAPIContent
+        {
+            public string Content { get; set; }
+            public int RequestsRemaining { get; set; }
+        }
         public class Conference
         {
             public string name { get; set; }
@@ -76,7 +81,8 @@
                             Losses = r.loss.total,
                             Ratio = double.Parse(r.win.percentage),
                             Streak = r.streak,
-                            ClinchedPlayoffBirth = 0
+                            ClinchedPlayoffBirth = 0,
+                            Logo = r.team.logo
                         });
 
                     return output.ToList();

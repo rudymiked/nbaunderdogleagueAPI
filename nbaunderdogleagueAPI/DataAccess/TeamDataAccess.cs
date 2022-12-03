@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
@@ -14,12 +15,12 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<string, TeamStats> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         Dictionary<string, TeamStats> GetTeamStatsV2();
-        Dictionary<string, TeamStats> GetTeamStatsV3();
+        Dictionary<int, List<TeamStats>> GetTeamStatsV3();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> UpdateTeamStatsManually();
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
-        Task<string> GetNBAStandingsDataFromRapidAPI(string season);
+        Task<RapidAPI_NBA.RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
     }
     public class TeamDataAccess : ITeamDataAccess
     {
@@ -240,7 +241,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         }
 
         // Rapid API Methods
-        public async Task<string> GetNBAStandingsDataFromRapidAPI(string season)
+        public async Task<RapidAPI_NBA.RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season)
         {
             try {
                 HttpClient httpClient = new();
@@ -258,7 +259,16 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadAsStringAsync();
+                var nonValidatedHeaders = response.Headers.NonValidated;
+
+                int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
+
+                //int x = int.Parse(remainingCalls.ElementAt(0));
+
+                return new RapidAPI_NBA.RapidAPIContent() {
+                    Content = await response.Content.ReadAsStringAsync(),
+                    RequestsRemaining = requestsRemaining
+                };
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
@@ -266,7 +276,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
-        public Dictionary<string, TeamStats> GetTeamStatsV3()
+        public Dictionary<int, List<TeamStats>> GetTeamStatsV3()
         {
             try {
                 // season starts in October, switch season on site in September
@@ -275,31 +285,34 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 RapidAPI_NBA.Root output;
 
-                string content = GetNBAStandingsDataFromRapidAPI(season).Result;
+                RapidAPI_NBA.RapidAPIContent content = GetNBAStandingsDataFromRapidAPI(season).Result;
 
-                if (string.IsNullOrEmpty(content)) {
-                    return new Dictionary<string, TeamStats>();
+                if (string.IsNullOrEmpty(content.Content)) {
+                    return new Dictionary<int, List<TeamStats>>();
                 }
 
-                output = JsonConvert.DeserializeObject<RapidAPI_NBA.Root>(content);
+                output = JsonConvert.DeserializeObject<RapidAPI_NBA.Root>(content.Content);
 
                 List<TeamStats> teamStats = output.ExtractTeamStats(_logger);
 
-                Dictionary<string, TeamStats> teamStatsDict = new();
-
-                teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
+                Dictionary<int, List<TeamStats>> teamStatsDict = new() {
+                    { content.RequestsRemaining, teamStats }
+                };
 
                 return teamStatsDict;
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
-            return new Dictionary<string, TeamStats>();
+            return new Dictionary<int, List<TeamStats>>();
         }
 
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
-            List<TeamStats> teamStats = GetTeamStatsV3().Values.OrderByDescending(team => team.Wins).ToList();
+            Dictionary<int, List<TeamStats>> teamStatsDictionary = GetTeamStatsV3();
+            List<TeamStats> teamStats = teamStatsDictionary.Values.FirstOrDefault().OrderByDescending(team => team.Wins).ToList();
+            //int remainingCalls = teamStatsDictionary.Keys.FirstOrDefault(); // XXX
+
             List<ManualTeamStatsEntity> manualTeamStats = new();
 
             teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
@@ -316,6 +329,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Ratio = teamData.Ratio,
                 Streak = teamData.Streak,
                 ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                Logo = teamData.Logo,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now
             }));
