@@ -22,91 +22,65 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("GroupStandings")]
         public ActionResult<List<GroupStandings>> GroupStandings(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_groupService.GetGroupStandings(groupId, 0));
-            } else {
-                return NoContent();
-            }
+            return (!string.IsNullOrEmpty(groupId)) ? Ok(_groupService.GetGroupStandings(groupId, 0)) : NoContent();
         }
 
         [HttpGet("GroupStandingsV1")]
         public ActionResult<List<GroupStandings>> GroupStandingsV1(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_groupService.GetGroupStandings(groupId, 1));
-            } else {
-                return NoContent();
-            }
+            return (!string.IsNullOrEmpty(groupId)) ? Ok(_groupService.GetGroupStandings(groupId, 1)) : NoContent();
         }
 
         [HttpGet("GroupStandingsV2")]
         public ActionResult<List<GroupStandings>> GroupStandingsV2(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_groupService.GetGroupStandings(groupId, 2));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_groupService.GetGroupStandings(groupId, 2)) : NoContent();
         }
 
         [HttpPost("CreateGroup")]
         public ActionResult<GroupEntity> CreateGroup(CreateGroupRequest createGroupRequest)
         {
-            if (!string.IsNullOrEmpty(createGroupRequest.Name) && !string.IsNullOrEmpty(createGroupRequest.OwnerEmail)) {
-                return Ok(_groupService.CreateGroup(createGroupRequest.Name, createGroupRequest.OwnerEmail));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(createGroupRequest.Name) && !string.IsNullOrEmpty(createGroupRequest.OwnerEmail)
+                ? Ok(_groupService.CreateGroup(createGroupRequest.Name, createGroupRequest.OwnerEmail))
+                : NoContent();
         }
 
         [HttpPost("JoinGroup")]
         public ActionResult<string> JoinGroup(JoinGroupRequest joinGroupRequest)
         {
-            if (!string.IsNullOrEmpty(joinGroupRequest.GroupId) && !string.IsNullOrEmpty(joinGroupRequest.Email)) {
-                return Ok(_groupService.JoinGroup(joinGroupRequest));
-            } else {
-                return NoContent();
-            }
+            return (!string.IsNullOrEmpty(joinGroupRequest.GroupId) && !string.IsNullOrEmpty(joinGroupRequest.Email))
+                ? Ok(_groupService.JoinGroup(joinGroupRequest))
+                : NoContent();
         }
 
         [HttpPost("LeaveGroup")]
         public ActionResult<string> LeaveGroup(LeaveGroupRequest leaveGroupRequest)
         {
-            if (!string.IsNullOrEmpty(leaveGroupRequest.GroupId) && !string.IsNullOrEmpty(leaveGroupRequest.Email)) {
-                return Ok(_groupService.LeaveGroup(leaveGroupRequest));
-            } else {
-                return NoContent();
-            }
+            return (!string.IsNullOrEmpty(leaveGroupRequest.GroupId) && !string.IsNullOrEmpty(leaveGroupRequest.Email))
+                ? Ok(_groupService.LeaveGroup(leaveGroupRequest))
+                : NoContent();
         }
 
         [HttpGet("Group")]
         public ActionResult<GroupEntity> GetGroup(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_groupService.GetGroup(groupId));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_groupService.GetGroup(groupId)) : NoContent();
         }
 
         [HttpGet("AllGroupsUserIsInByYear")]
         public ActionResult<List<GroupEntity>> GetAllGroupsUserIsInByYear(string email, int year)
         {
-            if (!string.IsNullOrEmpty(email) && year >= AppConstants.MinYear) {
-                return Ok(_groupService.GetAllGroupsUserIsInByYear(email, year));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(email) && year >= AppConstants.MinYear
+                ? Ok(_groupService.GetAllGroupsUserIsInByYear(email, year))
+                : NoContent();
         }
 
         [HttpGet("AllGroupsByYear")]
         public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year, bool includeUser, string email)
         {
-            if (year >= AppConstants.MinYear && !string.IsNullOrEmpty(email)) {
-                return Ok(_groupService.GetAllGroupsByYear(year, includeUser, email));
-            } else {
-                return NoContent();
-            }
+            return year >= AppConstants.MinYear && !string.IsNullOrEmpty(email)
+                ? Ok(_groupService.GetAllGroupsByYear(year, includeUser, email))
+                : NoContent();
         }
     }
 }

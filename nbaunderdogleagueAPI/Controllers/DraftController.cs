@@ -22,61 +22,37 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpPost("DraftTeam")]
         public ActionResult<string> DraftTeam(User user)
         {
-            if (!string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(user.Team)) {
-                return Ok(_draftService.DraftTeam(user));
-            } else {
-                return NoContent();
-            }
+            return (!string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(user.Team)) ? Ok(_draftService.DraftTeam(user)) : NoContent();
         }
 
         [HttpPost("SetupDraft")]
         public ActionResult<List<DraftEntity>> SetupDraft(SetupDraftRequest setupDraftRequest)
         {
-            if (!string.IsNullOrEmpty(setupDraftRequest.GroupId)) {
-                return _draftService.SetupDraft(setupDraftRequest);
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(setupDraftRequest.GroupId) ? _draftService.SetupDraft(setupDraftRequest) : NoContent();
         }
 
         [HttpGet("DraftedTeams")]
         public ActionResult<List<UserEntity>> DraftedTeams(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_draftService.DraftedTeams(groupId));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_draftService.DraftedTeams(groupId)) : NoContent();
         }
 
         [HttpGet("Draft")]
         public ActionResult<List<DraftEntity>> GetDraft(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_draftService.GetDraft(groupId));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_draftService.GetDraft(groupId)) : NoContent();
         }
 
         [HttpGet("AvailableTeamsToDraft")]
         public ActionResult<List<TeamEntity>> GetAvailableTeamsToDraft(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_draftService.GetAvailableTeamsToDraft(groupId));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_draftService.GetAvailableTeamsToDraft(groupId)) : NoContent();
         }
 
         [HttpGet("DraftResults")]
         public ActionResult<List<DraftResults>> GetDraftResults(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_draftService.GetDraftResults(groupId));
-            } else {
-                return NoContent();
-            }
+            return !string.IsNullOrEmpty(groupId) ? Ok(_draftService.GetDraftResults(groupId)) : NoContent();
         }
     }
 }

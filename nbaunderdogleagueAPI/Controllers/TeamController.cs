@@ -41,12 +41,6 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_teamService.UpdateTeamStatsManually());
         }
 
-        [HttpGet("UpdateTeamStatsFromRapidAPI")]
-        public ActionResult<IEnumerable<TeamStats>> UpdateTeamStatsFromRapidAPI()
-        {
-            return Ok(_teamService.UpdateTeamStatsFromRapidAPI());
-        }
-
         [HttpGet("TeamsTable")]
         public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
         {
@@ -56,11 +50,7 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpPost("AddTeams")]
         public ActionResult<IEnumerable<TeamEntity>> AddTeams(TeamEntity[] teams)
         {
-            if (teams.Length > 0) {
-                return Ok(_teamService.AddTeams(teams.ToList()));
-            } else {
-                return NoContent();
-            }
+            return (teams.Length > 0) ? Ok(_teamService.AddTeams(teams.ToList())) : NoContent();
         }
     }
 }

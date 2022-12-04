@@ -61,6 +61,10 @@ public class Startup
             services.AddSingleton<IArchiveRepository, ArchiveRepository>();
             services.AddSingleton<IArchiveDataAccess, ArchiveDataAccess>();
 
+            services.AddSingleton<INBAService, NBAService>();
+            services.AddSingleton<INBARepository, NBARepository>();
+            services.AddSingleton<INBADataAccess, NBADataAccess>();
+
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
             services.AddSwaggerGen();

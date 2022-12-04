@@ -17,30 +17,19 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("Users")]
         public ActionResult<IEnumerable<UserEntity>> Users(string groupId)
         {
-            if (!string.IsNullOrEmpty(groupId)) {
-                return Ok(_userService.GetUsers(groupId));
-            }
-
-            return NoContent();
+            return !string.IsNullOrEmpty(groupId) ? Ok(_userService.GetUsers(groupId)) : NoContent();
         }
 
         [HttpPost("UpsertUser")]
         public ActionResult<User> UpsertUser(User user)
         {
-            if (user != null && !string.IsNullOrEmpty(user.Group.ToString())) {
-                return _userService.UpsertUser(user);
-            }
-
-            return NoContent();
+            return (user != null && !string.IsNullOrEmpty(user.Group.ToString())) ? _userService.UpsertUser(user) : NoContent();
         }
+
         [HttpPost("UpdateUser")]
         public ActionResult<User> UpdateUser(User user)
         {
-            if (user != null && !string.IsNullOrEmpty(user.Group.ToString())) {
-                return _userService.UpsertUser(user);
-            }
-
-            return NoContent();
+            return (user != null && !string.IsNullOrEmpty(user.Group.ToString())) ? _userService.UpsertUser(user) : NoContent();
         }
     }
 }
