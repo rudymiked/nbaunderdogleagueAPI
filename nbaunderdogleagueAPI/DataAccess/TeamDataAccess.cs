@@ -7,6 +7,9 @@ using nbaunderdogleagueAPI.Models.NBAModels;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using static nbaunderdogleagueAPI.Models.RapidAPI_NBA;
+using Root = nbaunderdogleagueAPI.Models.NBAModels.Root;
+using Team = nbaunderdogleagueAPI.Models.NBAModels.Team;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
@@ -15,12 +18,12 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<string, TeamStats> GetTeamStats();
         Task<Dictionary<string, TeamStats>> GetTeamStatsV1();
         Dictionary<string, TeamStats> GetTeamStatsV2();
-        Dictionary<int, List<TeamStats>> GetTeamStatsV3();
+        TeamStatsResponse GetTeamStatsFromRapidAPI();
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> UpdateTeamStatsManually();
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
-        Task<RapidAPI_NBA.RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
+        Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
     }
     public class TeamDataAccess : ITeamDataAccess
     {
@@ -241,7 +244,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         }
 
         // Rapid API Methods
-        public async Task<RapidAPI_NBA.RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season)
+        public async Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season)
         {
             try {
                 HttpClient httpClient = new();
@@ -265,7 +268,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 //int x = int.Parse(remainingCalls.ElementAt(0));
 
-                return new RapidAPI_NBA.RapidAPIContent() {
+                return new RapidAPIContent() {
                     Content = await response.Content.ReadAsStringAsync(),
                     RequestsRemaining = requestsRemaining
                 };
@@ -276,7 +279,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
-        public Dictionary<int, List<TeamStats>> GetTeamStatsV3()
+        public TeamStatsResponse GetTeamStatsFromRapidAPI()
         {
             try {
                 // season starts in October, switch season on site in September
@@ -285,32 +288,31 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 RapidAPI_NBA.Root output;
 
-                RapidAPI_NBA.RapidAPIContent content = GetNBAStandingsDataFromRapidAPI(season).Result;
+                RapidAPIContent content = GetNBAStandingsDataFromRapidAPI(season).Result;
 
                 if (string.IsNullOrEmpty(content.Content)) {
-                    return new Dictionary<int, List<TeamStats>>();
+                    return new TeamStatsResponse();
                 }
 
                 output = JsonConvert.DeserializeObject<RapidAPI_NBA.Root>(content.Content);
 
                 List<TeamStats> teamStats = output.ExtractTeamStats(_logger);
 
-                Dictionary<int, List<TeamStats>> teamStatsDict = new() {
-                    { content.RequestsRemaining, teamStats }
+                return new TeamStatsResponse() {
+                    TeamStats = teamStats,
+                    RequestsRemaining = content.RequestsRemaining
                 };
-
-                return teamStatsDict;
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
-            return new Dictionary<int, List<TeamStats>>();
+            return new TeamStatsResponse();
         }
 
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
-            Dictionary<int, List<TeamStats>> teamStatsDictionary = GetTeamStatsV3();
-            List<TeamStats> teamStats = teamStatsDictionary.Values.FirstOrDefault().OrderByDescending(team => team.Wins).ToList();
+            TeamStatsResponse teamStatsResponse = GetTeamStatsFromRapidAPI();
+            List<TeamStats> teamStats = teamStatsResponse.TeamStats.OrderByDescending(team => team.Wins).ToList();
             //int remainingCalls = teamStatsDictionary.Keys.FirstOrDefault(); // XXX
 
             List<ManualTeamStatsEntity> manualTeamStats = new();

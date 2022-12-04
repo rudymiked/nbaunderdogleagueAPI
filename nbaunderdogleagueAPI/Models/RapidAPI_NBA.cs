@@ -3,6 +3,11 @@
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class RapidAPI_NBA
     {
+        public class TeamStatsResponse
+        {
+            public List<TeamStats> TeamStats { get; set; }
+            public int RequestsRemaining { get; set; }
+        }
         public class RapidAPIContent
         {
             public string Content { get; set; }
