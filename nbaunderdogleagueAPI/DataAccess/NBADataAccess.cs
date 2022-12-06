@@ -266,14 +266,15 @@ namespace nbaunderdogleagueAPI.DataAccess
                                             .ToList();
 
                 List<Scoreboard> scoreboard = new();
-
-                List<UserEntity> users = _userService.GetUsers(groupId);
-
                 Dictionary<string, UserEntity> teamUserDict = new();
 
-                users.ForEach(user => {
-                    teamUserDict.Add(user.Team, user);
-                });
+                if (string.IsNullOrEmpty(groupId)) {
+                    List<UserEntity> users = _userService.GetUsers(groupId);
+
+                    users.ForEach(user => {
+                        teamUserDict.Add(user.Team, user);
+                    });
+                }
 
                 foreach (NBAGameEntity nba in nbaGameEntities) {
                     scoreboard.Add(new Scoreboard() {
