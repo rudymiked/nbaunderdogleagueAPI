@@ -268,7 +268,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 List<Scoreboard> scoreboard = new();
                 Dictionary<string, UserEntity> teamUserDict = new();
 
-                if (string.IsNullOrEmpty(groupId)) {
+                if (!string.IsNullOrEmpty(groupId)) {
                     List<UserEntity> users = _userService.GetUsers(groupId);
 
                     users.ForEach(user => {
