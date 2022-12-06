@@ -7,11 +7,12 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
     public interface ITableStorageHelper
     {
-        Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
         Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
+        Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new();
         Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new();
+        Task DeleteAllEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
     }
 
     public class TableStorageHelper : ITableStorageHelper
@@ -36,6 +37,20 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             }
 
             return null;
+        }
+
+        public Task DeleteAllEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
+        {
+            foreach (T entity in entities) {
+                try {
+                    var deleteEntity = DeleteEntity(entity, table);
+                }
+                catch (Exception ex) {
+                    _logger.LogError(ex, ex.Message);
+                }
+            }
+
+            return Task.CompletedTask;
         }
 
         public async Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new()

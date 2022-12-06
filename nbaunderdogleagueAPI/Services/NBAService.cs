@@ -6,6 +6,8 @@ namespace nbaunderdogleagueAPI.Services
     public interface INBAService
     {
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
+        List<NBAGameEntity> UpdateGamesFromRapidAPI();
+        List<NBAGameEntity> NBAScoreboard();
     }
     public class NBAService : INBAService
     {
@@ -17,6 +19,14 @@ namespace nbaunderdogleagueAPI.Services
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
             return _nbaRespository.UpdateTeamStatsFromRapidAPI();
+        }
+        public List<NBAGameEntity> UpdateGamesFromRapidAPI()
+        {
+            return _nbaRespository.UpdateGamesFromRapidAPI();
+        }
+        public List<NBAGameEntity> NBAScoreboard()
+        {
+            return _nbaRespository.NBAScoreboard();
         }
     }
 }

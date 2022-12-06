@@ -6,6 +6,8 @@ namespace nbaunderdogleagueAPI.Business
     public interface INBARepository
     {
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
+        List<NBAGameEntity> UpdateGamesFromRapidAPI();
+        List<NBAGameEntity> NBAScoreboard();
     }
     public class NBARepository : INBARepository
     {
@@ -17,6 +19,14 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
             return _nbaDataAccess.UpdateTeamStatsFromRapidAPI();
+        }        
+        public List<NBAGameEntity> UpdateGamesFromRapidAPI()
+        {
+            return _nbaDataAccess.UpdateGamesFromRapidAPI();
+        }
+        public List<NBAGameEntity> NBAScoreboard()
+        {
+            return _nbaDataAccess.NBAScoreboard();
         }
     }
 }

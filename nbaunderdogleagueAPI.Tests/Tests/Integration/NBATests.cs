@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void UpdateTeamStatsFromRapidAPI()
+        public void UpdateTeamStatsFromRapidAPITest()
         {
             if (_nbaService != null) {
                 List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI();
@@ -34,5 +34,30 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
                 Assert.Fail();
             }
         }
+
+        [TestMethod]
+        public void UpdateGamesFromRapidAPITest()
+        {
+            if (_nbaService != null) {
+                List<NBAGameEntity> gameData = _nbaService.UpdateGamesFromRapidAPI();
+
+                Assert.AreNotEqual(0, gameData.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void NBAScoreboardTest()
+        {
+            if (_nbaService != null) {
+                List<NBAGameEntity> scoreboard = _nbaService.NBAScoreboard();
+
+                Assert.AreNotEqual(0, scoreboard.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
     }
 }
+

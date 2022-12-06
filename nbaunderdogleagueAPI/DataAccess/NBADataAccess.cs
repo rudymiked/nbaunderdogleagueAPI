@@ -9,9 +9,13 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface INBADataAccess
     {
+        GameResponse GetGamesFromRapidAPI();
+        List<NBAGameEntity> UpdateGamesFromRapidAPI();
+        Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date);
         TeamStatsResponse GetTeamStatsFromRapidAPI();
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
+        List<NBAGameEntity> NBAScoreboard();
     }
     public class NBADataAccess : INBADataAccess
     {
@@ -23,6 +27,36 @@ namespace nbaunderdogleagueAPI.DataAccess
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
             _appConfig = appConfig.Value;
+        }
+
+        public GameResponse GetGamesFromRapidAPI()
+        {
+            try {
+                DateTime now = DateTime.UtcNow;
+                DateTime dayBefore = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).AddDays(-1); // get yesterday's games
+
+                Game.Root output;
+
+                RapidAPIContent content = GetNBAGamesDataFromRapidAPI(dayBefore).Result;
+
+                if (string.IsNullOrEmpty(content.Content)) {
+                    return new GameResponse();
+                }
+
+                output = JsonConvert.DeserializeObject<Game.Root>(content.Content);
+
+                List<Game.Response> games = output.response;
+
+                return new GameResponse() {
+                    Games = games,
+                    RequestsRemaining = content.RequestsRemaining
+                };
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new GameResponse();
         }
 
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
@@ -65,6 +99,55 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new List<TeamStats>();
+        }
+
+        // Only save games from the previous day
+        // if there are no games that do, do not overwrite 
+        // this data is just for the scoreboard on the UI
+        public List<NBAGameEntity> UpdateGamesFromRapidAPI()
+        {
+            try {
+                GameResponse gameResponse = GetGamesFromRapidAPI();
+                List<Game.Response> games = gameResponse.Games;
+                //int remainingCalls = teamStatsDictionary.Keys.FirstOrDefault(); // XXX
+
+                // replace current games in scoreboard if there are new games
+                //  otherwise, keep most recent games
+                // keep 10 most recent games for scoreboard
+                if (games.Count > 0) {
+                    List<NBAGameEntity> currentScoreboard = _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
+                                                            .Result
+                                                            .OrderBy(x => x.Timestamp) // oldest dates first
+                                                            .ToList();
+
+                    _tableStorageHelper.DeleteAllEntities(currentScoreboard.Take(games.Count).ToList(), AppConstants.ScoreboardTable);
+
+                    List<NBAGameEntity> nbaGameEntities = new();
+
+                    games.ForEach(g => nbaGameEntities.Add(new NBAGameEntity() {
+                        PartitionKey = "NBA",
+                        RowKey = g.id.ToString(),
+                        HomeTeam = g.teams.home.nickname,
+                        HomeLogo = g.teams.home.logo,
+                        HomeScore = g.scores.home.points,
+                        VisitorsTeam = g.teams.visitors.nickname,
+                        VisitorsLogo = g.teams.visitors.logo,
+                        VisitorsScore = g.scores.home.points,
+                        ETag = ETag.All,
+                        Timestamp = DateTime.Now
+                    }));
+
+                    var updateGamesResponse = _tableStorageHelper.UpsertEntities(nbaGameEntities, AppConstants.ScoreboardTable).Result;
+
+                    return (updateGamesResponse != null && !updateGamesResponse.GetRawResponse().IsError) ? nbaGameEntities : new List<NBAGameEntity>();
+                } else {
+                    _logger.LogInformation("No new games on: " + (new DateTime()).ToString());
+                }
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new List<NBAGameEntity>();
         }
 
         public TeamStatsResponse GetTeamStatsFromRapidAPI()
@@ -131,6 +214,52 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return null;
+        }
+
+        public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date)
+        {
+            try {
+
+                string dateString = date.ToString("yyyy-MM-dd");
+
+                HttpClient httpClient = new();
+                HttpRequestMessage request = new() {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri("https://api-nba-v1.p.rapidapi.com/games?date=" + dateString),
+                    Headers =
+                    {
+                        { "X-RapidAPI-Key", _appConfig.RapidAPIKey },
+                        { "X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com" },
+                    },
+                };
+
+                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                var nonValidatedHeaders = response.Headers.NonValidated;
+
+                int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
+
+                //int x = int.Parse(remainingCalls.ElementAt(0));
+
+                return new RapidAPIContent() {
+                    Content = await response.Content.ReadAsStringAsync(),
+                    RequestsRemaining = requestsRemaining
+                };
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+        }
+
+        public List<NBAGameEntity> NBAScoreboard()
+        {
+            return _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
+                                        .Result
+                                        .OrderBy(x => x.Timestamp) // oldest dates first
+                                        .ToList();
         }
     }
 }

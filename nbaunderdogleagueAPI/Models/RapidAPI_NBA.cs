@@ -2,6 +2,11 @@
 {
     public class RapidAPI_NBA
     {
+        public class GameResponse
+        {
+            public List<Game.Response> Games { get; set; }
+            public int RequestsRemaining { get; set; }
+        }
         public class TeamStatsResponse
         {
             public List<TeamStats> TeamStats { get; set; }
@@ -13,7 +18,7 @@
             public int RequestsRemaining { get; set; }
         }
 
-        public class Games
+        public class Game
         {
             public class Arena
             {
@@ -41,7 +46,7 @@
                 public int loss { get; set; }
                 public Series series { get; set; }
                 public List<string> linescore { get; set; }
-                public int points { get; set; }
+                public int? points { get; set; }
             }
 
             public class Parameters
@@ -120,7 +125,7 @@
                 public int loss { get; set; }
                 public Series series { get; set; }
                 public List<string> linescore { get; set; }
-                public int points { get; set; }
+                public int? points { get; set; }
             }
         }
 
