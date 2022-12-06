@@ -51,7 +51,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         public void NBAScoreboardTest()
         {
             if (_nbaService != null) {
-                List<NBAGameEntity> scoreboard = _nbaService.NBAScoreboard();
+                List<Scoreboard> scoreboard = _nbaService.NBAScoreboard(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(0, scoreboard.Count);
             } else {

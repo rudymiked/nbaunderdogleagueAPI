@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         List<NBAGameEntity> UpdateGamesFromRapidAPI();
-        List<NBAGameEntity> NBAScoreboard();
+        List<Scoreboard> NBAScoreboard(string groupId);
     }
     public class NBAService : INBAService
     {
@@ -24,9 +24,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _nbaRespository.UpdateGamesFromRapidAPI();
         }
-        public List<NBAGameEntity> NBAScoreboard()
+        public List<Scoreboard> NBAScoreboard(string groupId)
         {
-            return _nbaRespository.NBAScoreboard();
+            return _nbaRespository.NBAScoreboard(groupId);
         }
     }
 }

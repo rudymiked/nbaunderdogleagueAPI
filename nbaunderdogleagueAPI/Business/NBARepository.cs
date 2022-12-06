@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Business
     {
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         List<NBAGameEntity> UpdateGamesFromRapidAPI();
-        List<NBAGameEntity> NBAScoreboard();
+        List<Scoreboard> NBAScoreboard(string groupId);
     }
     public class NBARepository : INBARepository
     {
@@ -24,9 +24,9 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _nbaDataAccess.UpdateGamesFromRapidAPI();
         }
-        public List<NBAGameEntity> NBAScoreboard()
+        public List<Scoreboard> NBAScoreboard(string groupId)
         {
-            return _nbaDataAccess.NBAScoreboard();
+            return _nbaDataAccess.NBAScoreboard(groupId);
         }
     }
 }

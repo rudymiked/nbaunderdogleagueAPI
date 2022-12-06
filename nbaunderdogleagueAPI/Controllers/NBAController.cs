@@ -32,9 +32,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("NBAScoreboard")]
-        public ActionResult<IEnumerable<NBAGameEntity>> NBAScoreboard()
+        public ActionResult<IEnumerable<Scoreboard>> NBAScoreboard(string groupId)
         {
-            return Ok(_nbaService.NBAScoreboard());
+            return Ok(_nbaService.NBAScoreboard(groupId));
         }
     }
 }

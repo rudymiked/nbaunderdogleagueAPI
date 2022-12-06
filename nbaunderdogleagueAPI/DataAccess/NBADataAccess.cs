@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
 using static nbaunderdogleagueAPI.Models.RapidAPI_NBA;
 
@@ -15,18 +16,20 @@ namespace nbaunderdogleagueAPI.DataAccess
         TeamStatsResponse GetTeamStatsFromRapidAPI();
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
-        List<NBAGameEntity> NBAScoreboard();
+        List<Scoreboard> NBAScoreboard(string groupId);
     }
     public class NBADataAccess : INBADataAccess
     {
         private readonly ILogger _logger;
         private readonly ITableStorageHelper _tableStorageHelper;
+        private readonly IUserService _userService;
         private readonly AppConfig _appConfig;
-        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper)
+        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService)
         {
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
             _appConfig = appConfig.Value;
+            _userService = userService;
         }
 
         public GameResponse GetGamesFromRapidAPI()
@@ -132,7 +135,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         HomeScore = g.scores.home.points,
                         VisitorsTeam = g.teams.visitors.nickname,
                         VisitorsLogo = g.teams.visitors.logo,
-                        VisitorsScore = g.scores.home.points,
+                        VisitorsScore = g.scores.visitors.points,
                         ETag = ETag.All,
                         Timestamp = DateTime.Now
                     }));
@@ -157,7 +160,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 DateTimeOffset now = DateTimeOffset.UtcNow;
                 string season = now.Month >= 9 ? now.Year.ToString() : (now.Year - 1).ToString();
 
-                RapidAPI_NBA.Standings.Root output;
+                Standings.Root output;
 
                 RapidAPIContent content = GetNBAStandingsDataFromRapidAPI(season).Result;
 
@@ -165,7 +168,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     return new TeamStatsResponse();
                 }
 
-                output = JsonConvert.DeserializeObject<RapidAPI_NBA.Standings.Root>(content.Content);
+                output = JsonConvert.DeserializeObject<Standings.Root>(content.Content);
 
                 List<TeamStats> teamStats = output.ExtractTeamStats(_logger);
 
@@ -254,12 +257,48 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
-        public List<NBAGameEntity> NBAScoreboard()
+        public List<Scoreboard> NBAScoreboard(string groupId = null)
         {
-            return _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
-                                        .Result
-                                        .OrderBy(x => x.Timestamp) // oldest dates first
-                                        .ToList();
+            try {
+                List<NBAGameEntity> nbaGameEntities = _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
+                                            .Result
+                                            .OrderBy(x => x.Timestamp) // oldest dates first
+                                            .ToList();
+
+                List<Scoreboard> scoreboard = new();
+
+                List<UserEntity> users = _userService.GetUsers(groupId);
+
+                Dictionary<string, UserEntity> teamUserDict = new();
+
+                users.ForEach(user => {
+                    teamUserDict.Add(user.Team, user);
+                });
+
+                foreach (NBAGameEntity nba in nbaGameEntities) {
+                    scoreboard.Add(new Scoreboard() {
+                        HomeGovernor = teamUserDict.ContainsKey(nba.HomeTeam) 
+                                        ? teamUserDict[nba.HomeTeam].Username ?? teamUserDict[nba.HomeTeam].Email.Split('@')[0] 
+                                        : nba.HomeTeam,
+                        HomeLogo = nba.HomeLogo,
+                        HomeTeam = nba.HomeTeam,
+                        HomeScore = nba.HomeScore,
+                        VisitorsGovernor = teamUserDict.ContainsKey(nba.VisitorsTeam) 
+                                        ? teamUserDict[nba.VisitorsTeam].Username ?? teamUserDict[nba.VisitorsTeam].Email.Split('@')[0]
+                                        : nba.VisitorsTeam,
+                        VisitorsLogo = nba.VisitorsLogo,
+                        VisitorsTeam = nba.VisitorsTeam,
+                        VisitorsScore = nba.VisitorsScore
+                    });
+                }
+
+                return scoreboard;
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new List<Scoreboard>();
         }
     }
 }
