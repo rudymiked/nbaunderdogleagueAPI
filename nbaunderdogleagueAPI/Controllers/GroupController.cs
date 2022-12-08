@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace nbaunderdogleagueAPI.Controllers
 {
@@ -17,6 +19,10 @@ namespace nbaunderdogleagueAPI.Controllers
             _groupService = groupService;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+
+            ClaimsPrincipal user = _httpContextAccessor.HttpContext.User;
+
+            _logger.LogInformation("User: " + user.Identity.Name);
         }
 
         [HttpGet("GroupStandings")]
