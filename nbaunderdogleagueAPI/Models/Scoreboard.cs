@@ -10,5 +10,6 @@
         public string VisitorsLogo { get; set; }
         public string VisitorsTeam { get; set; }
         public int? VisitorsScore { get; set; }
+        public DateTimeOffset GameDate { get; set; }
     }
 }

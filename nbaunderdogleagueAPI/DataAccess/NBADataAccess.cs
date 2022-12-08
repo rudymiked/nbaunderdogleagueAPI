@@ -289,11 +289,12 @@ namespace nbaunderdogleagueAPI.DataAccess
                                         : nba.VisitorsTeam,
                         VisitorsLogo = nba.VisitorsLogo,
                         VisitorsTeam = nba.VisitorsTeam,
-                        VisitorsScore = nba.VisitorsScore
+                        VisitorsScore = nba.VisitorsScore,
+                        GameDate = (DateTimeOffset) nba.Timestamp,
                     });
                 }
 
-                return scoreboard;
+                return scoreboard.OrderByDescending(x => x.GameDate).ToList();
             }
             catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
