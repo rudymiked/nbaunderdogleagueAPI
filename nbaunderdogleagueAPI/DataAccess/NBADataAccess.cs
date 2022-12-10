@@ -279,13 +279,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                 foreach (NBAGameEntity nba in nbaGameEntities) {
                     scoreboard.Add(new Scoreboard() {
                         HomeGovernor = teamUserDict.ContainsKey(nba.HomeTeam) 
-                                        ? teamUserDict[nba.HomeTeam].Username ?? teamUserDict[nba.HomeTeam].Email.Split('@')[0] 
+                                        ? teamUserDict[nba.HomeTeam].Username ?? teamUserDict[nba.HomeTeam].Email?.Split('@')[0]
                                         : nba.HomeTeam,
                         HomeLogo = nba.HomeLogo,
                         HomeTeam = nba.HomeTeam,
                         HomeScore = nba.HomeScore,
                         VisitorsGovernor = teamUserDict.ContainsKey(nba.VisitorsTeam) 
-                                        ? teamUserDict[nba.VisitorsTeam].Username ?? teamUserDict[nba.VisitorsTeam].Email.Split('@')[0]
+                                        ? teamUserDict[nba.VisitorsTeam].Username ?? teamUserDict[nba.VisitorsTeam].Email?.Split('@')[0]
                                         : nba.VisitorsTeam,
                         VisitorsLogo = nba.VisitorsLogo,
                         VisitorsTeam = nba.VisitorsTeam,
