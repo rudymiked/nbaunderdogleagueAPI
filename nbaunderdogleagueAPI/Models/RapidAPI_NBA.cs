@@ -1,7 +1,17 @@
-﻿namespace nbaunderdogleagueAPI.Models
+﻿using Azure.Data.Tables;
+
+namespace nbaunderdogleagueAPI.Models
 {
     public class RapidAPI_NBA
     {
+        public class TimeoutEntity : ITableEntity
+        {
+            public string PartitionKey { get; set; }
+            public string RowKey { get; set; }
+            public DateTimeOffset? NextTimeAvailableDateTime { get; set; }
+            public DateTimeOffset? Timestamp { get; set; }
+            public Azure.ETag ETag { get; set; }
+        }
         public class GameResponse
         {
             public List<Game.Response> Games { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
@@ -13,10 +14,12 @@ namespace nbaunderdogleagueAPI.DataAccess
         GameResponse GetGamesFromRapidAPI();
         List<NBAGameEntity> UpdateGamesFromRapidAPI();
         Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date);
-        TeamStatsResponse GetTeamStatsFromRapidAPI();
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
         List<Scoreboard> NBAScoreboard(string groupId);
+        bool SetRapidAPITimeout(DateTimeOffset timeout);
+        bool IsRapidAPIAvailable();
+
     }
     public class NBADataAccess : INBADataAccess
     {
@@ -64,9 +67,12 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
+            if (!IsRapidAPIAvailable()) {
+                return new List<TeamStats>();
+            }
+
             TeamStatsResponse teamStatsResponse = GetTeamStatsFromRapidAPI();
             List<TeamStats> teamStats = teamStatsResponse.TeamStats.OrderByDescending(team => team.Wins).ToList();
-            //int remainingCalls = teamStatsDictionary.Keys.FirstOrDefault(); // XXX
 
             List<ManualTeamStatsEntity> manualTeamStats = new();
 
@@ -109,10 +115,15 @@ namespace nbaunderdogleagueAPI.DataAccess
         // this data is just for the scoreboard on the UI
         public List<NBAGameEntity> UpdateGamesFromRapidAPI()
         {
+            // Rapid API request limit has been met
+            // do not update
+            if (!IsRapidAPIAvailable()) {
+                return new List<NBAGameEntity>();
+            }
+
             try {
                 GameResponse gameResponse = GetGamesFromRapidAPI();
                 List<Game.Response> games = gameResponse.Games;
-                //int remainingCalls = teamStatsDictionary.Keys.FirstOrDefault(); // XXX
 
                 // replace current games in scoreboard if there are new games
                 //  otherwise, keep most recent games
@@ -153,7 +164,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new List<NBAGameEntity>();
         }
 
-        public TeamStatsResponse GetTeamStatsFromRapidAPI()
+        private TeamStatsResponse GetTeamStatsFromRapidAPI()
         {
             try {
                 // season starts in October, switch season on site in September
@@ -206,7 +217,9 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
 
-                //int x = int.Parse(remainingCalls.ElementAt(0));
+                if (requestsRemaining == 0) {
+                    SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
+                }
 
                 return new RapidAPIContent() {
                     Content = await response.Content.ReadAsStringAsync(),
@@ -222,7 +235,6 @@ namespace nbaunderdogleagueAPI.DataAccess
         public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date)
         {
             try {
-
                 string dateString = date.ToString("yyyy-MM-dd");
 
                 HttpClient httpClient = new();
@@ -244,7 +256,9 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
 
-                //int x = int.Parse(remainingCalls.ElementAt(0));
+                if (requestsRemaining == 0) {
+                    SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
+                }         
 
                 return new RapidAPIContent() {
                     Content = await response.Content.ReadAsStringAsync(),
@@ -301,6 +315,31 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new List<Scoreboard>();
+        }
+
+        public bool SetRapidAPITimeout(DateTimeOffset timeout)
+        {
+            TimeoutEntity rapidAPITimeout = new() {
+                PartitionKey = AppConstants.SysConfig_RapidAPITimeout,
+                RowKey = Guid.NewGuid().ToString(),
+                NextTimeAvailableDateTime = timeout,
+                Timestamp = DateTime.Now
+            };
+
+            var response = _tableStorageHelper.UpsertEntity(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
+
+            return (response != null && !response.IsError);
+        }
+
+        public bool IsRapidAPIAvailable()
+        {
+            string filter = TableClient.CreateQueryFilter<TimeoutEntity>((group) => group.PartitionKey == AppConstants.SysConfig_RapidAPITimeout);
+
+            var response = _tableStorageHelper.QueryEntities<TimeoutEntity>(AppConstants.SystemConfigurationTable, filter).Result;
+
+            TimeoutEntity timeoutEntity = response.OrderBy(x => x.NextTimeAvailableDateTime).FirstOrDefault();
+
+            return (timeoutEntity == null || timeoutEntity.NextTimeAvailableDateTime < DateTimeOffset.UtcNow);
         }
     }
 }

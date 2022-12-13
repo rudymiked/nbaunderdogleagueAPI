@@ -29,7 +29,11 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
             if (_nbaService != null) {
                 List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI();
 
-                Assert.AreNotEqual(0, teamStats.Count);
+                if (_nbaService.IsRapidAPIAvailable()) {
+                    Assert.AreNotEqual(0, teamStats.Count);
+                } else {
+                    Assert.AreEqual(0, teamStats.Count);
+                }
             } else {
                 Assert.Fail();
             }
@@ -41,7 +45,11 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
             if (_nbaService != null) {
                 List<NBAGameEntity> gameData = _nbaService.UpdateGamesFromRapidAPI();
 
-                Assert.AreNotEqual(0, gameData.Count);
+                if (_nbaService.IsRapidAPIAvailable()) {
+                    Assert.AreNotEqual(0, gameData.Count);
+                } else {
+                    Assert.AreEqual(0, gameData.Count);
+                }
             } else {
                 Assert.Fail();
             }
@@ -54,6 +62,35 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
                 List<Scoreboard> scoreboard = _nbaService.NBAScoreboard(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(0, scoreboard.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        //[TestMethod]
+        //public void SetRapidAPITimeoutTest()
+        //{
+        //    if (_nbaService != null) {
+        //        DateTimeOffset now = DateTimeOffset.UtcNow;
+        //        bool setTimeoutResult = _nbaService.SetRapidAPITimeout(now.AddDays(1));
+
+        //        Assert.AreEqual(true, setTimeoutResult);
+        //    } else {
+        //        Assert.Fail();
+        //    }
+        //}
+
+        [TestMethod]
+        public void IsRapidAPIAvailableTest()
+        {
+            if (_nbaService != null) {
+                try {
+                    bool rapidAPIAvailable = _nbaService.IsRapidAPIAvailable();
+
+                    Assert.IsTrue(true);
+                } catch (Exception ex) {
+                    Assert.Fail();
+                }
             } else {
                 Assert.Fail();
             }

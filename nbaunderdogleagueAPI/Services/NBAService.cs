@@ -8,6 +8,8 @@ namespace nbaunderdogleagueAPI.Services
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         List<NBAGameEntity> UpdateGamesFromRapidAPI();
         List<Scoreboard> NBAScoreboard(string groupId);
+        bool SetRapidAPITimeout(DateTimeOffset timeout);
+        bool IsRapidAPIAvailable();
     }
     public class NBAService : INBAService
     {
@@ -27,6 +29,14 @@ namespace nbaunderdogleagueAPI.Services
         public List<Scoreboard> NBAScoreboard(string groupId)
         {
             return _nbaRespository.NBAScoreboard(groupId);
+        }
+        public bool SetRapidAPITimeout(DateTimeOffset timeout)
+        {
+            return _nbaRespository.SetRapidAPITimeout(timeout);
+        }
+        public bool IsRapidAPIAvailable()
+        {
+            return _nbaRespository.IsRapidAPIAvailable();
         }
     }
 }

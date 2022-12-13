@@ -12,7 +12,9 @@
         public static readonly string ArchiveTable = "Archive";
         public static readonly string GroupsTable = "Groups";
         public static readonly string DraftTable = "Drafts";
+        public static readonly string SystemConfigurationTable = "SystemConfiguration";
         public static readonly string ScoreboardTable = "Scoreboard";
+        public static readonly string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
         public static readonly string ManualTeamStats = "ManualTeamStats";
         public static readonly string AppName = "NBAUnderdogLeague";
         public static readonly string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
