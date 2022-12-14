@@ -60,8 +60,6 @@ namespace nbaunderdogleagueAPI.DataAccess
                 string parameters = "stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=" + season + "&SeasonType=Regular%20Season&Section=overall";
                 //string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52";
 
-                _logger.LogError(baseURL + parameters);
-
                 HttpClient httpClient = new() {
                     BaseAddress = new Uri(baseURL)
                 };
@@ -85,11 +83,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     request.Headers.Accept.Add(
                         new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    _logger.LogError(request.Headers.ToString());
-
                     HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-                    _logger.LogError(response.StatusCode.ToString());
 
                     response.EnsureSuccessStatusCode();
 
