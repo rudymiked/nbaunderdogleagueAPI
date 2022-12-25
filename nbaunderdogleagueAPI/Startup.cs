@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.OpenApi.Models;
 using nbaunderdogleagueAPI.Business;
 using nbaunderdogleagueAPI.DataAccess;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using System.Security.Claims;
 using System.Security.Principal;
 
 public class Startup
@@ -41,6 +43,17 @@ public class Startup
 
             services.Configure<AppConfig>(Configuration);
 
+            services.AddAuthorization(options => {
+                Configuration.Bind("AuthorizationClient", options);
+            });
+
+            services.AddAuthorization(o => {
+                o.AddPolicy(AppConstants.DefaultAuthPolicy, policy => {
+                    // user can't be null
+                    policy.RequireAssertion(context => context.User.FindFirst(ClaimTypes.Email) != null);
+                });
+            });
+
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IUserDataAccess, UserDataAccess>();
@@ -67,7 +80,32 @@ public class Startup
 
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options => {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = AppConstants.AppName, Version = "v1.0" });
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                    Description = "Standard Authentication using Bearer scheme i.e. \"bearer {token}\"",
+                    Scheme = "Bearer",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement() {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oath2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
+            });
         } catch (Exception ex) {
             Console.WriteLine("Startup Configure Services: " + ex.Message);
         }

@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_draftService != null) {
                 User userDrafted = new() {
-                    Email = TestConstants.Email,
+                    Email = TestConstants.NBAEmail,
                     Team = "Jazz",
                     Group = TestConstants.PostGroupId_TEST.ToString(),
                     Username = "",
@@ -51,7 +51,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
                 SetupDraftRequest setupDraftRequest = new() {
                     GroupId = TestConstants.PostGroupId_TEST.ToString(),
-                    Email = TestConstants.Email,
+                    Email = TestConstants.NBAEmail,
                     ClearTeams = true,
                     DraftStartDateTime = draftStartDate,
                     DraftWindow = 5

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
@@ -29,6 +30,7 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_teamService.TeamStatsList(1));
         }
 
+        //[Authorize(Policy = AppConstants.DefaultAuthPolicy)]
         [HttpGet("TeamStatsV2")]
         public ActionResult<IEnumerable<TeamStats>> TeamStatsV2()
         {
