@@ -65,7 +65,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             if (_groupService != null) {
                 GroupEntity newGroup = _groupService.CreateGroup("Black Lung", TestConstants.NBAEmail);
 
-                Assert.AreNotEqual(string.Empty, newGroup.Id);
+                Assert.AreNotEqual(Guid.Empty, newGroup.Id);
             } else {
                 Assert.Fail();
             }

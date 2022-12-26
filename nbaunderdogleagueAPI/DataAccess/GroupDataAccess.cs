@@ -253,7 +253,9 @@ namespace nbaunderdogleagueAPI.DataAccess
         public GroupEntity CreateGroup(string name, string ownerEmail)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(ownerEmail)) {
-                return new GroupEntity();
+                return new GroupEntity() {
+                    Id = Guid.Empty
+                };
             }
 
             // Query groups first
@@ -268,7 +270,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<GroupEntity> currentGroups = currentGroupsResponse.ToList();
 
             if (currentGroups.Count > _appConfig.MaxGroupsPerOwner) {
-                return new GroupEntity();
+                return new GroupEntity() {
+                    Id = Guid.Empty
+                };
             }
 
             Guid guid = Guid.NewGuid();
@@ -287,7 +291,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
 
             if (response == null || response.IsError) {
-                return new GroupEntity();
+                return new GroupEntity() {
+                    Id = Guid.Empty
+                };
             }
 
             User owner = new() {

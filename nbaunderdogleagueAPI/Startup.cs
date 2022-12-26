@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using nbaunderdogleagueAPI.Business;
+using nbaunderdogleagueAPI.Communications;
 using nbaunderdogleagueAPI.DataAccess;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
@@ -77,6 +78,10 @@ public class Startup
             services.AddSingleton<INBAService, NBAService>();
             services.AddSingleton<INBARepository, NBARepository>();
             services.AddSingleton<INBADataAccess, NBADataAccess>();
+
+            services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IEmailRepository, EmailRepository>();
+            services.AddSingleton<IEmailHelper, EmailHelper>();
 
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 

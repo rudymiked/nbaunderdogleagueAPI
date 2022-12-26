@@ -9,5 +9,8 @@
         public string RapidAPIKey { get; set; }
         public int MaxGroupsPerOwner { get; set; }
         public int TestDraft { get; set; }
+        public string nbaunderdogleagueSendGridKey { get; set; }
+        public string NBAEmail { get; set; }
+        public string PersonalEmail { get; set; }
     }
 }

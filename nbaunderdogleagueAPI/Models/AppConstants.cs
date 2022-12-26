@@ -17,6 +17,7 @@
         public const string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
         public const string ManualTeamStats = "ManualTeamStats";
         public const string AppName = "NBAUnderdogLeague";
+        public const string SiteTitle = "NBA Underdogs";
         public const string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
         public const string AdminEmail = "rudymiked@gmail.com";
         public const string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
