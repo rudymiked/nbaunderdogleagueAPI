@@ -117,8 +117,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             } else {
                 return "There are no current group invitations";
             }
-
-            return AppConstants.SomethingWentWrong;
         }
     }
 }
