@@ -57,8 +57,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Games = games,
                     RequestsRemaining = content.RequestsRemaining
                 };
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -155,7 +154,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     return (updateGamesResponse != null && !updateGamesResponse.GetRawResponse().IsError) ? nbaGameEntities : new List<NBAGameEntity>();
                 } else {
-                    _logger.LogInformation("No new games on: " + (new DateTime()).ToString());
+                    _logger.LogInformation("No new games on: " + DateTime.Now.ToString());
                 }
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
@@ -258,7 +257,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 if (requestsRemaining == 0) {
                     SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
-                }         
+                }
 
                 return new RapidAPIContent() {
                     Content = await response.Content.ReadAsStringAsync(),
@@ -292,25 +291,24 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 foreach (NBAGameEntity nba in nbaGameEntities) {
                     scoreboard.Add(new Scoreboard() {
-                        HomeGovernor = teamUserDict.ContainsKey(nba.HomeTeam) 
+                        HomeGovernor = teamUserDict.ContainsKey(nba.HomeTeam)
                                         ? teamUserDict[nba.HomeTeam].Username ?? teamUserDict[nba.HomeTeam].Email?.Split('@')[0]
                                         : nba.HomeTeam,
                         HomeLogo = nba.HomeLogo,
                         HomeTeam = nba.HomeTeam,
                         HomeScore = nba.HomeScore,
-                        VisitorsGovernor = teamUserDict.ContainsKey(nba.VisitorsTeam) 
+                        VisitorsGovernor = teamUserDict.ContainsKey(nba.VisitorsTeam)
                                         ? teamUserDict[nba.VisitorsTeam].Username ?? teamUserDict[nba.VisitorsTeam].Email?.Split('@')[0]
                                         : nba.VisitorsTeam,
                         VisitorsLogo = nba.VisitorsLogo,
                         VisitorsTeam = nba.VisitorsTeam,
                         VisitorsScore = nba.VisitorsScore,
-                        GameDate = (DateTimeOffset) nba.Timestamp,
+                        GameDate = (DateTimeOffset)nba.Timestamp,
                     });
                 }
 
                 return scoreboard.OrderByDescending(x => x.GameDate).ToList();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
@@ -326,7 +324,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Timestamp = DateTime.Now
             };
 
-            var response = _tableStorageHelper.UpsertEntity(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
+            Response response = _tableStorageHelper.UpsertEntity(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
 
             return (response != null && !response.IsError);
         }

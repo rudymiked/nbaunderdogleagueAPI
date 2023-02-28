@@ -21,7 +21,7 @@ namespace nbaunderdogleagueAPI.Business
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
             return _nbaDataAccess.UpdateTeamStatsFromRapidAPI();
-        }        
+        }
         public List<NBAGameEntity> UpdateGamesFromRapidAPI()
         {
             return _nbaDataAccess.UpdateGamesFromRapidAPI();

@@ -11,6 +11,7 @@
         public const string UsersTable = "Users";
         public const string ArchiveTable = "Archive";
         public const string GroupsTable = "Groups";
+        public const string GroupInvitationsTable = "GroupInvitations";
         public const string DraftTable = "Drafts";
         public const string SystemConfigurationTable = "SystemConfiguration";
         public const string ScoreboardTable = "Scoreboard";
@@ -62,5 +63,10 @@
 
         // Policys
         public const string DefaultAuthPolicy = "DefaultAuthPolicy";
+
+        // Dates
+        public static readonly DateTime CurrentDate = DateTime.Now;
+        public static readonly DateTime NBAStartDate = new(CurrentDate.Year, 10, 18); // nba start date
+        public static readonly int CurrentNBASeasonYear = CurrentDate.Month < 7 ? CurrentDate.Year - 1 : CurrentDate.Year;
     }
 }

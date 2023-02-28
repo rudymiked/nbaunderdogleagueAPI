@@ -54,7 +54,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         ETag = ETag.All,
                         Timestamp = DateTime.UtcNow,
                         GroupId = groupId,
-                        Year = DateTime.Now.Year,
+                        Year = AppConstants.CurrentNBASeasonYear,
                         TeamID = teamStats != null ? teamStats.TeamID : 0,
                         TeamCity = standings.TeamCity,
                         TeamName = standings.TeamName,

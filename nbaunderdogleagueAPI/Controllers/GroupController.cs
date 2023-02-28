@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace nbaunderdogleagueAPI.Controllers
 {

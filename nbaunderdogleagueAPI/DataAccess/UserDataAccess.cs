@@ -38,7 +38,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     ETag = ETag.All
                 };
 
-                var response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
+                Response response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
 
                 return (response != null && !response.IsError) ? user : new User();
             }

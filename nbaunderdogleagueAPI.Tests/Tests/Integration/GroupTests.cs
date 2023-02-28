@@ -63,7 +63,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void CreateGroup()
         {
             if (_groupService != null) {
-                GroupEntity newGroup = _groupService.CreateGroup("Black Lung", TestConstants.NBAEmail);
+                GroupEntity newGroup = _groupService.CreateGroup("Test Group " + DateTime.Now.ToShortDateString(), TestConstants.NBAEmail);
 
                 Assert.AreNotEqual(Guid.Empty, newGroup.Id);
             } else {
@@ -87,7 +87,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAllGroupsByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(DateTime.Now.Year, true, TestConstants.Email);
+                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(AppConstants.CurrentNBASeasonYear, true, TestConstants.Email);
 
                 Assert.AreEqual(true, groups.Any());
             } else {
@@ -99,7 +99,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetAllGroupsUserIsInByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsUserIsInByYear(TestConstants.Email, DateTime.Now.Year);
+                List<GroupEntity> groups = _groupService.GetAllGroupsUserIsInByYear(TestConstants.Email, AppConstants.CurrentNBASeasonYear);
 
                 Assert.AreEqual(true, groups.Any());
             } else {
@@ -119,7 +119,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
                 string groupResult = _groupService.JoinGroup(joinGroupRequest);
 
-                Assert.AreEqual(false, groupResult.Contains(AppConstants.JoinGroupError));
+                Assert.AreEqual(AppConstants.Success, groupResult);
             } else {
                 Assert.Fail();
             }
@@ -137,7 +137,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
                 string groupResult = _groupService.LeaveGroup(leaveGroupRequest);
 
-                Assert.AreEqual(false, groupResult.Contains(AppConstants.LeaveGroupError));
+                Assert.AreEqual(AppConstants.Success, groupResult);
             } else {
                 Assert.Fail();
             }

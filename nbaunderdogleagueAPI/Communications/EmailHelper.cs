@@ -4,7 +4,6 @@ using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System.Net.Mail;
 
 namespace nbaunderdogleagueAPI.Communications
 {
@@ -12,11 +11,11 @@ namespace nbaunderdogleagueAPI.Communications
     {
         Task<Response> InviteUserToGroup(string email, string groupId);
     }
-    public class EmailHelper: IEmailHelper
+    public class EmailHelper : IEmailHelper
     {
-        AppConfig _appConfig;
-        ILogger _logger;
-        IGroupService _groupService;
+        readonly AppConfig _appConfig;
+        readonly ILogger _logger;
+        readonly IGroupService _groupService;
 
         public EmailHelper(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, IGroupService groupService)
         {
@@ -38,8 +37,6 @@ namespace nbaunderdogleagueAPI.Communications
             string plainTextContent = "You're invited!";
             string body = "\r\nYou're invited to play NBA Fantasy with NBA Underdogs!\r\n<br /><br />" +
                 "Click the link below to join <strong>" + group.Name + "</strong>:\r\n<br /><br />";
-
-            string headerImage = "<img src='https://nbaunderdogleaguestorage.blob.core.windows.net/images/nbafantasy_right.png' />";
 
             string joinURL = "https://www.w3docs.com/";
 
@@ -64,7 +61,7 @@ namespace nbaunderdogleagueAPI.Communications
                 "<title>" + subject + "</title>\r\n  " + style +
                 "</head>\r\n" +
                 "<body>\r\n" + body + joinButton +
-                "</body>\r\n" + 
+                "</body>\r\n" +
                 "</html>";
 
 

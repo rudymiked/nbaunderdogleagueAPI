@@ -88,7 +88,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
                     bool rapidAPIAvailable = _nbaService.IsRapidAPIAvailable();
 
                     Assert.IsTrue(true);
-                } catch (Exception ex) {
+                } catch (Exception) {
                     Assert.Fail();
                 }
             } else {

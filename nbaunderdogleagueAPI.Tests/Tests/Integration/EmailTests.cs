@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
@@ -30,7 +29,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
                 var emailResponse = await _emailService.InviteUserToGroup(TestConstants.Email, TestConstants.PostGroupId_TEST.ToString());
 
-                bool success = emailResponse.IsSuccessStatusCode;
+                Assert.IsTrue(emailResponse.IsSuccessStatusCode);
             } else {
                 Assert.Fail();
             }

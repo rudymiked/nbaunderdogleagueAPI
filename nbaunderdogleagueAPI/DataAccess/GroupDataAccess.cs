@@ -195,7 +195,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Timestamp = DateTime.Now
             };
 
-            var response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
+            Response response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
 
             return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + joinGroupRequest.Email + " group: " + joinGroupRequest.GroupId;
         }
@@ -283,7 +283,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Id = guid,
                 Name = name,
                 Owner = ownerEmail,
-                Year = DateTime.Now.Year,
+                Year = AppConstants.CurrentNBASeasonYear,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now,
             };
@@ -313,16 +313,12 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private static int PreseasonValue(int value)
         {
-            DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18); // nba start date
-
-            return DateTime.Now < nbaStartDate ? 0 : value;
+            return DateTime.Now < AppConstants.NBAStartDate ? 0 : value;
         }
 
         private static string PreseasonPlayoffs(string value)
         {
-            DateTime nbaStartDate = new(DateTime.Now.Year, 10, 18); // nba start date
-
-            return DateTime.Now < nbaStartDate ? "" : value;
+            return DateTime.Now < AppConstants.NBAStartDate ? "" : value;
         }
     }
 }

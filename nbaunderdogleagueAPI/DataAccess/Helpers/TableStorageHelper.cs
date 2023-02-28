@@ -44,8 +44,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             foreach (T entity in entities) {
                 try {
                     var deleteEntity = DeleteEntity(entity, table);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     _logger.LogError(ex, ex.Message);
                 }
             }

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
@@ -47,7 +46,7 @@ namespace nbaunderdogleagueAPI.Controllers
         public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
         {
             return Ok(_teamService.GetTeams());
-        }        
+        }
 
         [HttpPost("AddTeams")]
         public ActionResult<IEnumerable<TeamEntity>> AddTeams(TeamEntity[] teams)

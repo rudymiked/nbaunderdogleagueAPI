@@ -83,6 +83,10 @@ public class Startup
             services.AddSingleton<IEmailRepository, EmailRepository>();
             services.AddSingleton<IEmailHelper, EmailHelper>();
 
+            services.AddSingleton<IInvitationService, InvitationService>();
+            services.AddSingleton<IInvitationRepository, InvitationRepository>();
+            services.AddSingleton<IInvitationDataAccess, InvitationDataAccess>();
+
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
             services.AddSwaggerGen(options => {
