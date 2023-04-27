@@ -13,7 +13,7 @@ namespace nbaunderdogleagueAPI.Models
         public string Conference { get; set; }
         public int Standing { get; set; }
         public int Wins { get; set; }
-        public int PlayoffWins { get; set; }
+        public int? PlayoffWins { get; set; }
         public int Losses { get; set; }
         public double Ratio { get; set; }
         public int? Streak { get; set; }

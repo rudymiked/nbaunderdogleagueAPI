@@ -175,7 +175,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         int losses = seasonArchiveEntities[i].Losses;
                         int projectedWins = seasonArchiveEntities[i].ProjectedWin;
                         int projectedLosses = seasonArchiveEntities[i].ProjectedLoss;
-                        int playoffWins = seasonArchiveEntities[i].PlayoffWins;
+                        int? playoffWins = seasonArchiveEntities[i].PlayoffWins;
 
                         seasonArchiveEntities[i].Year = group.Year;
                         seasonArchiveEntities[i].GroupId = group.Id.ToString();

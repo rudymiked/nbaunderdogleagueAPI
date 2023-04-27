@@ -17,6 +17,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<GroupEntity> GetAllGroups();
         string JoinGroup(JoinGroupRequest joinGroupRequest);
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
+        string ApproveNewGroupMember(ApproveUserRequest approveUserRequest);
     }
     public class GroupDataAccess : IGroupDataAccess
     {
@@ -33,6 +34,13 @@ namespace nbaunderdogleagueAPI.DataAccess
             _teamService = teamService;
             _tableStorageHelper = tableStorageHelper;
         }
+
+        /*
+            GroupStandings:
+            version 0: https://stats.nba.com/, DEPRECATED.
+            version 1: https://data.nba.net/prod/v1/current/standings_all.json, does not work after deploying to Azure.
+            version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
+         */
 
         public List<GroupStandings> GetGroupStandings(string groupId, int version)
         {
@@ -298,7 +306,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             User owner = new() {
                 Email = ownerEmail,
-                Team = "",
+                Team = string.Empty,
                 Group = groupEntity.Id.ToString()
             };
 
@@ -309,6 +317,17 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return groupEntity;
+        }
+
+        public string ApproveNewGroupMember(ApproveUserRequest approveUserRequest)
+        {
+            // admins needs away to approve people who clicked the group invitation link
+            // validate group exists
+            // validate admin is admin
+            // validate user does not already belong to group
+            // validation invite ID is correct
+
+            return AppConstants.Success;
         }
 
         private static int PreseasonValue(int value)

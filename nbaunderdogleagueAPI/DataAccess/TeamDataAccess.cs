@@ -10,6 +10,13 @@ using Team = nbaunderdogleagueAPI.Models.NBAModels.Team;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
+    /*
+        TeamStats:
+        version 0: https://stats.nba.com/, DEPRECATED.
+        version 1: https://data.nba.net/prod/v1/current/standings_all.json, does not work after deploying to Azure
+        version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
+    */
+
     public interface ITeamDataAccess
     {
         Dictionary<string, TeamStats> GetTeamStats();
@@ -128,11 +135,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<TeamStats> teamStats = output.ExtractTeamStats(season, _logger);
 
-                Dictionary<string, TeamStats> teamStatsDict = new();
-
-                teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
-
-                return teamStatsDict;
+                return teamStats.ToDictionary(team => team.TeamName);
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
@@ -164,7 +167,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Ratio = double.Parse(team.winPctV2),
                     Streak = int.Parse(team.streak),
                     ClinchedPlayoffBirth = string.IsNullOrEmpty(team.clinchedPlayoffsCode) ? 0 : 1,
-                    PlayoffWins = 0,
+                    PlayoffWins = 0, // not on API endpoint
                 });
             }
 
@@ -192,11 +195,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth
             }));
 
-            Dictionary<string, TeamStats> teamStatsDict = new();
-
-            teamStats.ForEach(team => teamStatsDict.Add(team.TeamName, team));
-
-            return teamStatsDict;
+            return teamStats.ToDictionary(team => team.TeamName);
         }
 
         public List<TeamStats> UpdateTeamStatsManually()

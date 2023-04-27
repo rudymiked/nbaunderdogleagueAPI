@@ -214,8 +214,9 @@ namespace nbaunderdogleagueAPI.Models
                             Losses = r.loss.total,
                             Ratio = double.Parse(r.win.percentage),
                             Streak = r.streak,
-                            ClinchedPlayoffBirth = 0,
-                            Logo = r.team.logo
+                            //ClinchedPlayoffBirth = 0, // not in Rapid API endpoint
+                            Logo = r.team.logo,
+                            //PlayoffWins = 0 // not in Rapid API endpoint
                         });
 
                         return output.ToList();

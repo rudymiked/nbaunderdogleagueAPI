@@ -6,6 +6,7 @@
 
         public List<TeamStats> ExtractTeamStats(string season, ILogger logger)
         {
+
             IEnumerable<TeamStats> output = new List<TeamStats>();
 
             try {

@@ -55,7 +55,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                     List<GroupInvitationEntity> groupInvitations = _invitationService.GetGroupInvitations(TestConstants.TestGroupId);
 
                     Assert.IsTrue(true);
-                } catch (Exception ex) {
+                } catch (Exception) {
                     Assert.Fail();
                 }
             } else {

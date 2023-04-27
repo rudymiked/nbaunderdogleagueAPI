@@ -83,12 +83,12 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TeamName = teamData.TeamName,
                 Conference = teamData.Conference,
                 Wins = teamData.Wins,
-                PlayoffWins = teamData.PlayoffWins,
+                //PlayoffWins = teamData.PlayoffWins, // need to update manually, missing from API endpoint
                 Losses = teamData.Losses,
                 Standing = teamData.Standing,
                 Ratio = teamData.Ratio,
                 Streak = teamData.Streak,
-                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                //ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth, // need to update manually, missing from API endpoint
                 Logo = teamData.Logo,
                 ETag = ETag.All,
                 Timestamp = DateTime.Now

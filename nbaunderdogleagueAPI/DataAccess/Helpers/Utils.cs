@@ -2,7 +2,7 @@
 {
     public class Utils
     {
-        public static double CalculateScore(int ProjectedWin, int ProjectedLoss, int Wins, int Losses, int PlayoffWins = 0)
+        public static double CalculateScore(int ProjectedWin, int ProjectedLoss, int Wins, int Losses, int? PlayoffWins = 0)
         {
             double projectedDiff = (double)(ProjectedWin / (double)(ProjectedWin + ProjectedLoss));
             double actualDiff = (double)((Wins + PlayoffWins) / (double)(Wins + Losses)); // bonus for playoff wins

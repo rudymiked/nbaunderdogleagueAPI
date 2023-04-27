@@ -23,6 +23,6 @@ namespace nbaunderdogleagueAPI.Models
         public double Score { get; set; }
         public int Losses { get; set; }
         public int? ClinchedPlayoffBirth { get; set; }
-        public int PlayoffWins { get; set; }
+        public int? PlayoffWins { get; set; }
     }
 }

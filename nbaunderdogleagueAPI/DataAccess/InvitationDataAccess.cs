@@ -11,6 +11,8 @@ namespace nbaunderdogleagueAPI.DataAccess
         GroupInvitationEntity SendGroupInvitation(GroupInvitation groupInvitation);
         string AcceptGroupInvitation(GroupInvitation groupInvitation);
         List<GroupInvitationEntity> GetGroupInvitations(Guid groupId);
+        string GenerateGroupInvitationLink(GroupInvitation groupInvitation);
+        string ClickGroupInvitationLink(GroupInvitation groupInvitation);
     }
 
     public class InvitationDataAccess : IInvitationDataAccess
@@ -117,6 +119,35 @@ namespace nbaunderdogleagueAPI.DataAccess
             } else {
                 return "There are no current group invitations";
             }
+        }
+
+        public string GenerateGroupInvitationLink(GroupInvitation groupInvitation)
+        {
+            // admin can create this link to send out to potential group members
+            // users will all click the same link and be brought to ClickGroupInvitationLink
+            // link should expire after some time.
+
+
+
+
+            return AppConstants.Success;
+        }
+
+        public string ClickGroupInvitationLink(GroupInvitation groupInvitation)
+        {
+            // a potential user will click this API endpoint
+            // they should be added to a list of potential new group members
+            // an admin can choose to add them to their group
+
+            // potential validations
+
+            // 1. email address needs to be valid
+            // 2. group ID needs to be preset and this year
+            // 3. user isn't already in group
+            // 4. is group private or public? XXX not an option yet, but maybe it should be?
+            // 5. does this invite ID match the invite ID from the admin?
+
+            return AppConstants.Success;
         }
     }
 }

@@ -10,7 +10,7 @@
         public int ProjectedLoss { get; set; }
         public int Win { get; set; }
         public int Loss { get; set; }
-        public int PlayoffWins { get; set; }
+        public int? PlayoffWins { get; set; }
         public double Score { get; set; }
         public string Playoffs { get; set; }
     }
