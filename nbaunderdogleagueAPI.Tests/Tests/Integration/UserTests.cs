@@ -60,7 +60,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetUsersTest()
+        public void GetUsers()
         {
             if (_userService != null) {
                 // need to query for a real league ID

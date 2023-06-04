@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void UpdateTeamStatsFromRapidAPITest()
+        public void UpdateTeamStatsFromRapidAPI()
         {
             if (_nbaService != null) {
                 List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI();
@@ -40,7 +40,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void UpdateGamesFromRapidAPITest()
+        public void UpdateGamesFromRapidAPI()
         {
             if (_nbaService != null) {
                 List<NBAGameEntity> gameData = _nbaService.UpdateGamesFromRapidAPI();
@@ -56,7 +56,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void NBAScoreboardTest()
+        public void NBAScoreboard()
         {
             if (_nbaService != null) {
                 List<Scoreboard> scoreboard = _nbaService.NBAScoreboard(AppConstants.Group_2022.ToString());
@@ -68,7 +68,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         //[TestMethod]
-        //public void SetRapidAPITimeoutTest()
+        //public void SetRapidAPITimeout()
         //{
         //    if (_nbaService != null) {
         //        DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -81,7 +81,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         //}
 
         [TestMethod]
-        public void IsRapidAPIAvailableTest()
+        public void IsRapidAPIAvailable()
         {
             if (_nbaService != null) {
                 try {

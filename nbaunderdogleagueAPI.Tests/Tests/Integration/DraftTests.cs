@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void DraftTeamTest()
+        public void DraftTeam()
         {
             if (_draftService != null) {
                 User userDrafted = new() {
@@ -43,7 +43,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void SetupDraftTest()
+        public void SetupDraft()
         {
             if (_draftService != null) {
 
@@ -66,7 +66,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetDraftedTeamsTest()
+        public void GetDraftedTeams()
         {
             if (_draftService != null) {
                 List<UserEntity> draftedTeams = _draftService.DraftedTeams(AppConstants.Group_2022.ToString());
@@ -78,7 +78,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetDraftTest()
+        public void GetDraft()
         {
             if (_draftService != null) {
                 List<DraftEntity> draftResults = _draftService.GetDraft(AppConstants.Group_2022.ToString());
@@ -90,7 +90,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetAvailableTeamsToDraftTest()
+        public void GetAvailableTeamsToDraft()
         {
             if (_draftService != null) {
                 List<TeamEntity> availableTeams = _draftService.GetAvailableTeamsToDraft(AppConstants.Group_2022.ToString());
@@ -102,7 +102,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetDraftResultsTest()
+        public void GetDraftResults()
         {
             if (_draftService != null) {
                 List<DraftResults> draftResults = _draftService.GetDraftResults(AppConstants.Group_2022.ToString());

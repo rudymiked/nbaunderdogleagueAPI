@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void ArchiveCurrentSeasonTest()
+        public void ArchiveCurrentSeason()
         {
             List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveCurrentSeason(AppConstants.Group_2022.ToString());
 
@@ -67,7 +67,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void GetArchiveSummaryTest()
+        public void GetArchiveSummary()
         {
             List<ArchiveSummary> archiveSummaries = _archiveService.GetArchiveSummary(TestConstants.Email);
 
@@ -75,7 +75,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         }
 
         [TestMethod]
-        public void UpdateArchivesTest()
+        public void UpdateArchives()
         {
             List<SeasonArchiveEntity> updatedArchives = _archiveService.UpdateArchives();
 

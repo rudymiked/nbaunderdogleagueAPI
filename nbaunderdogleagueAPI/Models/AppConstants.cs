@@ -20,6 +20,7 @@
         public const string AppName = "NBAUnderdogLeague";
         public const string SiteTitle = "NBA Underdogs";
         public const string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
+        public const string UIUrl = "https://nbaunderdogleague.azurewebsites.net";
         public const string AdminEmail = "rudymiked@gmail.com";
         public const string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
 
@@ -53,6 +54,7 @@
 
         // Ints
         public const int MinYear = 2022; // first year of the app
+        public const int GroupInvitationExpirationMinutes = 120;
 
         // Groups
         public static readonly Guid Group_2022 = Guid.Parse("cee48957-9221-46b7-a80d-ba21b6ccb303");

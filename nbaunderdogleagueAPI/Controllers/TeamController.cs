@@ -8,13 +8,11 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class TeamController : ControllerBase
     {
-        private readonly ILogger<TeamController> _logger;
         private readonly ITeamService _teamService;
 
-        public TeamController(ILogger<TeamController> logger, ITeamService teamService)
+        public TeamController(ITeamService teamService)
         {
             _teamService = teamService;
-            _logger = logger;
         }
 
         [HttpGet("TeamStats")]

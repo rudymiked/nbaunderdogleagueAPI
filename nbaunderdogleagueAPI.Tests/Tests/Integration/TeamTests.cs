@@ -27,7 +27,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetTeamStatsTest()
+        public void GetTeamStats()
         {
             if (_teamService != null) {
                 List<TeamStats> teamStats = _teamService.TeamStatsList(0);
@@ -75,7 +75,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetTeamsEntityTest()
+        public void GetTeamsEntity()
         {
             if (_teamService != null) {
                 List<TeamEntity> teams = _teamService.GetTeams();
@@ -99,7 +99,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         //[TestMethod]
-        //public void AddTeamsTest()
+        //public void AddTeams()
         //{
         //    if (_teamService != null) {
         //        List<TeamEntity> teamsEntities = new();

@@ -192,7 +192,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Standing = teamData.Standing,
                 Ratio = teamData.Ratio,
                 Streak = teamData.Streak,
-                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth
+                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
             }));
 
             return teamStats.ToDictionary(team => team.TeamName);

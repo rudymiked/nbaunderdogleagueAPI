@@ -38,7 +38,7 @@ namespace nbaunderdogleagueAPI.Communications
             string body = "\r\nYou're invited to play NBA Fantasy with NBA Underdogs!\r\n<br /><br />" +
                 "Click the link below to join <strong>" + group.Name + "</strong>:\r\n<br /><br />";
 
-            string joinURL = "https://www.w3docs.com/";
+            string joinURL = "https://www.w3docs.com/"; // XXX Join
 
             string joinButton = "<form action=\"" + joinURL + "\" method=\"get\" target=\"_blank\">\r\n" +
                                     "<button type=\"submit\">Join League</button>\r\n" +

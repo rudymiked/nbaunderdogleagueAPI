@@ -24,7 +24,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GroupInvitationTest()
+        public void GroupInvitation()
         {
             if (_invitationService != null) {
                 Guid inviteId = Guid.NewGuid();
@@ -48,13 +48,35 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetGroupInvitationsTest()
+        public void GetGroupInvitations()
         {
             if (_invitationService != null) {
                 try {
                     List<GroupInvitationEntity> groupInvitations = _invitationService.GetGroupInvitations(TestConstants.TestGroupId);
 
                     Assert.IsTrue(true);
+                } catch (Exception) {
+                    Assert.Fail();
+                }
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GenerateGroupJoinLink()
+        {
+            GroupInvitation groupInvitation = new() {
+                InviteId = null,
+                GroupId = TestConstants.TestGroupId,
+                Email = TestConstants.Email
+            };
+
+            if (_invitationService != null) {
+                try {
+                    string inviteURL = _invitationService.GenerateGroupJoinLink(groupInvitation);
+
+                    Assert.AreNotEqual(string.Empty, inviteURL);
                 } catch (Exception) {
                     Assert.Fail();
                 }

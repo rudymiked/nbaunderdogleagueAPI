@@ -8,6 +8,8 @@ namespace nbaunderdogleagueAPI.Business
         GroupInvitationEntity SendGroupInvitation(GroupInvitation groupInvitation);
         string AcceptGroupInvitation(GroupInvitation groupInvitation);
         List<GroupInvitationEntity> GetGroupInvitations(Guid groupId);
+        string JoinRequest(GroupInvitation groupInvitation);
+        string GenerateGroupJoinLink(GroupInvitation groupInvitation);
     }
 
     public class InvitationRepository : IInvitationRepository
@@ -28,6 +30,14 @@ namespace nbaunderdogleagueAPI.Business
         public List<GroupInvitationEntity> GetGroupInvitations(Guid groupId)
         {
             return _invitationDataAccess.GetGroupInvitations(groupId);
+        }
+        public string JoinRequest(GroupInvitation groupInvitation)
+        {
+            return _invitationDataAccess.JoinRequest(groupInvitation);
+        }
+        public string GenerateGroupJoinLink(GroupInvitation groupInvitation)
+        {
+            return _invitationDataAccess.GenerateGroupJoinLink(groupInvitation);
         }
     }
 }

@@ -8,14 +8,12 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class NBAController : ControllerBase
     {
-        private readonly ILogger _logger;
         private readonly INBAService _nbaService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public NBAController(ILogger<NBAController> logger, INBAService nbaService, IHttpContextAccessor httpContextAccessor)
+        public NBAController(INBAService nbaService, IHttpContextAccessor httpContextAccessor)
         {
             _nbaService = nbaService;
-            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
 

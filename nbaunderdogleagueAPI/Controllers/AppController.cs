@@ -6,7 +6,6 @@ namespace nbaunderdogleagueAPI.Controllers
     [Route("api/[controller]")]
     public class AppController : ControllerBase
     {
-
         public AppController() { }
 
         [HttpGet("Start")]
