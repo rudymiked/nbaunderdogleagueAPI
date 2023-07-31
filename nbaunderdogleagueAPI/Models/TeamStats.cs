@@ -14,6 +14,7 @@
         public int? Streak { get; set; }
         public int? ClinchedPlayoffBirth { get; set; }
         public string Logo { get; set; }
+        public double Score { get; set; }
 
         public static IEnumerable<TeamStats> CorrectStanding(IEnumerable<TeamStats> team)
         {

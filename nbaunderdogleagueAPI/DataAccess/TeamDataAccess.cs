@@ -178,22 +178,29 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             var response = _tableStorageHelper.QueryEntities<ManualTeamStatsEntity>(AppConstants.ManualTeamStats).Result;
 
+            List<TeamEntity> teams = GetTeams();
+
             List<ManualTeamStatsEntity> manualTeamStats = response.ToList();
             List<TeamStats> teamStats = new();
 
-            manualTeamStats.ForEach(teamData => teamStats.Add(new TeamStats() {
-                TeamID = teamData.TeamID,
-                TeamCity = teamData.TeamCity,
-                TeamName = teamData.TeamName,
-                Conference = teamData.Conference,
-                Wins = teamData.Wins,
-                PlayoffWins = teamData.PlayoffWins,
-                Losses = teamData.Losses,
-                Standing = teamData.Standing,
-                Ratio = teamData.Ratio,
-                Streak = teamData.Streak,
-                ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
-            }));
+            foreach (ManualTeamStatsEntity teamData in manualTeamStats) {
+                TeamEntity currentTeam = teams.First(t => t.RowKey == teamData.RowKey);
+
+                teamStats.Add(new TeamStats() {
+                    TeamID = teamData.TeamID,
+                    TeamCity = teamData.TeamCity,
+                    TeamName = teamData.TeamName,
+                    Conference = teamData.Conference,
+                    Wins = teamData.Wins,
+                    PlayoffWins = teamData.PlayoffWins,
+                    Losses = teamData.Losses,
+                    Standing = teamData.Standing,
+                    Ratio = teamData.Ratio,
+                    Streak = teamData.Streak,
+                    ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                    Score = Utils.CalculateScore(currentTeam.ProjectedWin, currentTeam.ProjectedLoss, teamData.Wins, teamData.Losses, teamData.PlayoffWins)
+                });
+            }
 
             return teamStats.ToDictionary(team => team.TeamName);
         }
