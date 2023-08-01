@@ -2,13 +2,15 @@
 {
     public class Utils
     {
-        public static double CalculateScore(int ProjectedWin, int ProjectedLoss, int Wins, int Losses, int? PlayoffWins = 0)
+        public static double CalculateTeamScore(int projectedWin, int projectedLoss, int wins, int losses, int? playoffWins = 0)
         {
-            double projectedDiff = (double)(ProjectedWin / (double)(ProjectedWin + ProjectedLoss));
-            double actualDiff = (double)((Wins + PlayoffWins) / (double)(Wins + Losses)); // bonus for playoff wins
-            double score = (double)(actualDiff / (double)projectedDiff);
+            double projectedDiff = (double)projectedWin / (projectedWin + projectedLoss);
+            double actualDiff = (double)(wins + playoffWins) / (wins + losses); // bonus for playoff wins
+            double score = actualDiff / projectedDiff;
 
-            return double.IsNaN(Math.Round(score, 2)) ? 0.0 : Math.Round(score, 2);
+            double roundedScore = Math.Round(score, 2);
+
+            return double.IsNaN(roundedScore) ? 0.0 : roundedScore;
         }
     }
 }
