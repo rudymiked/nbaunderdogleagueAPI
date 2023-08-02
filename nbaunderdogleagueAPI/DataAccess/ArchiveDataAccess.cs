@@ -45,8 +45,10 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<SeasonArchiveEntity> seasonArchiveEntities = new();
 
+                Dictionary<string, TeamStats> teamStatsDictionary = teamEntities.ToDictionary(team => team.TeamName);
+
                 foreach (GroupStandings standings in groupStandings) {
-                    TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == standings.TeamName);
+                    teamStatsDictionary.TryGetValue(standings.TeamName, out TeamStats teamStats);
 
                     seasonArchiveEntities.Add(new SeasonArchiveEntity() {
                         PartitionKey = groupId,
@@ -55,7 +57,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Timestamp = DateTime.UtcNow,
                         GroupId = groupId,
                         Year = AppConstants.CurrentNBASeasonYear,
-                        TeamID = teamStats != null ? teamStats.TeamID : 0,
+                        TeamID = teamStats?.TeamID ?? 0,
                         TeamCity = standings.TeamCity,
                         TeamName = standings.TeamName,
                         Governor = standings.Governor,
@@ -71,7 +73,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                     });
                 }
 
-                var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities, AppConstants.ArchiveTable).Result;
+                seasonArchiveEntities = seasonArchiveEntities.OrderByDescending(s => s.Score).ToList();
+
+                for (int i = 0; i < seasonArchiveEntities.Count; ++i) {
+                    seasonArchiveEntities[i].Standing = i + 1;
+                } 
+
+                var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities.ToList(), AppConstants.ArchiveTable).Result;
 
                 return (response != null && !response.GetRawResponse().IsError) ? seasonArchiveEntities : new List<SeasonArchiveEntity>();
             } catch (Exception ex) {
@@ -121,16 +129,19 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 // 2. Query Group data
                 List<GroupEntity> groupEntities = _groupService.GetAllGroups();
+                Dictionary<string, GroupEntity> groupEntitiesDictionary = groupEntities.ToDictionary(group => group.Id.ToString());
 
                 List<ArchiveSummary> archiveSummaries = new();
 
                 foreach (SeasonArchiveEntity archive in seasonArchiveEntities) {
-                    archiveSummaries.Add(new ArchiveSummary() {
-                        Year = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.GroupId)?.Year,
+                    groupEntitiesDictionary.TryGetValue(archive.GroupId, out GroupEntity group);
+
+                    archiveSummaries.Add(new ArchiveSummary {
+                        Year = group?.Year,
                         Email = archive.Email,
                         Governor = archive.Governor,
                         GroupId = archive.GroupId,
-                        GroupName = groupEntities.FirstOrDefault(group => group.Id.ToString() == archive.GroupId)?.Name,
+                        GroupName = group?.Name,
                         Score = archive.Score,
                         TeamCity = archive.TeamCity,
                         TeamName = archive.TeamName,

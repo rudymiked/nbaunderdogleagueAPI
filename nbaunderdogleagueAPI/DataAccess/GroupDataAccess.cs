@@ -60,14 +60,15 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // 3. Get Users and their teams
             List<UserEntity> userEntities = _userService.GetUsers(groupId);
+            Dictionary<string, UserEntity> userEntitiesDictionary = userEntities.ToDictionary(user => user.Team);
 
             // 4. Combine 1, 2, and 3
             foreach (TeamEntity team in teamsEntities) {
                 TeamStats teamStats = teamStatsDict[team.Name];
-                UserEntity userEntity = userEntities.FirstOrDefault((gov) => gov.Team == team.Name);
+                userEntitiesDictionary.TryGetValue(team.Name, out UserEntity userEntity);
 
                 if (userEntity != null) {
-                    standings.Add(new GroupStandings() {
+                    standings.Add(new GroupStandings {
                         Governor = userEntity.Username ?? userEntity.Email.Split("@")[0],
                         Email = userEntity.Email,
                         TeamName = team.Name,
@@ -82,6 +83,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     });
                 }
             }
+
 
             return standings.OrderByDescending(group => group.Score).ToList();
         }
@@ -214,7 +216,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             GroupEntity groupEntity = GetGroup(leaveGroupRequest.GroupId);
 
-            if (groupEntity.Id.ToString() == string.Empty) {
+            if (string.IsNullOrWhiteSpace(groupEntity.Id.ToString())) {
                 // No group Found
                 _logger.LogError(AppConstants.GroupNotFound + " : " + leaveGroupRequest.GroupId);
                 return AppConstants.GroupNotFound + " : " + leaveGroupRequest.GroupId;
@@ -260,7 +262,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public GroupEntity CreateGroup(string name, string ownerEmail)
         {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(ownerEmail)) {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(ownerEmail)) {
                 return new GroupEntity() {
                     Id = Guid.Empty
                 };
