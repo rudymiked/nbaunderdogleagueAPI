@@ -85,7 +85,11 @@ public class Startup
 
             services.AddSingleton<IInvitationService, InvitationService>();
             services.AddSingleton<IInvitationRepository, InvitationRepository>();
-            services.AddSingleton<IInvitationDataAccess, InvitationDataAccess>();
+            services.AddSingleton<IInvitationDataAccess, InvitationDataAccess>();            
+            
+            services.AddSingleton<IPlayerService, PlayerService>();
+            services.AddSingleton<IPlayerRepository, PlayerRepository>();
+            services.AddSingleton<IPlayerDataAccess, PlayerDataAccess>();
 
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
 
