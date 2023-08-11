@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
-using nbaunderdogleagueAPI.Models;
-using nbaunderdogleagueAPI.Services;
 
 namespace nbaunderdogleagueAPI.Tests.Tests.Integration
 {
@@ -27,9 +25,9 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         //[TestMethod]
         //public void SetRapidAPITimeout()
         //{
-        //    if (_nbaService != null) {
+        //    if (_rapidAPIHelper != null) {
         //        DateTimeOffset now = DateTimeOffset.UtcNow;
-        //        bool setTimeoutResult = _nbaService.SetRapidAPITimeout(now.AddDays(1));
+        //        bool setTimeoutResult = _rapidAPIHelper.SetRapidAPITimeout(now.AddDays(1));
 
         //        Assert.AreEqual(true, setTimeoutResult);
         //    } else {
@@ -42,9 +40,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         {
             if (_rapidAPIHelper != null) {
                 try {
-                    bool rapidAPIAvailable = _rapidAPIHelper.IsRapidAPIAvailable();
-
-                    Assert.IsTrue(true);
+                    bool rapidAPIAvailable = _rapidAPIHelper.IsRapidAPIAvailable(); // doesn't matter if it is available, just that this method does not throw an exception
                 } catch (Exception) {
                     Assert.Fail();
                 }

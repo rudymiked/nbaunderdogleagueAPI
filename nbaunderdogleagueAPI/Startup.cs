@@ -93,7 +93,7 @@ public class Startup
             services.AddSingleton<IPlayerDataAccess, PlayerDataAccess>();
 
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
-            services.AddSingleton<IRapidAPIHelper, IRapidAPIHelper>();
+            services.AddSingleton<IRapidAPIHelper, RapidAPIHelper>();
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = AppConstants.AppName, Version = "v1.0" });
