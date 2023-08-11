@@ -1,5 +1,4 @@
 ﻿using Azure;
-using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
@@ -17,22 +16,21 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
         List<Scoreboard> NBAScoreboard(string groupId);
-        bool SetRapidAPITimeout(DateTimeOffset timeout);
-        bool IsRapidAPIAvailable();
-
     }
     public class NBADataAccess : INBADataAccess
     {
         private readonly ILogger _logger;
         private readonly ITableStorageHelper _tableStorageHelper;
+        private readonly IRapidAPIHelper _rapidAPIHelper;
         private readonly IUserService _userService;
         private readonly AppConfig _appConfig;
-        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService)
+        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService, IRapidAPIHelper rapidAPIHelper)
         {
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
             _appConfig = appConfig.Value;
             _userService = userService;
+            _rapidAPIHelper = rapidAPIHelper;
         }
 
         public GameResponse GetGamesFromRapidAPI()
@@ -66,7 +64,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<TeamStats> UpdateTeamStatsFromRapidAPI()
         {
-            if (!IsRapidAPIAvailable()) {
+            if (!_rapidAPIHelper.IsRapidAPIAvailable()) {
                 return new List<TeamStats>();
             }
 
@@ -116,7 +114,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             // Rapid API request limit has been met
             // do not update
-            if (!IsRapidAPIAvailable()) {
+            if (!_rapidAPIHelper.IsRapidAPIAvailable()) {
                 return new List<NBAGameEntity>();
             }
 
@@ -217,7 +215,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
 
                 if (requestsRemaining == 0) {
-                    SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
+                    _rapidAPIHelper.SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
                 }
 
                 return new RapidAPIContent() {
@@ -256,7 +254,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
 
                 if (requestsRemaining == 0) {
-                    SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
+                    _rapidAPIHelper.SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
                 }
 
                 return new RapidAPIContent() {
@@ -313,31 +311,6 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new List<Scoreboard>();
-        }
-
-        public bool SetRapidAPITimeout(DateTimeOffset timeout)
-        {
-            TimeoutEntity rapidAPITimeout = new() {
-                PartitionKey = AppConstants.SysConfig_RapidAPITimeout,
-                RowKey = Guid.NewGuid().ToString(),
-                NextTimeAvailableDateTime = timeout,
-                Timestamp = DateTime.Now
-            };
-
-            Response response = _tableStorageHelper.UpsertEntity(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
-
-            return (response != null && !response.IsError);
-        }
-
-        public bool IsRapidAPIAvailable()
-        {
-            string filter = TableClient.CreateQueryFilter<TimeoutEntity>((group) => group.PartitionKey == AppConstants.SysConfig_RapidAPITimeout);
-
-            var response = _tableStorageHelper.QueryEntities<TimeoutEntity>(AppConstants.SystemConfigurationTable, filter).Result;
-
-            TimeoutEntity timeoutEntity = response.OrderBy(x => x.NextTimeAvailableDateTime).FirstOrDefault();
-
-            return (timeoutEntity == null || timeoutEntity.NextTimeAvailableDateTime < DateTimeOffset.UtcNow);
         }
     }
 }

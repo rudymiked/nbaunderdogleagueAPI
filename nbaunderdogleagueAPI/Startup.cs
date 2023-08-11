@@ -5,6 +5,7 @@ using nbaunderdogleagueAPI.Communications;
 using nbaunderdogleagueAPI.DataAccess;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
+using nbaunderdogleagueAPI.Models.RapidAPI_NBA;
 using nbaunderdogleagueAPI.Services;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -92,6 +93,7 @@ public class Startup
             services.AddSingleton<IPlayerDataAccess, PlayerDataAccess>();
 
             services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
+            services.AddSingleton<IRapidAPIHelper, IRapidAPIHelper>();
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = AppConstants.AppName, Version = "v1.0" });

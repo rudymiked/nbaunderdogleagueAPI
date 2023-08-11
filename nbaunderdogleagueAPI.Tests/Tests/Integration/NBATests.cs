@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 
@@ -9,6 +10,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
     public class NBATests
     {
         private INBAService _nbaService;
+        private IRapidAPIHelper _rapidAPIHelper;
 
         [TestInitialize]
         public void SetUp()
@@ -21,15 +23,16 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
             });
 
             _nbaService = application.Services.GetService<INBAService>();
+            _rapidAPIHelper = application.Services.GetService<IRapidAPIHelper>();
         }
 
         [TestMethod]
         public void UpdateTeamStatsFromRapidAPI()
         {
-            if (_nbaService != null) {
+            if (_nbaService != null && _rapidAPIHelper != null) {
                 List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI();
 
-                if (_nbaService.IsRapidAPIAvailable()) {
+                if (_rapidAPIHelper.IsRapidAPIAvailable()) {
                     Assert.AreNotEqual(0, teamStats.Count);
                 } else {
                     Assert.AreEqual(0, teamStats.Count);
@@ -42,10 +45,10 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         [TestMethod]
         public void UpdateGamesFromRapidAPI()
         {
-            if (_nbaService != null) {
+            if (_nbaService != null && _rapidAPIHelper != null) {
                 List<NBAGameEntity> gameData = _nbaService.UpdateGamesFromRapidAPI();
 
-                if (_nbaService.IsRapidAPIAvailable()) {
+                if (_rapidAPIHelper.IsRapidAPIAvailable()) {
                     Assert.AreNotEqual(0, gameData.Count);
                 } else {
                     Assert.AreEqual(0, gameData.Count);
@@ -72,7 +75,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         //{
         //    if (_nbaService != null) {
         //        DateTimeOffset now = DateTimeOffset.UtcNow;
-        //        bool setTimeoutResult = _nbaService.SetRapidAPITimeout(now.AddDays(1));
+        //        bool setTimeoutResult = _rapidAPIHelper.SetRapidAPITimeout(now.AddDays(1));
 
         //        Assert.AreEqual(true, setTimeoutResult);
         //    } else {
@@ -85,7 +88,7 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
         {
             if (_nbaService != null) {
                 try {
-                    bool rapidAPIAvailable = _nbaService.IsRapidAPIAvailable();
+                    bool rapidAPIAvailable = _rapidAPIHelper.IsRapidAPIAvailable();
 
                     Assert.IsTrue(true);
                 } catch (Exception) {

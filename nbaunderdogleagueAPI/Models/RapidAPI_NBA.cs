@@ -1,4 +1,6 @@
-﻿using Azure.Data.Tables;
+﻿using Azure;
+using Azure.Data.Tables;
+using nbaunderdogleagueAPI.DataAccess.Helpers;
 
 namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 {
