@@ -1,6 +1,6 @@
 ﻿namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
-    public class Utils
+    public class TeamUtils
     {
         public static double CalculateTeamScore(int projectedWin, int projectedLoss, int wins, int losses, int? playoffWins = 0)
         {

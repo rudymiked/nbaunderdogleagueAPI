@@ -1,6 +1,6 @@
 ﻿using Azure.Data.Tables;
 
-namespace nbaunderdogleagueAPI.Models
+namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 {
     public class RapidAPI_NBA
     {

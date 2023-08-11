@@ -198,7 +198,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Ratio = teamData.Ratio,
                     Streak = teamData.Streak,
                     ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
-                    Score = Utils.CalculateTeamScore(currentTeam.ProjectedWin, currentTeam.ProjectedLoss, teamData.Wins, teamData.Losses, teamData.PlayoffWins)
+                    Score = TeamUtils.CalculateTeamScore(currentTeam.ProjectedWin, currentTeam.ProjectedLoss, teamData.Wins, teamData.Losses, teamData.PlayoffWins)
                 });
             }
 

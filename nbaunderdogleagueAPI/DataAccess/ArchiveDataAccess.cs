@@ -68,7 +68,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Wins = standings.Win,
                         Losses = standings.Loss,
                         PlayoffWins = standings.PlayoffWins,
-                        Score = Utils.CalculateTeamScore(standings.ProjectedWin, standings.ProjectedLoss, standings.Win, standings.Loss, standings.PlayoffWins),
+                        Score = TeamUtils.CalculateTeamScore(standings.ProjectedWin, standings.ProjectedLoss, standings.Win, standings.Loss, standings.PlayoffWins),
                         ClinchedPlayoffBirth = standings.Playoffs == "Yes" ? 1 : 0
                     });
                 }
@@ -109,7 +109,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == seasonArchiveEntity.TeamName);
 
                 seasonArchiveEntity.TeamID = teamStats != null ? teamStats.TeamID : 0;
-                seasonArchiveEntity.Score = Utils.CalculateTeamScore(seasonArchiveEntity.ProjectedWin, seasonArchiveEntity.ProjectedLoss, seasonArchiveEntity.Wins, seasonArchiveEntity.Losses, seasonArchiveEntity.PlayoffWins);
+                seasonArchiveEntity.Score = TeamUtils.CalculateTeamScore(seasonArchiveEntity.ProjectedWin, seasonArchiveEntity.ProjectedLoss, seasonArchiveEntity.Wins, seasonArchiveEntity.Losses, seasonArchiveEntity.PlayoffWins);
 
                 var response = _tableStorageHelper.UpsertEntities(new List<SeasonArchiveEntity>() { seasonArchiveEntity }, AppConstants.ArchiveTable).Result;
 
@@ -190,7 +190,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                         seasonArchiveEntities[i].Year = group.Year;
                         seasonArchiveEntities[i].GroupId = group.Id.ToString();
-                        seasonArchiveEntities[i].Score = Utils.CalculateTeamScore(projectedWins, projectedLosses, wins, losses, playoffWins);
+                        seasonArchiveEntities[i].Score = TeamUtils.CalculateTeamScore(projectedWins, projectedLosses, wins, losses, playoffWins);
                     }
 
                     // order by score to get standings

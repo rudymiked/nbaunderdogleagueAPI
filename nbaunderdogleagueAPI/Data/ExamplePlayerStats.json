@@ -1,0 +1,50 @@
+﻿{
+  "get": "players/statistics",
+  "parameters": {
+    "team": "1",
+    "season": "2022"
+  },
+  "errors": [],
+  "results": 883,
+  "response": [
+    {
+      "player": {
+        "id": 761,
+        "firstname": "John",
+        "lastname": "Collins"
+      },
+      "team": {
+        "id": 1,
+        "name": "Atlanta Hawks",
+        "nickname": "Hawks",
+        "code": "ATL",
+        "logo": "https://upload.wikimedia.org/wikipedia/fr/e/ee/Hawks_2016.png"
+      },
+      "game": {
+        "id": 11812
+      },
+      "points": 16,
+      "pos": "PF",
+      "min": "38",
+      "fgm": 7,
+      "fga": 12,
+      "fgp": "58.3",
+      "ftm": 2,
+      "fta": 6,
+      "ftp": "33.3",
+      "tpm": 0,
+      "tpa": 2,
+      "tpp": "0",
+      "offReb": 2,
+      "defReb": 4,
+      "totReb": 6,
+      "assists": 3,
+      "pFouls": 5,
+      "steals": 0,
+      "turnovers": 0,
+      "blocks": 0,
+      "plusMinus": "-1",
+      "comment": null
+    }
+  ]
+}

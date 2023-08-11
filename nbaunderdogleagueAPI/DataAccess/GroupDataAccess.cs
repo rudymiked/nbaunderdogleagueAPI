@@ -77,7 +77,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         ProjectedLoss = team.ProjectedLoss,
                         Win = teamStats.Wins,
                         Loss = teamStats.Losses,
-                        Score = Utils.CalculateTeamScore(team.ProjectedWin, team.ProjectedLoss, teamStats.Wins, teamStats.Losses, teamStats.PlayoffWins),
+                        Score = TeamUtils.CalculateTeamScore(team.ProjectedWin, team.ProjectedLoss, teamStats.Wins, teamStats.Losses, teamStats.PlayoffWins),
                         Playoffs = teamStats.ClinchedPlayoffBirth == 1 ? "Yes" : "",
                         PlayoffWins = teamStats.PlayoffWins
                     });

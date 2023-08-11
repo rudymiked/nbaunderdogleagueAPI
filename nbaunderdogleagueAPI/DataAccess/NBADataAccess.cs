@@ -5,7 +5,7 @@ using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
-using static nbaunderdogleagueAPI.Models.RapidAPI_NBA;
+using static nbaunderdogleagueAPI.Models.RapidAPI_NBA.RapidAPI_NBA;
 
 namespace nbaunderdogleagueAPI.DataAccess
 {
