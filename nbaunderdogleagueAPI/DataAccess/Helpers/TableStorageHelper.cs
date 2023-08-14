@@ -2,6 +2,7 @@
 using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
+using System.ComponentModel;
 
 namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
@@ -9,7 +10,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
     {
         Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
         Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
-        Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
+        Task<string> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new();
         Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new();
         Task DeleteAllEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
@@ -80,7 +81,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             return null;
         }
 
-        public async Task<Response<IReadOnlyList<Response>>> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
+        public async Task<string> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
@@ -88,15 +89,29 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
 
                 List<TableTransactionAction> addBatch = new();
 
-                addBatch.AddRange(entities.Select(f => new TableTransactionAction(TableTransactionActionType.UpsertMerge, f)));
+                for (int i = 0; i < entities.Count; i += AppConstants.MaxBatchSizeAzureTableStorage) {
+                    IEnumerable<T> batch = entities.Skip(i).Take(AppConstants.MaxBatchSizeAzureTableStorage);
+                    addBatch.AddRange(batch.Select(f => new TableTransactionAction(TableTransactionActionType.UpsertMerge, f)));
 
-                return await tableClient.SubmitTransactionAsync(addBatch);
+                    Response<IReadOnlyList<Response>> response = await tableClient.SubmitTransactionAsync(addBatch);
+                    Response rawResponse = response.GetRawResponse();
+
+                    // something went wrong
+                    if (rawResponse.IsError) {
+                        return rawResponse.ReasonPhrase;
+                    }
+
+                    addBatch.Clear();
+                }
+
+                return AppConstants.Success;
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
 
             return null;
         }
+
 
         public async Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
         {

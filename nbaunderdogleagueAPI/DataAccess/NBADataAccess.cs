@@ -4,6 +4,7 @@ using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using static nbaunderdogleagueAPI.Models.RapidAPI_NBA.RapidAPI_NBA;
 
 namespace nbaunderdogleagueAPI.DataAccess
@@ -14,7 +15,6 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<NBAGameEntity> UpdateGamesFromRapidAPI();
         Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date);
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
-        Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season);
         List<Scoreboard> NBAScoreboard(string groupId);
     }
     public class NBADataAccess : INBADataAccess
@@ -96,7 +96,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 if (teamStats.Count == 30) {
                     var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
-                    return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+                    return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                 } else {
                     _logger.LogError("Team Stats not fetched for all teams, count: " + teamStats.Count);
                 }
@@ -150,7 +150,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     var updateGamesResponse = _tableStorageHelper.UpsertEntities(nbaGameEntities, AppConstants.ScoreboardTable).Result;
 
-                    return (updateGamesResponse != null && !updateGamesResponse.GetRawResponse().IsError) ? nbaGameEntities : new List<NBAGameEntity>();
+                    return (updateGamesResponse == AppConstants.Success) ? nbaGameEntities : new List<NBAGameEntity>();
                 } else {
                     _logger.LogInformation("No new games on: " + DateTime.Now.ToString());
                 }
@@ -168,15 +168,16 @@ namespace nbaunderdogleagueAPI.DataAccess
                 DateTimeOffset now = DateTimeOffset.UtcNow;
                 string season = now.Month >= 9 ? now.Year.ToString() : (now.Year - 1).ToString();
 
-                Standings.Root output;
+                string apiURL = "https://api-nba-v1.p.rapidapi.com/standings";
+                string parameterString = "?league=standard&season=" + season;
 
-                RapidAPIContent content = GetNBAStandingsDataFromRapidAPI(season).Result;
+                RapidAPIContent content = _rapidAPIHelper.QueryRapidAPI(apiURL, parameterString).Result;
 
                 if (string.IsNullOrEmpty(content.Content)) {
                     return new TeamStatsResponse();
                 }
 
-                output = JsonConvert.DeserializeObject<Standings.Root>(content.Content);
+                Standings.Root output = JsonConvert.DeserializeObject<Standings.Root>(content.Content);
 
                 List<TeamStats> teamStats = output.ExtractTeamStats(_logger);
 
@@ -191,76 +192,15 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new TeamStatsResponse();
         }
 
-        // Rapid API Methods
-        public async Task<RapidAPIContent> GetNBAStandingsDataFromRapidAPI(string season)
-        {
-            try {
-                HttpClient httpClient = new();
-                HttpRequestMessage request = new() {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri("https://api-nba-v1.p.rapidapi.com/standings?league=standard&season=" + season),
-                    Headers =
-                    {
-                        { "X-RapidAPI-Key", _appConfig.RapidAPIKey },
-                        { "X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com" },
-                    },
-                };
-
-                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-                response.EnsureSuccessStatusCode();
-
-                var nonValidatedHeaders = response.Headers.NonValidated;
-
-                int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
-
-                if (requestsRemaining == 0) {
-                    _rapidAPIHelper.SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
-                }
-
-                return new RapidAPIContent() {
-                    Content = await response.Content.ReadAsStringAsync(),
-                    RequestsRemaining = requestsRemaining
-                };
-            } catch (Exception ex) {
-                _logger.LogError(ex, ex.Message);
-            }
-
-            return null;
-        }
-
         public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date)
         {
             try {
                 string dateString = date.ToString("yyyy-MM-dd");
 
-                HttpClient httpClient = new();
-                HttpRequestMessage request = new() {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri("https://api-nba-v1.p.rapidapi.com/games?date=" + dateString),
-                    Headers =
-                    {
-                        { "X-RapidAPI-Key", _appConfig.RapidAPIKey },
-                        { "X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com" },
-                    },
-                };
+                string apiURL = "https://api-nba-v1.p.rapidapi.com/games";
+                string parameterString = "?date=" + dateString;
 
-                HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-                response.EnsureSuccessStatusCode();
-
-                var nonValidatedHeaders = response.Headers.NonValidated;
-
-                int requestsRemaining = int.Parse(response.Headers.NonValidated["x-ratelimit-requests-remaining"].ElementAt(0));
-
-                if (requestsRemaining == 0) {
-                    _rapidAPIHelper.SetRapidAPITimeout(DateTimeOffset.UtcNow.AddDays(1));
-                }
-
-                return new RapidAPIContent() {
-                    Content = await response.Content.ReadAsStringAsync(),
-                    RequestsRemaining = requestsRemaining
-                };
+                return await _rapidAPIHelper.QueryRapidAPI(apiURL, parameterString);
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }

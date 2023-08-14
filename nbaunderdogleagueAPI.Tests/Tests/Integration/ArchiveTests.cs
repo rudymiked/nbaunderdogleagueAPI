@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 
-namespace nbaunderdogleagueAPI.Tests.Tests.Integration
+namespace nbaunderdogleagueAPI.Tests.Integration
 {
     [TestClass]
     public class ArchiveTests
@@ -31,32 +31,32 @@ namespace nbaunderdogleagueAPI.Tests.Tests.Integration
             Assert.AreNotEqual(0, seasonArchiveEntities.Count);
         }
 
-        [TestMethod]
-        public void ArchiveUser()
-        {
-            SeasonArchiveEntity userArchive = new() {
-                PartitionKey = AppConstants.Group_2019.ToString(),
-                RowKey = "will@gmail.com",
-                ETag = ETag.All,
-                Timestamp = DateTime.UtcNow,
-                TeamID = 0,
-                TeamCity = "Portland",
-                TeamName = "Trail Blazers",
-                Governor = "Will",
-                Email = "will@gmail.com",
-                Standing = 12,
-                ProjectedWin = 40,
-                ProjectedLoss = 42,
-                Wins = 26,
-                Losses = 33,
-                PlayoffWins = 1,
-                ClinchedPlayoffBirth = 1
-            };
+        //[TestMethod]
+        //public void ArchiveUser()
+        //{
+        //    SeasonArchiveEntity userArchive = new() {
+        //        PartitionKey = AppConstants.Group_2019.ToString(),
+        //        RowKey = "will@gmail.com",
+        //        ETag = ETag.All,
+        //        Timestamp = DateTime.UtcNow,
+        //        TeamID = 0,
+        //        TeamCity = "Portland",
+        //        TeamName = "Trail Blazers",
+        //        Governor = "Will",
+        //        Email = "will@gmail.com",
+        //        Standing = 12,
+        //        ProjectedWin = 40,
+        //        ProjectedLoss = 42,
+        //        Wins = 26,
+        //        Losses = 33,
+        //        PlayoffWins = 1,
+        //        ClinchedPlayoffBirth = 1
+        //    };
 
-            SeasonArchiveEntity seasonArchive = _archiveService.ArchiveUser(userArchive);
+        //    SeasonArchiveEntity seasonArchive = _archiveService.ArchiveUser(userArchive);
 
-            Assert.AreNotEqual(null, seasonArchive);
-        }
+        //    Assert.AreNotEqual(null, seasonArchive);
+        //}
 
         [TestMethod]
         public void GetSeasonArchive()

@@ -4,7 +4,7 @@ using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 
-namespace nbaunderdogleagueAPI.Tests.Tests.Integration
+namespace nbaunderdogleagueAPI.Tests.Integration
 {
     [TestClass]
     public class NBATests

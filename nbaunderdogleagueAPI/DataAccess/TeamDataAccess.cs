@@ -40,9 +40,13 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<TeamEntity> GetTeams()
         {
-            var response = _tableStorageHelper.QueryEntities<TeamEntity>(AppConstants.TeamsTable).Result;
+            try {
+                return _tableStorageHelper.QueryEntities<TeamEntity>(AppConstants.TeamsTable).Result.ToList();
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
 
-            return response.ToList();
+            return new List<TeamEntity>();
         }
 
         public List<TeamEntity> AddTeams(List<TeamEntity> teamEntities)
@@ -56,7 +60,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             var response = _tableStorageHelper.UpsertEntities(teamEntities, AppConstants.TeamsTable).Result;
 
-            return (response != null && !response.GetRawResponse().IsError) ? teamEntities : new List<TeamEntity>();
+            return (response == AppConstants.Success) ? teamEntities : new List<TeamEntity>();
         }
 
         private async Task<string> GetNBAStandingsData(string season)
@@ -231,7 +235,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (teamStats.Count != 0) {
                 var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
-                return (updateTeamStatsManuallyResponse != null && !updateTeamStatsManuallyResponse.GetRawResponse().IsError) ? teamStats : new List<TeamStats>();
+                return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
             } else {
                 return new List<TeamStats>();
             }

@@ -34,6 +34,5 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.Fail();
             }
         }
-
     }
 }

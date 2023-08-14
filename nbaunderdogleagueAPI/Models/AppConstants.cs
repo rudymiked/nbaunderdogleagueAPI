@@ -7,6 +7,14 @@
         public const string NBAAppInsights = "NBAAppInsights";
         public const string APIAppId = "apiAppId";
         public const string Tenant = "Tenant";
+        public const string AppName = "NBAUnderdogLeague";
+        public const string SiteTitle = "NBA Fantasy";
+        public const string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
+        public const string UIUrl = "https://nbaunderdogleague.azurewebsites.net";
+        public const string AdminEmail = "rudymiked@gmail.com";
+        public const string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
+
+        // Storage Tables
         public const string TeamsTable = "Teams";
         public const string UsersTable = "Users";
         public const string ArchiveTable = "Archive";
@@ -17,12 +25,7 @@
         public const string ScoreboardTable = "Scoreboard";
         public const string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
         public const string ManualTeamStats = "ManualTeamStats";
-        public const string AppName = "NBAUnderdogLeague";
-        public const string SiteTitle = "NBA Underdogs";
-        public const string ApiUrl = "https://nbaunderdogleagueapi.azurewebsites.net";
-        public const string UIUrl = "https://nbaunderdogleague.azurewebsites.net";
-        public const string AdminEmail = "rudymiked@gmail.com";
-        public const string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
+        public const string PlayerStatisticsTable = "PlayerStatistics";
 
         // Results
         public const string Success = "Success";
@@ -55,6 +58,8 @@
         // Ints
         public const int MinYear = 2022; // first year of the app
         public const int GroupInvitationExpirationMinutes = 120;
+        public const int NumberOfNBATeams = 30;
+        public const int MaxBatchSizeAzureTableStorage = 99;
 
         // Groups
         public static readonly Guid Group_2022 = Guid.Parse("cee48957-9221-46b7-a80d-ba21b6ccb303");

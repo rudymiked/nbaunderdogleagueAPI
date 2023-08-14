@@ -160,7 +160,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
 
-                return (draftResponse != null && !draftResponse.GetRawResponse().IsError) ? draftEntities : new List<DraftEntity>();
+                return (draftResponse == AppConstants.Success) ? draftEntities : new List<DraftEntity>();
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }

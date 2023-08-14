@@ -81,7 +81,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities.ToList(), AppConstants.ArchiveTable).Result;
 
-                return (response != null && !response.GetRawResponse().IsError) ? seasonArchiveEntities : new List<SeasonArchiveEntity>();
+                return (response == AppConstants.Success) ? seasonArchiveEntities : new List<SeasonArchiveEntity>();
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
@@ -113,7 +113,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 var response = _tableStorageHelper.UpsertEntities(new List<SeasonArchiveEntity>() { seasonArchiveEntity }, AppConstants.ArchiveTable).Result;
 
-                return (response != null && !response.GetRawResponse().IsError) ? seasonArchiveEntity : new SeasonArchiveEntity();
+                return (response == AppConstants.Success) ? seasonArchiveEntity : new SeasonArchiveEntity();
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
@@ -209,7 +209,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities, AppConstants.ArchiveTable).Result;
 
-                    updatedCount += (response != null && !response.GetRawResponse().IsError) ? seasonArchiveEntities.Count : 0;
+                    updatedCount += (response == AppConstants.Success) ? seasonArchiveEntities.Count : 0;
                 }
 
                 return updatedCount == resultList.Count ? resultList : new List<SeasonArchiveEntity>();

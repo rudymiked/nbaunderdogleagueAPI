@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 
-namespace nbaunderdogleagueAPI.Tests.Tests.Integration
+namespace nbaunderdogleagueAPI.Tests.Integration
 {
     [TestClass]
     public class RapidAPIHelperTests
