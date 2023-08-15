@@ -16,5 +16,11 @@ namespace nbaunderdogleagueAPI.Controllers
             _playerService = playerService;
             _httpContextAccessor = httpContextAccessor;
         }
+
+        [HttpGet("Statistics")]
+        public ActionResult<IEnumerable<PlayerStatisticsEntity>> Statistics()
+        {
+            return Ok(_playerService.GetPlayerStatistics());
+        }
     }
 }
