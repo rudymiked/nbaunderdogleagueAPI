@@ -82,6 +82,7 @@ namespace nbaunderdogleagueAPI.Models
         public double AveragePlusMinus { get; set; }
         public double MaxPlusMinus { get; set; }
         public double MinPlusMinus { get; set; }
+        public int GamesPlayeed { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
     }

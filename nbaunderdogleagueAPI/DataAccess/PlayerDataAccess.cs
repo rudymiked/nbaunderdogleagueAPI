@@ -42,8 +42,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Dictionary<int, int> numberOfGamePerPlayer = new();
 
                 foreach (PlayerStatistics.Response player in playerResponse.Players) {
+                    if (player.Min == "--") {
+                        // player did not play
+                        continue;
+                    }
+
                     // need to check if we've seen this player before, so we can caluate min,max,avg,etc.
-                    PlayerStatisticsEntity previousPlayerStatistics = playerStatsDictionary.TryGetValue(player.Player.Id, out PlayerStatisticsEntity playerData) 
+                    PlayerStatisticsEntity previousPlayerStatistics = playerStatsDictionary.TryGetValue(player.Player.Id, out PlayerStatisticsEntity playerData)
                                                                         ? playerData
                                                                         : null;
 
@@ -51,11 +56,6 @@ namespace nbaunderdogleagueAPI.DataAccess
                         numberOfGamePerPlayer[player.Player.Id] = numberOfGames + 1;
                     } else {
                         numberOfGamePerPlayer.Add(player.Player.Id, 1);
-                    }
-
-                    if (player.Min == "--") {
-                        // player did not play
-                        continue;
                     }
 
                     int playerMinutes = int.TryParse(player.Min, out int m) ? m : 0;
@@ -71,7 +71,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         PlayerName = player.Player.Firstname + " " + player.Player.Lastname,
                         TeamName = player.Team.Nickname, // "nickname" aka "Hawks"
                         Position = player.Pos, // "pos"
-
+                        
                         // Totals
                         TotalPoints = player.Points + (previousPlayerStatistics?.TotalPoints ?? 0),
                         TotalMinutes = playerMinutes + (previousPlayerStatistics?.TotalMinutes ?? 0),
@@ -90,6 +90,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         TotalSteals = player.Steals + (previousPlayerStatistics?.TotalSteals ?? 0),
                         TotalBlocks = player.Blocks + (previousPlayerStatistics?.TotalBlocks ?? 0),
                         SeasonPlusMinus = playerPlusMinus + (previousPlayerStatistics?.SeasonPlusMinus ?? 0),
+                        GamesPlayeed = numberOfGames,
 
                         // Averages
                         AveragePoints = PlayerUtils.Average(player.Points, previousPlayerStatistics?.AveragePoints, numberOfGames),
