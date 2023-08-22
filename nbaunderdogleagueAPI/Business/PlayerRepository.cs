@@ -9,7 +9,8 @@ namespace nbaunderdogleagueAPI.Business
         public PlayerResponse GetAllPlayerStatsFromRapidAPI(int season);
         public PlayerResponse GetPlayerStatsPerTeamFromRapidAPI(int teamId, int season);
         public List<PlayerStatisticsEntity> UpdatePlayerStatsFromRapidAPI(int teamId = 0, int season = 0);
-        public List<PlayerStatisticsEntity> GetPlayerStatistics();
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "");
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "");
     }
     public class PlayerRepository : IPlayerRepository
     {
@@ -30,9 +31,13 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _playerDataAccess.UpdatePlayerStatsFromRapidAPI(teamId, season);
         }
-        public List<PlayerStatisticsEntity> GetPlayerStatistics()
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "")
         {
-            return _playerDataAccess.GetPlayerStatistics();
+            return _playerDataAccess.GetPlayerStatistics(playerName);
+        }
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "")
+        {
+            return _playerDataAccess.GetAdvancedPlayerStatistics(playerName);
         }
     }
 }

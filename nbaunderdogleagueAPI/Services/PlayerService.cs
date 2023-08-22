@@ -9,7 +9,8 @@ namespace nbaunderdogleagueAPI.Services
         public PlayerResponse GetAllPlayerStatsFromRapidAPI(int season);
         public PlayerResponse GetPlayerStatsPerTeamFromRapidAPI(int teamId, int season);
         public List<PlayerStatisticsEntity> UpdatePlayerStatsFromRapidAPI(int teamId = 0, int season = 0);
-        public List<PlayerStatisticsEntity> GetPlayerStatistics();
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "");
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "");
     }
     public class PlayerService : IPlayerService
     {
@@ -30,9 +31,13 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _playerRepository.UpdatePlayerStatsFromRapidAPI(teamId, season);
         }
-        public List<PlayerStatisticsEntity> GetPlayerStatistics()
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "")
         {
-            return _playerRepository.GetPlayerStatistics();
+            return _playerRepository.GetPlayerStatistics(playerName);
+        }
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "")
+        {
+            return _playerRepository.GetAdvancedPlayerStatistics(playerName);
         }
     }
 }

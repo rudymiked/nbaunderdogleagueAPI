@@ -1,10 +1,12 @@
 ﻿using Azure;
+using Azure.Data.Tables;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Models.PlayerStatistics;
 using nbaunderdogleagueAPI.Models.RapidAPI_NBA;
 using Newtonsoft.Json;
+using System.Linq.Expressions;
 using static nbaunderdogleagueAPI.Models.PlayerStatistics.PlayerStatistics;
 
 namespace nbaunderdogleagueAPI.DataAccess
@@ -14,7 +16,8 @@ namespace nbaunderdogleagueAPI.DataAccess
         public PlayerResponse GetAllPlayerStatsFromRapidAPI(int season);
         public PlayerResponse GetPlayerStatsPerTeamFromRapidAPI(int teamId, int season);
         public List<PlayerStatisticsEntity> UpdatePlayerStatsFromRapidAPI(int teamId = 0, int season = 0);
-        public List<PlayerStatisticsEntity> GetPlayerStatistics();
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "");
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "");
     }
     public class PlayerDataAccess : IPlayerDataAccess
     {
@@ -263,10 +266,35 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
-        public List<PlayerStatisticsEntity> GetPlayerStatistics()
+        public List<PlayerStatisticsEntity> GetPlayerStatistics(string playerName = "")
         {
             try {
-                return _tableStorageHelper.QueryEntities<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable).Result.ToList();
+                string playerFilter = null;
+                if (!string.IsNullOrWhiteSpace(playerName)) {
+                    Expression<Func<PlayerStatisticsEntity, bool>> filterExpression = entity => entity.PlayerName == playerName;
+                    playerFilter = TableClient.CreateQueryFilter(filterExpression);
+                }
+
+                return _tableStorageHelper.QueryEntities<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable, WhereFilter: playerFilter).Result.ToList();
+
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+        }
+        
+        public List<AdvancedPlayerStats> GetAdvancedPlayerStatistics(string playerName = "")
+        {
+            try {
+                List<AdvancedPlayerStats> advancedPlayerStats = new();
+                List<PlayerStatisticsEntity> playerStatisticsEntities = GetPlayerStatistics(playerName);
+
+                playerStatisticsEntities.ForEach(player => {
+                    advancedPlayerStats.Add(new AdvancedPlayerStats(_appConfig, player));
+                });
+
+                return advancedPlayerStats;
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }

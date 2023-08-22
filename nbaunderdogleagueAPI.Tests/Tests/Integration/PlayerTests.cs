@@ -38,6 +38,14 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             List<PlayerStatisticsEntity> content = _playerService.GetPlayerStatistics();
 
             Assert.IsTrue(content != null);
+        }         
+
+        [TestMethod]
+        public void GetAdvancedPlayerStatistics()
+        {
+            List<AdvancedPlayerStats> content = _playerService.GetAdvancedPlayerStatistics("LeBron James");
+
+            Assert.IsTrue(content != null);
         }        
         
         [TestMethod]
