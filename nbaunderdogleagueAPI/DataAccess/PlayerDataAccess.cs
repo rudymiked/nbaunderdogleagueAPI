@@ -291,7 +291,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 List<PlayerStatisticsEntity> playerStatisticsEntities = GetPlayerStatistics(playerName);
 
                 playerStatisticsEntities.ForEach(player => {
-                    advancedPlayerStats.Add(new AdvancedPlayerStats(_appConfig, player));
+                    advancedPlayerStats.Add(new AdvancedPlayerStats(player));
                 });
 
                 return advancedPlayerStats;
