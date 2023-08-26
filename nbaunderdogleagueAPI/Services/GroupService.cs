@@ -10,7 +10,7 @@ namespace nbaunderdogleagueAPI.Services
         string JoinGroup(JoinGroupRequest joinGroupRequest);
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
         GroupEntity GetGroup(string groupId);
-        List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
+        List<GroupEntity> GetAllGroupsByYear(int year);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year);
         List<GroupEntity> GetAllGroups();
     }
@@ -41,9 +41,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             return _groupRepository.GetGroup(groupId);
         }
-        public List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email)
+        public List<GroupEntity> GetAllGroupsByYear(int year)
         {
-            return _groupRepository.GetAllGroupsByYear(year, includeUser, email);
+            return _groupRepository.GetAllGroupsByYear(year);
         }
         public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)
         {

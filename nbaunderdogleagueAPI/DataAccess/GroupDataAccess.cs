@@ -12,7 +12,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<GroupStandings> GetGroupStandings(string groupId, int version);
         GroupEntity CreateGroup(string name, string ownerEmail);
         GroupEntity GetGroup(string groupId);
-        List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email);
+        List<GroupEntity> GetAllGroupsByYear(int year);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
         string JoinGroup(JoinGroupRequest joinGroupRequest);
@@ -92,40 +92,20 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.PartitionKey == groupId);
 
-            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+            var response = QueryGroupTable(filter);
 
-            return response.Any() ? response.ToList()[0] : new GroupEntity();
+            return response.Any() ? response.ToList().FirstOrDefault() : new GroupEntity();
         }
 
-        public List<GroupEntity> GetAllGroupsByYear(int year, bool includeUser, string email)
+        public List<GroupEntity> GetAllGroupsByYear(int year)
         {
             List<GroupEntity> groupEntities = new();
 
             string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
 
-            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+            var response = QueryGroupTable(filter);
 
-            if (response.Any()) {
-                groupEntities = response.ToList();
-
-                // filter out groups that user is in if this flag is false
-                if (!includeUser) {
-                    // Collect all groups that user is in
-
-                    string userGroupFilter = TableClient.CreateQueryFilter<UserEntity>((user) => user.Email == email);
-
-                    var userRsponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
-
-                    // groups user is in
-                    var userGroups = userRsponse.ToList().Select(user => user.Group);
-
-                    List<Guid> groupsUserIsNotIn = groupEntities.Select(group => group.Id).Except(userGroups).ToList();
-
-                    return groupEntities.Where(group => groupsUserIsNotIn.Contains(group.Id)).ToList();
-                }
-            }
-
-            return groupEntities;
+            return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
 
         public List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year)
@@ -146,7 +126,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             string yearFilter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Year == year);
 
-            var groupResponse = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, yearFilter).Result;
+            var groupResponse = QueryGroupTable(yearFilter);
 
             List<GroupEntity> groupsByYear = groupResponse.ToList();
 
@@ -157,7 +137,14 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<GroupEntity> GetAllGroups()
         {
-            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable).Result;
+            var response = QueryGroupTable();
+
+            return response.Any() ? response.ToList() : new List<GroupEntity>();
+        }
+
+        private List<GroupEntity> QueryGroupTable(string filter = "")
+        {
+            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, string.IsNullOrWhiteSpace(filter) ? null : filter).Result;
 
             return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
@@ -275,7 +262,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Owner == ownerEmail);
 
-            var currentGroupsResponse = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, filter).Result;
+            var currentGroupsResponse = QueryGroupTable(filter);
 
             List<GroupEntity> currentGroups = currentGroupsResponse.ToList();
 

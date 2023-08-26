@@ -70,6 +70,12 @@ namespace nbaunderdogleagueAPI.Controllers
         public ActionResult<GroupEntity> GetGroup(string groupId)
         {
             return !string.IsNullOrEmpty(groupId) ? Ok(_groupService.GetGroup(groupId)) : NoContent();
+        }        
+        
+        [HttpGet("GetAllGroups")]
+        public ActionResult<GroupEntity> GetAllGroups()
+        {
+            return Ok(_groupService.GetAllGroups());
         }
 
         [HttpGet("AllGroupsUserIsInByYear")]
@@ -81,11 +87,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("AllGroupsByYear")]
-        public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year, bool includeUser, string email)
+        public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year)
         {
-            return year >= AppConstants.MinYear && !string.IsNullOrEmpty(email)
-                ? Ok(_groupService.GetAllGroupsByYear(year, includeUser, email))
-                : NoContent();
+            return Ok(_groupService.GetAllGroupsByYear(year));
         }
     }
 }

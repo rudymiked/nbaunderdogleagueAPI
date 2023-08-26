@@ -84,10 +84,22 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
+        public void GetAllGroups()
+        {
+            if (_groupService != null) {
+                List<GroupEntity> groupEntities = _groupService.GetAllGroups();
+
+                Assert.AreNotEqual(null, groupEntities);
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
         public void GetAllGroupsByYear()
         {
             if (_groupService != null) {
-                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(AppConstants.CurrentNBASeasonYear, true, TestConstants.Email);
+                List<GroupEntity> groups = _groupService.GetAllGroupsByYear(AppConstants.CurrentNBASeasonYear);
 
                 Assert.AreEqual(true, groups.Any());
             } else {
