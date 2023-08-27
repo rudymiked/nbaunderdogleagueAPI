@@ -174,7 +174,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<UserEntity> usersInGroup = _userService.GetUsers(groupInvitation.GroupId.ToString());
 
             if (!usersInGroup.Where(user => user.Email == groupInvitation.Email).Any()) {
-                return AppConstants.UserAlreadyInGroup + groupInvitation.GroupId.ToString();
+                return AppConstants.UserAlreadyInGroup + group.Name;
             }
 
             GroupInvitationEntity groupInvitationEntity = CreateNewInvitation(groupInvitation);

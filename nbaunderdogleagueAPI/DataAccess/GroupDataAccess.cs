@@ -178,7 +178,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (usersGroups.Any()) {
                 // user already in group
                 // do nothing
-                return AppConstants.UserAlreadyInGroup + joinGroupRequest.GroupId;
+                return AppConstants.UserAlreadyInGroup + groupEntity.Name;
             }
 
             // 3. add group to user data
