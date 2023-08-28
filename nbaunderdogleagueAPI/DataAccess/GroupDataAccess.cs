@@ -11,6 +11,7 @@ namespace nbaunderdogleagueAPI.DataAccess
     {
         List<GroupStandings> GetGroupStandings(string groupId, int version);
         GroupEntity CreateGroup(string name, string ownerEmail);
+        GroupEntity UpsertGroup(GroupEntity group);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
@@ -52,17 +53,44 @@ namespace nbaunderdogleagueAPI.DataAccess
             // something went wrong.
             if (teamStatsDict.Count == 0) {
                 _logger.LogError(AppConstants.EmptyTeamStats);
-                return new List<GroupStandings>();
+                return new List<GroupStandings>();  
             }
 
             // 2. Get Projected Data (from storage)
             List<TeamEntity> teamsEntities = _teamService.GetTeams();
 
-            // 3. Get Users and their teams
-            List<UserEntity> userEntities = _userService.GetUsers(groupId);
-            Dictionary<string, UserEntity> userEntitiesDictionary = userEntities.ToDictionary(user => user.Team);
+            // 3. Get Group Info
+            GroupEntity group = GetGroup(groupId);
 
-            // 4. Combine 1, 2, and 3
+            // 4. Get Users and their teams
+            List<UserEntity> userEntities = _userService.GetUsers(groupId);
+
+            if (group.DraftDate > DateTimeOffset.UtcNow || group.DraftDate == DateTimeOffset.MinValue) {
+                // draft either hasn't started or hasn't been setup
+
+                foreach (UserEntity user in userEntities) {
+                    standings.Add(new GroupStandings {
+                        Governor = string.IsNullOrWhiteSpace(user.Username) ? user.Email.Split("@")[0] : user.Username,
+                        Email = user.Email,
+                        TeamName = "",
+                        TeamCity = "",
+                        ProjectedWin = 0,
+                        ProjectedLoss = 0,
+                        Win = 0,
+                        Loss = 0,
+                        Score = 0,
+                        Playoffs = "",
+                        PlayoffWins = 0
+                    });
+                }
+
+                return standings.OrderByDescending(group => group.Governor).ToList();
+            }
+
+            int index = 0;
+            Dictionary<string, UserEntity> userEntitiesDictionary = userEntities.ToDictionary(user => user.Team ?? (index++).ToString());
+
+            // 5. Combine 1, 2, and 3
             foreach (TeamEntity team in teamsEntities) {
                 TeamStats teamStats = teamStatsDict[team.Name];
                 userEntitiesDictionary.TryGetValue(team.Name, out UserEntity userEntity);
@@ -83,7 +111,6 @@ namespace nbaunderdogleagueAPI.DataAccess
                     });
                 }
             }
-
 
             return standings.OrderByDescending(group => group.Score).ToList();
         }
@@ -281,6 +308,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Name = name,
                 Owner = ownerEmail,
                 Year = AppConstants.CurrentNBASeasonYear,
+                DraftDate = AppConstants.NBAStartDate.AddDays(-1), // set default date to day before NBA season starts
                 ETag = ETag.All,
                 Timestamp = DateTime.Now,
             };
@@ -306,6 +334,29 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return groupEntity;
+        }
+
+        public GroupEntity UpsertGroup(GroupEntity group)
+        {
+            if (group.Id != Guid.Empty) {
+                GroupEntity groupEntity = new() {
+                    PartitionKey = group.PartitionKey,
+                    RowKey = group.RowKey,
+                    Id = group.Id,
+                    Name = group.Name,
+                    Owner = group.Owner,
+                    Year = group.Year,
+                    DraftDate = group.DraftDate,
+                    ETag = ETag.All,
+                    Timestamp = DateTime.Now,
+                };
+
+                Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
+
+                return (response != null && !response.IsError) ? group : new GroupEntity();
+            }
+
+            return new GroupEntity();
         }
 
         public string ApproveNewGroupMember(ApproveUserRequest approveUserRequest)

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using static nbaunderdogleagueAPI.Models.RapidAPI_NBA.RapidAPI_NBA.Game;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -51,7 +52,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetGroupStandingsTestV2()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 2);
+                List<GroupStandings> standings = _groupService.GetGroupStandings("938d60e2-0144-436d-ae6a-5357df703aa4", 2);
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {
@@ -72,12 +73,24 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetGroup()
+        public void GetGroupAndUpdate()
         {
             if (_groupService != null) {
                 GroupEntity group = _groupService.GetGroup(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(string.Empty, group.Name);
+
+                group.Timestamp = DateTimeOffset.UtcNow;
+
+                GroupEntity updateGroup = _groupService.UpsertGroup(group);
+
+                Assert.IsNotNull(updateGroup);
+
+                group = _groupService.GetGroup(AppConstants.Group_2022.ToString());
+
+                TimeSpan timeDifference = (TimeSpan)(group.Timestamp - DateTimeOffset.UtcNow);
+
+                Assert.IsTrue(Math.Abs(timeDifference.TotalMinutes) <= 5);
             } else {
                 Assert.Fail();
             }

@@ -4,7 +4,6 @@ using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 using static nbaunderdogleagueAPI.Models.RapidAPI_NBA.RapidAPI_NBA;
 
 namespace nbaunderdogleagueAPI.DataAccess

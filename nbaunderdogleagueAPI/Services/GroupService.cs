@@ -7,6 +7,7 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<GroupStandings> GetGroupStandings(string groupId, int version);
         GroupEntity CreateGroup(string name, string ownerEmail);
+        GroupEntity UpsertGroup(GroupEntity group);
         string JoinGroup(JoinGroupRequest joinGroupRequest);
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
         GroupEntity GetGroup(string groupId);
@@ -28,6 +29,10 @@ namespace nbaunderdogleagueAPI.Services
         public GroupEntity CreateGroup(string name, string ownerEmail)
         {
             return _groupRepository.CreateGroup(name, ownerEmail);
+        }
+        public GroupEntity UpsertGroup(GroupEntity group)
+        {
+            return _groupRepository.UpsertGroup(group);
         }
         public string JoinGroup(JoinGroupRequest joinGroupRequest)
         {

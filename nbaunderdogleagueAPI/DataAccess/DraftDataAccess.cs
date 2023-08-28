@@ -68,6 +68,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 if (draftEntities.Count > 0) {
                     DateTimeOffset draftStartTime = draftEntities.Select(draft => draft.UserStartTime).Min();
 
+                    // draft already started, cannot update
                     if (draftStartTime < DateTimeOffset.UtcNow) {
                         _logger.LogError(AppConstants.DraftStarted + " : " + setupDraftRequest.GroupId);
                         return new List<DraftEntity>();
@@ -118,7 +119,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
-                DateTimeOffset draftStart = new DateTimeOffset(
+                DateTimeOffset draftStart = new(
                                                 setupDraftRequest.DraftStartDateTime.Year,
                                                 setupDraftRequest.DraftStartDateTime.Month,
                                                 setupDraftRequest.DraftStartDateTime.Day,
@@ -126,6 +127,11 @@ namespace nbaunderdogleagueAPI.DataAccess
                                                 0,
                                                 0,
                                                 utcNow.Offset);
+
+                // Update Draft Start Time in Group Definition
+                groupEntity.DraftDate = draftStart;
+
+                GroupEntity groupUpdate = _groupService.UpsertGroup(groupEntity); 
 
                 for (int i = 0; i < userEntities.Count; i++) {
                     int userStartMinute = setupDraftRequest.DraftStartDateTime.Minute + (setupDraftRequest.DraftWindow * (shuffledList[i] - 1)); // "-1" so first starts at minute :00

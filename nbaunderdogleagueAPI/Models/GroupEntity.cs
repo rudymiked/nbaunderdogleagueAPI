@@ -11,6 +11,7 @@ namespace nbaunderdogleagueAPI.Models
         public string Owner { get; set; }
         public string Name { get; set; }
         public int Year { get; set; }
+        public DateTimeOffset DraftDate { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
     }
