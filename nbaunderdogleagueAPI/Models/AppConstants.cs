@@ -26,6 +26,7 @@
         public const string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
         public const string ManualTeamStats = "ManualTeamStats";
         public const string PlayerStatisticsTable = "PlayerStatistics";
+        public const string JoinGroupRequestsTable = "JoinGroupRequests";
 
         // Results
         public const string Success = "Success";

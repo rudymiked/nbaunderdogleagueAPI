@@ -136,7 +136,6 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void JoinGroup()
         {
             if (_groupService != null) {
-
                 JoinGroupRequest joinGroupRequest = new() {
                     GroupId = TestConstants.PostGroupId_TEST.ToString(),
                     Email = TestConstants.Email
@@ -154,7 +153,6 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void LeaveGroup()
         {
             if (_groupService != null) {
-
                 LeaveGroupRequest leaveGroupRequest = new() {
                     GroupId = TestConstants.PostGroupId_TEST.ToString(),
                     Email = TestConstants.Email
@@ -165,6 +163,49 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.AreEqual(AppConstants.Success, groupResult);
             } else {
                 Assert.Fail();
+            }
+        }
+
+        [TestMethod] 
+        public void GetJoinGroupRequests()
+        {
+            if (_groupService != null) {
+                JoinGroupRequest joinGroupRequest = new() {
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
+                    Email = TestConstants.Email
+                };
+
+                // request to join
+                string groupResult = _groupService.JoinGroup(joinGroupRequest);
+
+                Assert.AreEqual(AppConstants.Success, groupResult);
+
+                // ensure request is present
+                List<JoinGroupRequestEntity> joinGroupRequestEntity = _groupService.GetJoinGroupRequests(TestConstants.PostGroupId_TEST.ToString());
+
+                Assert.IsTrue(joinGroupRequestEntity.Select(x => x.GroupId == TestConstants.PostGroupId_TEST.ToString() && x.Email == TestConstants.Email).Any());
+
+                // approve request
+                ApproveUserRequest approveUserRequest = new() {
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
+                    Email = TestConstants.Email,
+                    InviteId = null,
+                    AdminEmail = TestConstants.NBAEmail
+                };
+
+                string approval = _groupService.ApproveNewGroupMember(approveUserRequest);
+
+                Assert.AreEqual(AppConstants.Success, approval);
+
+                // leave group
+                LeaveGroupRequest leaveGroupRequest = new() {
+                    GroupId = TestConstants.PostGroupId_TEST.ToString(),
+                    Email = TestConstants.Email
+                };
+
+                string leaveGroupResult = _groupService.LeaveGroup(leaveGroupRequest);
+
+                Assert.AreEqual(AppConstants.Success, leaveGroupResult);
             }
         }
     }

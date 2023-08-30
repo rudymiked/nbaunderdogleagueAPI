@@ -12,6 +12,7 @@ namespace nbaunderdogleagueAPI.Controllers
         private readonly ILogger<GroupController> _logger;
         private readonly IGroupService _groupService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClaimsPrincipal _user;
 
         public GroupController(ILogger<GroupController> logger, IGroupService groupService, IHttpContextAccessor httpContextAccessor)
         {
@@ -19,9 +20,9 @@ namespace nbaunderdogleagueAPI.Controllers
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
 
-            ClaimsPrincipal user = _httpContextAccessor.HttpContext.User;
+            _user = _httpContextAccessor.HttpContext.User;
 
-            _logger.LogInformation("User: " + user.Identity.Name);
+            _logger.LogInformation("User: " + _user.Identity.Name);
         }
 
         [HttpGet("GroupStandings")]
@@ -72,7 +73,7 @@ namespace nbaunderdogleagueAPI.Controllers
             return !string.IsNullOrEmpty(groupId) ? Ok(_groupService.GetGroup(groupId)) : NoContent();
         }        
         
-        [HttpGet("GetAllGroups")]
+        [HttpGet("AllGroups")]
         public ActionResult<GroupEntity> GetAllGroups()
         {
             return Ok(_groupService.GetAllGroups());
@@ -90,6 +91,19 @@ namespace nbaunderdogleagueAPI.Controllers
         public ActionResult<List<GroupEntity>> GetAllGroupsByYear(int year)
         {
             return Ok(_groupService.GetAllGroupsByYear(year));
+        }
+
+        [HttpPost("ApproveNewGroupMember")]
+        public ActionResult<string> ApproveNewGroupMember(ApproveUserRequest approveUserRequest)
+        {
+            return Ok(_groupService.ApproveNewGroupMember(approveUserRequest));
+        }        
+        
+        // XXX Do I want to block this for non-owner?
+        [HttpGet("JoinGroupRequests")]
+        public ActionResult<string> GetJoinGroupRequests(string groupId)
+        {
+            return Ok(_groupService.GetJoinGroupRequests(groupId));
         }
     }
 }

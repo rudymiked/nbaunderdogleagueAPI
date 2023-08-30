@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Services;
+using System.Security.Claims;
 
 namespace nbaunderdogleagueAPI.Controllers
 {
@@ -8,10 +9,21 @@ namespace nbaunderdogleagueAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClaimsPrincipal _user;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
+
+            _user = _httpContextAccessor.HttpContext.User;
+        }
+
+        [HttpGet("Me")]
+        public ActionResult Me()
+        {
+            return Ok(_user);
         }
 
         [HttpGet("Users")]

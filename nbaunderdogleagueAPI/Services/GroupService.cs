@@ -14,6 +14,8 @@ namespace nbaunderdogleagueAPI.Services
         List<GroupEntity> GetAllGroupsByYear(int year);
         List<GroupEntity> GetAllGroupsUserIsInByYear(string user, int year);
         List<GroupEntity> GetAllGroups();
+        string ApproveNewGroupMember(ApproveUserRequest approveUserRequest);
+        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "");
     }
     public class GroupService : IGroupService
     {
@@ -57,6 +59,14 @@ namespace nbaunderdogleagueAPI.Services
         public List<GroupEntity> GetAllGroups()
         {
             return _groupRepository.GetAllGroups();
+        }
+        public string ApproveNewGroupMember(ApproveUserRequest approveUserRequest)
+        {
+            return _groupRepository.ApproveNewGroupMember(approveUserRequest);
+        }        
+        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "")
+        {
+            return _groupRepository.GetJoinGroupRequests(groupId, filter);
         }
     }
 }

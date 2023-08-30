@@ -19,6 +19,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         string JoinGroup(JoinGroupRequest joinGroupRequest);
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
         string ApproveNewGroupMember(ApproveUserRequest approveUserRequest);
+        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "");
     }
     public class GroupDataAccess : IGroupDataAccess
     {
@@ -53,7 +54,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // something went wrong.
             if (teamStatsDict.Count == 0) {
                 _logger.LogError(AppConstants.EmptyTeamStats);
-                return new List<GroupStandings>();  
+                return new List<GroupStandings>();
             }
 
             // 2. Get Projected Data (from storage)
@@ -195,9 +196,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (!userEntities.Any()) {
                 // no users found in group
                 // should be at least 1 (owner)
-                _logger.LogError(AppConstants.GroupNoUsersFound + joinGroupRequest.GroupId);
+                _logger.LogError(AppConstants.GroupNoUsersFound + groupEntity.Name);
 
-                return AppConstants.GroupNoUsersFound + joinGroupRequest.GroupId;
+                return AppConstants.GroupNoUsersFound + groupEntity.Name;
             }
 
             List<UserEntity> usersGroups = userEntities.Where(user => user.Email == joinGroupRequest.Email && user.Group.ToString() == joinGroupRequest.GroupId).ToList();
@@ -208,18 +209,17 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.UserAlreadyInGroup + groupEntity.Name;
             }
 
-            // 3. add group to user data
-            UserEntity userEntity = new() {
+            // 3. add user to JoinGroupRequest table
+            JoinGroupRequestEntity joinGroupRequestEntity = new() {
                 PartitionKey = joinGroupRequest.GroupId,
                 RowKey = joinGroupRequest.Email,
+                GroupId = joinGroupRequest.GroupId,
                 Email = joinGroupRequest.Email,
-                Username = "",
-                Group = Guid.Parse(joinGroupRequest.GroupId),
-                ETag = ETag.All,
-                Timestamp = DateTime.Now
+                Timestamp = DateTime.Now,
+                ETag = ETag.All
             };
 
-            Response response = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
+            Response response = _tableStorageHelper.UpsertEntity(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
 
             return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + joinGroupRequest.Email + " group: " + joinGroupRequest.GroupId;
         }
@@ -361,13 +361,94 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public string ApproveNewGroupMember(ApproveUserRequest approveUserRequest)
         {
-            // admins needs away to approve people who clicked the group invitation link
+            // admins needs away to approve people who clicked the group invitation link / request to join group
+            // validation invite ID is correct ???
+
+            // does request exist?
+            List<JoinGroupRequestEntity> joinGroupRequests = GetJoinGroupRequests(approveUserRequest.GroupId);
+
+            if (!joinGroupRequests.Select(x => x.GroupId == approveUserRequest.GroupId && x.Email == approveUserRequest.Email).Any()) {
+                // No request found
+                _logger.LogError(AppConstants.GroupNotFound + " : " + approveUserRequest.GroupId + " during ApproveNewGroupMember");
+                return AppConstants.GroupNotFound + " : " + approveUserRequest.GroupId;
+            }
+
             // validate group exists
-            // validate admin is admin
+            GroupEntity groupEntity = GetGroup(approveUserRequest.GroupId);
+
+            if (groupEntity.Id.ToString() == string.Empty) {
+                // No group Found
+                _logger.LogError(AppConstants.GroupNotFound + " : " + approveUserRequest.GroupId + " during ApproveNewGroupMember");
+                return AppConstants.GroupNotFound + " : " + approveUserRequest.GroupId;
+            }
+
+            // validate admin is owner
+            if (groupEntity.Owner != approveUserRequest.AdminEmail) {
+                // owner not approving
+                _logger.LogError(AppConstants.NotOwner + "user: " + approveUserRequest.AdminEmail + " : " + approveUserRequest.GroupId + " during ApproveNewGroupMember");
+                return AppConstants.NotOwner + "user: " + approveUserRequest.AdminEmail + " : " + approveUserRequest.GroupId;
+            }
+
             // validate user does not already belong to group
-            // validation invite ID is correct
+
+            List<UserEntity> userEntities = _userService.GetUsers(groupEntity.Id.ToString());
+
+            if (!userEntities.Any()) {
+                // no users found in group
+                // should be at least 1 (owner)
+                _logger.LogError(AppConstants.GroupNoUsersFound + groupEntity.Name);
+
+                return AppConstants.GroupNoUsersFound + groupEntity.Name;
+            }
+
+            List<UserEntity> usersGroups = userEntities.Where(user => user.Email == approveUserRequest.Email && user.Group.ToString() == approveUserRequest.GroupId).ToList();
+
+            if (usersGroups.Any()) {
+                // user already in group
+                // do nothing
+                return AppConstants.UserAlreadyInGroup + groupEntity.Name;
+            }
+
+            // Add user and group data to user table
+            UserEntity userEntity = new() {
+                PartitionKey = approveUserRequest.GroupId,
+                RowKey = approveUserRequest.Email,
+                Email = approveUserRequest.Email,
+                Group = Guid.Parse(approveUserRequest.GroupId),
+                ETag = ETag.All,
+                Timestamp = DateTime.Now
+            };
+
+            Response upsertUserResponse = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
+
+            if (upsertUserResponse == null || upsertUserResponse.IsError) {
+                return AppConstants.UsersCouldNotBeUpdated + "email: " + approveUserRequest.Email + " group: " + approveUserRequest.GroupId;
+            }
+
+            // remove join group request from storage
+            JoinGroupRequestEntity joinGroupRequestEntity = new() {
+                PartitionKey = approveUserRequest.GroupId,
+                RowKey = approveUserRequest.Email,
+                GroupId = approveUserRequest.GroupId,
+                Email = approveUserRequest.Email,
+                Timestamp = DateTime.Now,
+                ETag = ETag.All
+            };
+
+            Response deleteResponse = _tableStorageHelper.DeleteEntity(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
+
+            if (deleteResponse == null || deleteResponse.IsError) {
+                return AppConstants.JoinGroupError + "email: " + approveUserRequest.Email + " group: " + approveUserRequest.GroupId;
+            }
 
             return AppConstants.Success;
+        }
+
+        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "")
+        {
+            var response = _tableStorageHelper.QueryEntities<JoinGroupRequestEntity>(AppConstants.JoinGroupRequestsTable, string.IsNullOrWhiteSpace(filter) ? null : filter).Result;
+
+            return response.Any() ? response.ToList() : new List<JoinGroupRequestEntity>();
         }
 
         private static int PreseasonValue(int value)
