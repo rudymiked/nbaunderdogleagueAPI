@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging.ApplicationInsights;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using nbaunderdogleagueAPI.Business;
 using nbaunderdogleagueAPI.Communications;
@@ -44,6 +45,16 @@ public class Startup
             services.AddEndpointsApiExplorer();
 
             services.Configure<AppConfig>(Configuration);
+
+            services.AddAuthentication(options => 
+                {
+                    options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                }).AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                });
 
             services.AddAuthorization(options => {
                 Configuration.Bind("AuthorizationClient", options);
