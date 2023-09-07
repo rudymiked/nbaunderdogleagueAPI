@@ -22,14 +22,16 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly ITableStorageHelper _tableStorageHelper;
         private readonly IRapidAPIHelper _rapidAPIHelper;
         private readonly IUserService _userService;
+        private readonly ITeamService _teamService;
         private readonly AppConfig _appConfig;
-        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService, IRapidAPIHelper rapidAPIHelper)
+        public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService, IRapidAPIHelper rapidAPIHelper, ITeamService teamService)
         {
             _logger = logger;
             _tableStorageHelper = tableStorageHelper;
             _appConfig = appConfig.Value;
             _userService = userService;
             _rapidAPIHelper = rapidAPIHelper;
+            _teamService = teamService;
         }
 
         public GameResponse GetGamesFromRapidAPI()
@@ -70,29 +72,29 @@ namespace nbaunderdogleagueAPI.DataAccess
             TeamStatsResponse teamStatsResponse = GetTeamStatsFromRapidAPI();
             List<TeamStats> teamStats = teamStatsResponse.TeamStats.OrderByDescending(team => team.Wins).ToList();
 
-            List<ManualTeamStatsEntity> manualTeamStats = new();
-
-            teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
-                PartitionKey = "TeamStats",
-                RowKey = teamData.TeamName,
-                TeamID = teamData.TeamID,
-                TeamCity = teamData.TeamCity,
-                TeamName = teamData.TeamName,
-                Conference = teamData.Conference,
-                Wins = teamData.Wins,
-                //PlayoffWins = teamData.PlayoffWins, // need to update manually, missing from API endpoint
-                Losses = teamData.Losses,
-                Standing = teamData.Standing,
-                Ratio = teamData.Ratio,
-                Streak = teamData.Streak,
-                //ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth, // need to update manually, missing from API endpoint
-                Logo = teamData.Logo,
-                ETag = ETag.All,
-                Timestamp = DateTime.Now
-            }));
-
             if (teamStats.Count != 0) {
+                List<ManualTeamStatsEntity> manualTeamStats = new();
+
                 if (teamStats.Count == 30) {
+                    teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+                        PartitionKey = "TeamStats",
+                        RowKey = teamData.TeamName,
+                        TeamID = teamData.TeamID,
+                        TeamCity = teamData.TeamCity,
+                        TeamName = teamData.TeamName,
+                        Conference = teamData.Conference,
+                        Wins = teamData.Wins,
+                        //PlayoffWins = teamData.PlayoffWins, // need to update manually, missing from API endpoint
+                        Losses = teamData.Losses,
+                        Standing = teamData.Standing,
+                        Ratio = teamData.Ratio,
+                        Streak = teamData.Streak,
+                        //ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth, // need to update manually, missing from API endpoint
+                        Logo = teamData.Logo,
+                        ETag = ETag.All,
+                        Timestamp = DateTime.Now
+                    }));
+
                     var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
                     return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
@@ -100,7 +102,35 @@ namespace nbaunderdogleagueAPI.DataAccess
                     _logger.LogError("Team Stats not fetched for all teams, count: " + teamStats.Count);
                 }
             } else {
-                _logger.LogError("Team Stats is zero");
+                // Start of new season
+                // reset team data:
+
+                // only update August onward
+                if (AppConstants.CurrentDate.Month >= 8) {
+                    List<TeamEntity> currentTeamStats = _teamService.GetTeams();
+
+                    List<ManualTeamStatsEntity> manualTeamStats = new();
+
+                    if (currentTeamStats.Count == 30) {
+                        currentTeamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+                            PartitionKey = "TeamStats",
+                            RowKey = teamData.Name,
+                            Wins = 0,
+                            PlayoffWins = 0,
+                            Losses = 0,
+                            Standing = 0,
+                            Ratio = 0,
+                            Streak = 0,
+                            ClinchedPlayoffBirth = 0,
+                            ETag = ETag.All,
+                            Timestamp = DateTime.Now
+                        }));
+
+                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+
+                        return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
+                    }
+                }
             }
 
             return new List<TeamStats>();
