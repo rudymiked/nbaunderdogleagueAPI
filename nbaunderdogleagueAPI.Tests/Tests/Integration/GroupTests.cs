@@ -166,8 +166,18 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
-        [TestMethod] 
+        [TestMethod]
         public void GetJoinGroupRequests()
+        {
+            if (_groupService != null) {
+                List<JoinGroupRequestEntity> joinGroupRequestEntities = _groupService.GetJoinGroupRequests("27bfcda8-7328-4061-9b39-f1554395353a");
+
+                Assert.IsNotNull(joinGroupRequestEntities);
+            }
+        }
+
+        [TestMethod] 
+        public void GetJoinGroupRequestsAndApprove()
         {
             if (_groupService != null) {
                 JoinGroupRequest joinGroupRequest = new() {

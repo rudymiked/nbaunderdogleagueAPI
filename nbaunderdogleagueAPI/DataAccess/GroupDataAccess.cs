@@ -446,7 +446,8 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "")
         {
-            string groupFilter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Id.ToString() == groupId);
+            Guid groupIdGuid = new(groupId);
+            string groupFilter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Id == groupIdGuid);
 
             var response = _tableStorageHelper.QueryEntities<JoinGroupRequestEntity>(AppConstants.JoinGroupRequestsTable, groupFilter).Result;
 
