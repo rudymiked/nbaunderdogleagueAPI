@@ -170,7 +170,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void GetJoinGroupRequests()
         {
             if (_groupService != null) {
-                List<JoinGroupRequestEntity> joinGroupRequestEntities = _groupService.GetJoinGroupRequests("27bfcda8-7328-4061-9b39-f1554395353a");
+                List<JoinGroupRequestEntity> joinGroupRequestEntities = _groupService.GetJoinGroupRequests("27bfcda8-7328-4061-9b39-f1554395353a", TestConstants.Email);
 
                 Assert.IsNotNull(joinGroupRequestEntities);
             }
@@ -191,7 +191,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
                 Assert.AreEqual(AppConstants.Success, groupResult);
 
                 // ensure request is present
-                List<JoinGroupRequestEntity> joinGroupRequestEntity = _groupService.GetJoinGroupRequests(TestConstants.PostGroupId_TEST.ToString());
+                List<JoinGroupRequestEntity> joinGroupRequestEntity = _groupService.GetJoinGroupRequests(TestConstants.PostGroupId_TEST.ToString(), TestConstants.Email);
 
                 Assert.IsTrue(joinGroupRequestEntity.Select(x => x.GroupId == TestConstants.PostGroupId_TEST.ToString() && x.Email == TestConstants.Email).Any());
 

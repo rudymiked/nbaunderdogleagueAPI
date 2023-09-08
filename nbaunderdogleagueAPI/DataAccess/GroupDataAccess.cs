@@ -19,7 +19,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         string JoinGroup(JoinGroupRequest joinGroupRequest);
         string LeaveGroup(LeaveGroupRequest leaveGroupRequest);
         string ApproveNewGroupMember(ApproveUserRequest approveUserRequest);
-        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "");
+        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string ownerEmail);
     }
     public class GroupDataAccess : IGroupDataAccess
     {
@@ -215,6 +215,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 RowKey = joinGroupRequest.Email,
                 GroupId = joinGroupRequest.GroupId,
                 Email = joinGroupRequest.Email,
+                OwnerEmail = groupEntity.Owner,
                 Timestamp = DateTime.Now,
                 ETag = ETag.All
             };
@@ -365,7 +366,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // validation invite ID is correct ???
 
             // does request exist?
-            List<JoinGroupRequestEntity> joinGroupRequests = GetJoinGroupRequests(approveUserRequest.GroupId);
+            List<JoinGroupRequestEntity> joinGroupRequests = GetJoinGroupRequests(approveUserRequest.GroupId, approveUserRequest.AdminEmail);
 
             if (!joinGroupRequests.Select(x => x.GroupId == approveUserRequest.GroupId && x.Email == approveUserRequest.Email).Any()) {
                 // No request found
@@ -444,9 +445,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             return AppConstants.Success;
         }
 
-        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "")
+        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string ownerEmail)
         {
-            string groupFilter = TableClient.CreateQueryFilter<JoinGroupRequestEntity>((group) => group.GroupId == groupId);
+            string groupFilter = TableClient.CreateQueryFilter<JoinGroupRequestEntity>((group) => group.GroupId == groupId && group.OwnerEmail == ownerEmail);
 
             var response = _tableStorageHelper.QueryEntities<JoinGroupRequestEntity>(AppConstants.JoinGroupRequestsTable, groupFilter).Result;
 

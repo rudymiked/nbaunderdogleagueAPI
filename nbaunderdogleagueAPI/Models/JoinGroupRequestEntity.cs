@@ -9,6 +9,7 @@ namespace nbaunderdogleagueAPI.Models
         public string RowKey { get; set; }
         public string GroupId { get; set; }
         public string Email { get; set; }
+        public string OwnerEmail { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
     }

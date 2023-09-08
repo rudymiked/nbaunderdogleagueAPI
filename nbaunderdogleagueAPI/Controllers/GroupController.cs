@@ -101,9 +101,9 @@ namespace nbaunderdogleagueAPI.Controllers
         
         // XXX Do I want to block this for non-owner?
         [HttpGet("JoinGroupRequests")]
-        public ActionResult<List<JoinGroupRequestEntity>> GetJoinGroupRequests(string groupId)
+        public ActionResult<List<JoinGroupRequestEntity>> GetJoinGroupRequests(string groupId, string ownerEmail)
         {
-            return Ok(_groupService.GetJoinGroupRequests(groupId));
+            return Ok(_groupService.GetJoinGroupRequests(groupId, ownerEmail));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace nbaunderdogleagueAPI.Business
         List<GroupEntity> GetAllGroupsUserIsInByYear(string email, int year);
         List<GroupEntity> GetAllGroups();
         string ApproveNewGroupMember(ApproveUserRequest approveUserRequest);
-        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "");
+        List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string ownerEmail);
     }
 
     public class GroupRepository : IGroupRepository
@@ -65,9 +65,9 @@ namespace nbaunderdogleagueAPI.Business
         {
             return _groupDataAccess.ApproveNewGroupMember(approveUserRequest);
         }
-        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string filter = "")
+        public List<JoinGroupRequestEntity> GetJoinGroupRequests(string groupId, string ownerEmail)
         {
-            return _groupDataAccess.GetJoinGroupRequests(groupId, filter);
+            return _groupDataAccess.GetJoinGroupRequests(groupId, ownerEmail);
         }
     }
 }
