@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nbaunderdogleagueAPI.Services;
 using System.Security.Claims;
@@ -20,10 +21,18 @@ namespace nbaunderdogleagueAPI.Controllers
             _user = _httpContextAccessor.HttpContext.User;
         }
 
+        [Authorize]
         [HttpGet("Me")]
         public ActionResult Me()
         {
             return Ok(_user);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public ActionResult<string> Get(int id)
+        {
+            return User.Identity.Name;
         }
 
         [HttpGet("Users")]
