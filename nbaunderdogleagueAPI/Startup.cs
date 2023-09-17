@@ -104,17 +104,24 @@ namespace nbaunderdogleagueAPI
                 services.AddSingleton<ITableStorageHelper, TableStorageHelper>();
                 services.AddSingleton<IRapidAPIHelper, RapidAPIHelper>();
 
-                services.AddSwaggerGen(options => {
-                    options.SwaggerDoc("v1", new OpenApiInfo { Title = AppConstants.AppName, Version = "v1.0" });
-
-                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-                        Description = "Standard Authentication using Bearer scheme i.e. \"bearer {token}\"",
-                        Scheme = "Bearer",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.ApiKey,
-                        Name = "Authorization",
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "NBAUnderdogLeague", Version = "v1" });
+                    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows {
+                            Implicit = new OpenApiOAuthFlow {
+                                AuthorizationUrl = new Uri("https://accounts.google.com/o/oauth2/auth"),
+                                Scopes = new Dictionary<string, string>
+                                {
+                                    { "email", "Access to your email address" },
+                                    { "profile", "Access to your basic profile information" }
+                                }
+                            }
+                        }
                     });
                 });
+
             } catch (Exception ex) {
                 Console.WriteLine("Startup Configure Services: " + ex.Message);
             }

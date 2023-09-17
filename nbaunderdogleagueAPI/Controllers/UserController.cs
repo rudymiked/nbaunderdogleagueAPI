@@ -28,9 +28,16 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_user);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("Name")]
         [Authorize]
-        public ActionResult<string> Get(int id)
+        public ActionResult<string> Name()
+        {
+            return User.Identity.Name;
+        }        
+        
+        [HttpGet("Name2")]
+        [Authorize("oauth2")]
+        public ActionResult<string> Name2()
         {
             return User.Identity.Name;
         }
