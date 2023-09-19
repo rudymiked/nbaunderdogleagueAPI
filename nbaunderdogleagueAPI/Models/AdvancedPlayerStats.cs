@@ -7,7 +7,7 @@ namespace nbaunderdogleagueAPI.Models
     {
         private readonly PlayerStatisticsEntity _player;
 
-        public AdvancedPlayerStats( PlayerStatisticsEntity playerStatisticsEntity)
+        public AdvancedPlayerStats(PlayerStatisticsEntity playerStatisticsEntity)
         {
             _player = playerStatisticsEntity;
         }
