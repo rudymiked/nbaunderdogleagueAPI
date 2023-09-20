@@ -93,7 +93,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         TotalSteals = player.Steals + (previousPlayerStatistics?.TotalSteals ?? 0),
                         TotalBlocks = player.Blocks + (previousPlayerStatistics?.TotalBlocks ?? 0),
                         SeasonPlusMinus = playerPlusMinus + (previousPlayerStatistics?.SeasonPlusMinus ?? 0),
-                        GamesPlayeed = numberOfGames,
+                        GamesPlayed = numberOfGames,
 
                         // Averages
                         AveragePoints = PlayerUtils.Average(player.Points, previousPlayerStatistics?.AveragePoints, numberOfGames),

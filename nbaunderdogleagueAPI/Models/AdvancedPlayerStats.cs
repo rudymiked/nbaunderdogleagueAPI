@@ -36,7 +36,7 @@ namespace nbaunderdogleagueAPI.Models
         }
         private double CalculateBPM() // BoxPlusMinus
         {
-            double gBPM1 = (_player.TotalMinutes / (_player.GamesPlayeed + 2)); // * corrective factor?
+            double gBPM1 = (_player.TotalMinutes / (_player.GamesPlayed + 2)); // * corrective factor?
             double gBPM2 = 0;
 
             return 0;
