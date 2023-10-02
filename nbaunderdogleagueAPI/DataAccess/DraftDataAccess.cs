@@ -115,7 +115,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 List<DraftEntity> groupDraft = GetDraft(setupDraftRequest.GroupId);
 
-                Guid draftID = groupDraft.Any() ? groupDraft[0].GroupId : Guid.NewGuid();
+                Guid draftID = groupDraft.Any() ? groupDraft[0].Id : Guid.NewGuid();
 
                 DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
@@ -305,9 +305,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                 DateTimeOffset userTurnOver = userDraftData.UserEndTime;
 
                 // user missed their turn
-                if (utcNow > userTurnOver) {
-                    return AppConstants.DraftMissedTurn;
-                }
+                // remove, users kept missing their turn
+                //if (utcNow > userTurnOver) {
+                //    return AppConstants.DraftMissedTurn;
+                //}
 
                 // it's possible that players drafted early
                 // if nextUpToDraftOrder == userDraftData.DraftOrder => they can draft!
