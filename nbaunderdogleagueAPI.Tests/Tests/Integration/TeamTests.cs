@@ -98,6 +98,21 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
+        [TestMethod]
+        public void UpdateTeamPlayoffWins()
+        {
+            if (_teamService != null) {
+
+                TeamStats teamStats = new();
+
+                string result = _teamService.UpdateTeamPlayoffWins(teamStats);
+
+                Assert.AreEqual(AppConstants.Success, result);
+            } else {
+                Assert.Fail();
+            }
+        }
+
         //[TestMethod]
         //public void AddTeams()
         //{

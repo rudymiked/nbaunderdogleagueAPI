@@ -51,5 +51,11 @@ namespace nbaunderdogleagueAPI.Controllers
         {
             return (teams.Length > 0) ? Ok(_teamService.AddTeams(teams.ToList())) : NoContent();
         }
+
+        [HttpPost("UpdateTeamPlayoffWins")]
+        public ActionResult<string> UpdateTeamPlayoffWins(TeamStats teamStats)
+        {
+            return Ok(_teamService.UpdateTeamPlayoffWins(teamStats));
+        }
     }
 }

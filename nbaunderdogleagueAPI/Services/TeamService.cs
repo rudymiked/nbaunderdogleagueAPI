@@ -10,6 +10,7 @@ namespace nbaunderdogleagueAPI.Services
         List<TeamStats> TeamStatsList(int version);
         Dictionary<string, TeamStats> TeamStatsDictionary(int version);
         List<TeamStats> UpdateTeamStatsManually();
+        string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
     public class TeamService : ITeamService
     {
@@ -42,6 +43,11 @@ namespace nbaunderdogleagueAPI.Services
         public List<TeamStats> UpdateTeamStatsManually()
         {
             return _teamRepository.UpdateTeamStatsManually();
+        }
+
+        public string UpdateTeamPlayoffWins(TeamStats teamStats)
+        {
+            return _teamRepository.UpdateTeamPlayoffWins(teamStats);
         }
     }
 }

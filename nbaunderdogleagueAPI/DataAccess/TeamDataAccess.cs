@@ -25,6 +25,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> UpdateTeamStatsManually();
+        string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
     public class TeamDataAccess : ITeamDataAccess
     {
@@ -240,6 +241,31 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
             } else {
                 return new List<TeamStats>();
+            }
+        }
+
+        public string UpdateTeamPlayoffWins(TeamStats teamStats)
+        {
+            try {
+                var response = _tableStorageHelper.QueryEntities<ManualTeamStatsEntity>(AppConstants.ManualTeamStats).Result;
+
+                List<ManualTeamStatsEntity> manualTeamStats = response.ToList();
+
+                ManualTeamStatsEntity currentTeam = manualTeamStats.Find(x => x.TeamName == teamStats.TeamName);
+
+                if (currentTeam == null || string.IsNullOrWhiteSpace(currentTeam.TeamName)) {
+                    return "Team: " + teamStats.TeamName + " does not exist";
+                }
+
+                currentTeam.ClinchedPlayoffBirth = 1;
+                currentTeam.PlayoffWins = teamStats.PlayoffWins;
+
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+
+                return updateTeamStatsManuallyResponse;
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+                return null;
             }
         }
     }
