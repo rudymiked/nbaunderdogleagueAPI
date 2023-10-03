@@ -15,6 +15,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         List<DraftEntity> GetDraft(string groupId);
         List<TeamEntity> GetAvailableTeamsToDraft(string groupId);
         List<DraftResults> GetDraftResults(string groupId);
+        string DraftLate(DraftLateRequest draftLateRequest);
     }
     public class DraftDataAccess : IDraftDataAccess
     {
@@ -251,7 +252,6 @@ namespace nbaunderdogleagueAPI.DataAccess
                 return AppConstants.UserNotFound;
             }
 
-
             // 3. someone already drafted this team
             UserEntity draftedUser = usersInGroup.FirstOrDefault(usersInGroup => usersInGroup.Team == user.Team);
 
@@ -399,6 +399,60 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             return new List<DraftResults>();
+        }
+
+        public string DraftLate(DraftLateRequest draftLateRequest)
+        {
+            // Only used by group admin when a user wants to join after the draft is over
+
+            // 1. Join group
+            // 2. Approve
+            // 3. Draft team
+
+            try {
+                // Join
+
+                JoinGroupRequest joinGroupRequest = new() {
+                    GroupId = draftLateRequest.GroupId,
+                    Email = draftLateRequest.Email
+                };
+
+                string joinGroup = _groupService.JoinGroup(joinGroupRequest);
+
+                if (joinGroup != AppConstants.Success) {
+                    return joinGroup;
+                }
+
+                // Approve
+
+                ApproveUserRequest approveUserRequest = new() {
+                    Email = draftLateRequest.Email,
+                    AdminEmail = draftLateRequest.AdminEmail,
+                    GroupId = draftLateRequest.GroupId,
+                    InviteId = null
+                };
+
+                string approveUser = _groupService.ApproveNewGroupMember(approveUserRequest);
+
+                if (approveUser != AppConstants.Success) {
+                    return approveUser;
+                }
+
+                // Draft
+
+                User user = new() {
+                    Email = draftLateRequest.Email,
+                    Group = draftLateRequest.GroupId,
+                    Team = draftLateRequest.Team
+                };
+
+                string draft = DraftTeam(user);
+
+                return draft;
+            } catch (Exception ex) {
+                _logger.LogError(AppConstants.SomethingWentWrong + " : " + draftLateRequest.GroupId + ", " + draftLateRequest.Email + " during DraftLate " + ex.Message);
+                return null;
+            }
         }
     }
 }

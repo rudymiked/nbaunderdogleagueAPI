@@ -111,6 +111,25 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             } else {
                 Assert.Fail();
             }
+        }       
+        
+        [TestMethod]
+        public void DraftLate()
+        {
+            if (_draftService != null) {
+                DraftLateRequest draftLateRequest = new() {
+                    GroupId = "",
+                    Email = "",
+                    AdminEmail = "",
+                    Team = ""
+                };
+
+                string draftLate = _draftService.DraftLate(draftLateRequest);
+
+                Assert.AreEqual(AppConstants.Success, draftLate);
+            } else {
+                Assert.Fail();
+            }
         }
     }
 }
