@@ -27,7 +27,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         [TestMethod]
         public void UpdatePlayerStatsFromRapidAPI()
         {
-            List<PlayerStatisticsEntity> content = _playerService.UpdatePlayerStatsFromRapidAPI(season: 2022);
+            List<PlayerStatisticsEntity> content = _playerService.UpdatePlayerStatsFromRapidAPI(season: 2023);
 
             Assert.IsTrue(content != null);
         }          
@@ -51,7 +51,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         [TestMethod]
         public void GetPlayerStatsPerTeamFromRapidAPI()
         {
-            PlayerStatistics.PlayerResponse response = _playerService.GetPlayerStatsPerTeamFromRapidAPI(1, 2022);
+            PlayerStatistics.PlayerResponse response = _playerService.GetPlayerStatsPerTeamFromRapidAPI(1, 2023);
 
             Assert.IsTrue(response.Players != null);
         }

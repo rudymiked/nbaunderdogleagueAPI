@@ -22,5 +22,11 @@ namespace nbaunderdogleagueAPI.Controllers
         {
             return Ok(_playerService.GetPlayerStatistics());
         }
+
+        [HttpGet("UpdatePlayerStatsFromRapidAPI")]
+        public ActionResult<IEnumerable<PlayerStatisticsEntity>> UpdatePlayerStatsFromRapidAPI()
+        {
+            return Ok(_playerService.UpdatePlayerStatsFromRapidAPI());
+        }
     }
 }
