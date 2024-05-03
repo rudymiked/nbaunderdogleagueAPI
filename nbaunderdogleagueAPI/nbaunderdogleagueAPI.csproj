@@ -14,6 +14,7 @@
     <PackageReference Include="Google.Apis.Auth.AspNetCore3" Version="1.62.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.62.0.3155" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />

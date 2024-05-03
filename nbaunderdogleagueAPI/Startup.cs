@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Google.Apis.Auth.AspNetCore3;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.OpenApi.Models;
 using nbaunderdogleagueAPI.Business;
@@ -40,9 +38,10 @@ namespace nbaunderdogleagueAPI
                 services.AddMvc();
                 services.AddAzureAppConfiguration();
 
-                services.ConfigureGoogleAuth(
-                    Configuration["Authentication:Google:ClientId"],
-                    Configuration["Authentication:Google:ClientSecret"]);
+                string googleClientId = Configuration["Authentication:Google:ClientId"];
+                string googleClientSecret = Configuration["Authentication:Google:ClientSecret"];
+
+                services.ConfigureGoogleAuth(googleClientId, googleClientSecret);
 
                 services.AddHttpClient(AppConstants.AppName, client => {
                     client.BaseAddress = new Uri(AppConstants.ApiUrl);
@@ -64,6 +63,18 @@ namespace nbaunderdogleagueAPI
                         policy.RequireAssertion(context => context.User.FindFirst(ClaimTypes.Email) != null);
                     });
                 });
+
+                IEnumerable<string> validAudiences = Configuration["ValidClientIDs"].ToString().Split(',');
+
+                if (!validAudiences.Any()) {
+                    throw new Exception("No Valid Audiences");
+                }
+
+                services.AddAuthentication()
+                    .AddGoogle(o => {
+                        o.ClientId = googleClientId;
+                        o.ClientSecret = googleClientSecret;
+                    });
 
                 services.AddSingleton<IUserService, UserService>();
                 services.AddSingleton<IUserRepository, UserRepository>();
@@ -138,6 +149,7 @@ namespace nbaunderdogleagueAPI
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseAzureAppConfiguration();
+                app.UseDeveloperExceptionPage();
 
                 app.UseCors(p => {
                     p

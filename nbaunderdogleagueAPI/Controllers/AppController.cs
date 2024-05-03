@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace nbaunderdogleagueAPI.Controllers
@@ -8,10 +9,11 @@ namespace nbaunderdogleagueAPI.Controllers
     {
         public AppController() { }
 
+        [Authorize]
         [HttpGet("Start")]
-        public ActionResult Start(bool start)
+        public ActionResult Start()
         {
-            return start ? Ok() : NoContent();
+            return Ok();
         }
     }
 }
