@@ -71,6 +71,7 @@
 
         // Policys
         public const string DefaultAuthPolicy = "DefaultAuthPolicy";
+        public const string AudiencePolicy = "AudiencePolicy";
 
         // Dates
         public static readonly DateTime CurrentDate = DateTime.Now;

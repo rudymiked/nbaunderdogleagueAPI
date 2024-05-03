@@ -27,6 +27,12 @@ namespace nbaunderdogleagueAPI
         public void ConfigureServices(IServiceCollection services)
         {
             try {
+                List<string> approvedAudiences = new() {
+                    Configuration[AppConstants.APIAppId]
+                };
+
+                Console.WriteLine(approvedAudiences);
+
                 services.AddTransient<IPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
                 services.AddHttpContextAccessor();
                 services.AddControllers();
@@ -62,6 +68,15 @@ namespace nbaunderdogleagueAPI
                     o.AddPolicy(AppConstants.DefaultAuthPolicy, policy => {
                         // user can't be null
                         policy.RequireAssertion(context => context.User.FindFirst(ClaimTypes.Email) != null);
+                    });
+                    o.AddPolicy(AppConstants.AudiencePolicy, policy => {
+                        // audience must be client app
+                        policy.RequireAssertion(context => {
+
+                            Console.WriteLine(context);
+
+                            return approvedAudiences.Contains(context.User.FindFirst("appid")?.Value);
+                        });
                     });
                 });
 
