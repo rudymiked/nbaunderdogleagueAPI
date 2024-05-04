@@ -30,6 +30,7 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         //[Authorize(Policy = AppConstants.DefaultAuthPolicy)]
+        [Authorize(Policy = AppConstants.AudiencePolicy)]
         [HttpGet("TeamStatsV2")]
         public ActionResult<IEnumerable<TeamStats>> TeamStatsV2()
         {
