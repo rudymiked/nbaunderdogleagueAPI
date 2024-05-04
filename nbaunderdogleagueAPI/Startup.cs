@@ -28,7 +28,7 @@ namespace nbaunderdogleagueAPI
         {
             try {
                 List<string> approvedAudiences = new() {
-                    Configuration[AppConstants.APIAppId]
+                    "99f4ec77-b053-4721-9b28-cdb911625988" // UI ID
                 };
 
                 Console.WriteLine(approvedAudiences);
