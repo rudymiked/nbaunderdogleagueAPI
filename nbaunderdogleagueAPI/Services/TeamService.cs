@@ -7,8 +7,12 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> TeamStatsList(int version);
-        Dictionary<string, TeamStats> TeamStatsDictionary(int version);
+        List<TeamStats> TeamStatsListFromStorage();
+        List<TeamStats> TeamStatsListFromJSON();
+        List<TeamStats> TeamStatsListFromNBAdotCom();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom();
         List<TeamStats> UpdateTeamStatsManually();
         string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
@@ -30,14 +34,34 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.AddTeams(teamsEntities);
         }
 
-        public List<TeamStats> TeamStatsList(int version)
+        public List<TeamStats> TeamStatsListFromStorage()
         {
-            return _teamRepository.TeamStatsList(version);
+            return _teamRepository.TeamStatsListFromStorage();
+        }       
+
+        public List<TeamStats> TeamStatsListFromJSON()
+        {
+            return _teamRepository.TeamStatsListFromJSON();
+        }    
+        
+        public List<TeamStats> TeamStatsListFromNBAdotCom()
+        {
+            return _teamRepository.TeamStatsListFromNBAdotCom();
         }
 
-        public Dictionary<string, TeamStats> TeamStatsDictionary(int version)
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage()
         {
-            return _teamRepository.TeamStatsDictionary(version);
+            return _teamRepository.TeamStatsDictionaryFromStorage();
+        }       
+        
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON()
+        {
+            return _teamRepository.TeamStatsDictionaryFromJSON();
+        }        
+        
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom()
+        {
+            return _teamRepository.TeamStatsDictionaryFromNBAdotCom();
         }
 
         public List<TeamStats> UpdateTeamStatsManually()

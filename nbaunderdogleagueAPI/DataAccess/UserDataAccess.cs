@@ -38,7 +38,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     ETag = ETag.All
                 };
 
-                Response response = _tableStorageHelper.UpsertEntity(entity, AppConstants.UsersTable).Result;
+                Response response = _tableStorageHelper.UpsertEntityAsync(entity, AppConstants.UsersTable).Result;
 
                 return (response != null && !response.IsError) ? user : new User();
             }
@@ -60,7 +60,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     ETag = ETag.All
                 };
 
-                var response = _tableStorageHelper.UpdateEntity(entity, AppConstants.UsersTable).Result;
+                var response = _tableStorageHelper.UpdateEntityAsync(entity, AppConstants.UsersTable).Result;
 
                 return (response != null && !response.IsError) ? user : new User();
             }
@@ -73,7 +73,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (groupId != null && groupId != string.Empty) {
                 string filter = TableClient.CreateQueryFilter<UserEntity>((user) => user.PartitionKey == groupId);
 
-                var response = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, filter).Result;
+                var response = _tableStorageHelper.QueryEntitiesAsync<UserEntity>(AppConstants.UsersTable, filter).Result;
 
                 return response.ToList();
             }

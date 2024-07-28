@@ -158,14 +158,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                     // if users have already drafted, remove their picks
                     userEntities.Where(user => !string.IsNullOrEmpty(user.Team)).ToList().ForEach(user => user.Team = "");
 
-                    var userResponse = _tableStorageHelper.UpsertEntities(userEntities, AppConstants.UsersTable).Result;
+                    var userResponse = _tableStorageHelper.UpsertEntitiesAsync(userEntities, AppConstants.UsersTable).Result;
 
                     if (userResponse == null) {
                         _logger.LogError(AppConstants.UsersCouldNotBeUpdated + setupDraftRequest.GroupId);
                     }
                 }
 
-                var draftResponse = _tableStorageHelper.UpsertEntities(draftEntities, AppConstants.DraftTable).Result;
+                var draftResponse = _tableStorageHelper.UpsertEntitiesAsync(draftEntities, AppConstants.DraftTable).Result;
 
                 return (draftResponse == AppConstants.Success) ? draftEntities : new List<DraftEntity>();
             } catch (Exception ex) {
@@ -226,7 +226,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // need to get the UserEntity, to ensure the team hasn't already been drafted
             string groupFilter = TableClient.CreateQueryFilter<UserEntity>((userEntity) => userEntity.Group == Guid.Parse(user.Group));
-            List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
+            List<UserEntity> usersInGroup = _tableStorageHelper.QueryEntitiesAsync<UserEntity>(AppConstants.UsersTable, groupFilter).Result.ToList();
 
             // No Users in group
             if (usersInGroup.Count == 0) {
@@ -329,7 +329,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             if (Guid.TryParse(groupId, out Guid groupGruid)) {
                 string groupFilter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.GroupId == groupGruid);
 
-                return _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, groupFilter).Result.ToList();
+                return _tableStorageHelper.QueryEntitiesAsync<DraftEntity>(AppConstants.DraftTable, groupFilter).Result.ToList();
             } else {
                 _logger.LogError("Group Id: " + groupId + " is not valid.");
                 return new List<DraftEntity>();

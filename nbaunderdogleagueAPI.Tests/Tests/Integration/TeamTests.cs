@@ -27,14 +27,14 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetTeamStats()
+        public void TeamStatsListFromJSON()
         {
             if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.TeamStatsList(0);
+                List<TeamStats> teamStats = _teamService.TeamStatsListFromJSON();
 
                 Assert.AreNotEqual(0, teamStats.Count);
 
-                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(0);
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromJSON();
 
                 Assert.AreNotEqual(0, teamStatsDict.Count);
             } else {
@@ -59,14 +59,14 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         //}
 
         [TestMethod]
-        public void GetTeamStatsTestV2()
+        public void TeamStatsListFromStorage()
         {
             if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.TeamStatsList(2);
+                List<TeamStats> teamStats = _teamService.TeamStatsListFromStorage();
 
                 Assert.AreNotEqual(0, teamStats.Count);
 
-                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(2);
+                Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromStorage();
 
                 Assert.AreNotEqual(0, teamStatsDict.Count);
             } else {

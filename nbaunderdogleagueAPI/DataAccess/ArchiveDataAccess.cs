@@ -39,7 +39,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                 // Query team data (to collect team ID)
 
-                List<TeamStats> teamEntities = _teamService.TeamStatsList(version);
+                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage();
 
                 // 2. Upsert Archive data
 
@@ -79,7 +79,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     seasonArchiveEntities[i].Standing = i + 1;
                 } 
 
-                var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities.ToList(), AppConstants.ArchiveTable).Result;
+                var response = _tableStorageHelper.UpsertEntitiesAsync(seasonArchiveEntities.ToList(), AppConstants.ArchiveTable).Result;
 
                 return (response == AppConstants.Success) ? seasonArchiveEntities : new List<SeasonArchiveEntity>();
             } catch (Exception ex) {
@@ -93,7 +93,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((group) => group.PartitionKey == groupId);
 
-            var response = _tableStorageHelper.QueryEntities<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
 
             return response.Any() ? response.ToList() : new List<SeasonArchiveEntity>();
         }
@@ -104,14 +104,14 @@ namespace nbaunderdogleagueAPI.DataAccess
                 int version = 2; // manual data
                                  // Query team data (to collect team ID)
 
-                List<TeamStats> teamEntities = _teamService.TeamStatsList(version);
+                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage();
 
                 TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == seasonArchiveEntity.TeamName);
 
                 seasonArchiveEntity.TeamID = teamStats != null ? teamStats.TeamID : 0;
                 seasonArchiveEntity.Score = TeamUtils.CalculateTeamScore(seasonArchiveEntity.ProjectedWin, seasonArchiveEntity.ProjectedLoss, seasonArchiveEntity.Wins, seasonArchiveEntity.Losses, seasonArchiveEntity.PlayoffWins);
 
-                var response = _tableStorageHelper.UpsertEntities(new List<SeasonArchiveEntity>() { seasonArchiveEntity }, AppConstants.ArchiveTable).Result;
+                var response = _tableStorageHelper.UpsertEntitiesAsync(new List<SeasonArchiveEntity>() { seasonArchiveEntity }, AppConstants.ArchiveTable).Result;
 
                 return (response == AppConstants.Success) ? seasonArchiveEntity : new SeasonArchiveEntity();
             } catch (Exception ex) {
@@ -161,7 +161,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((group) => group.Email == email);
 
-            var response = _tableStorageHelper.QueryEntities<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<SeasonArchiveEntity>(AppConstants.ArchiveTable, filter).Result;
 
             return response.Any() ? response.ToList() : new List<SeasonArchiveEntity>();
         }
@@ -207,7 +207,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     resultList.AddRange(seasonArchiveEntities);
 
-                    var response = _tableStorageHelper.UpsertEntities(seasonArchiveEntities, AppConstants.ArchiveTable).Result;
+                    var response = _tableStorageHelper.UpsertEntitiesAsync(seasonArchiveEntities, AppConstants.ArchiveTable).Result;
 
                     updatedCount += (response == AppConstants.Success) ? seasonArchiveEntities.Count : 0;
                 }

@@ -47,7 +47,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 ETag = ETag.All
             };
 
-            Response tableResponse = _tableStorageHelper.UpsertEntity(groupInvitationEntity, AppConstants.GroupInvitationsTable).Result;
+            Response tableResponse = _tableStorageHelper.UpsertEntityAsync(groupInvitationEntity, AppConstants.GroupInvitationsTable).Result;
 
             return (tableResponse == null || tableResponse.IsError) ? new GroupInvitationEntity() : groupInvitationEntity;
         }
@@ -69,7 +69,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             string filter = TableClient.CreateQueryFilter<GroupInvitationEntity>((group) => group.GroupId == groupId);
 
-            var response = _tableStorageHelper.QueryEntities<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, filter).Result;
 
             return response.Any() ? response.ToList() : new List<GroupInvitationEntity>();
         }
@@ -84,7 +84,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                                 group.Approved == false &&
                                 group.Expiration > DateTimeOffset.UtcNow);
 
-            var queryResponse = _tableStorageHelper.QueryEntities<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, filter).Result;
+            var queryResponse = _tableStorageHelper.QueryEntitiesAsync<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, filter).Result;
 
             if (queryResponse.Any()) {
                 List<GroupInvitationEntity> groupInvitationEntities = queryResponse.ToList();
@@ -113,7 +113,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 groupInvitationEntity.Approved = true;
                 groupInvitationEntity.Expiration = DateTimeOffset.UtcNow;
 
-                Response updateResponse = _tableStorageHelper.UpdateEntity(groupInvitationEntity, AppConstants.GroupInvitationsTable).Result;
+                Response updateResponse = _tableStorageHelper.UpdateEntityAsync(groupInvitationEntity, AppConstants.GroupInvitationsTable).Result;
 
                 if (updateResponse.IsError) {
                     return "Could not update invitation id: " + groupInvitation.InviteId;
@@ -124,7 +124,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // did not find invitation, let's see why:
 
-            var notFoundResponse = _tableStorageHelper.QueryEntities<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, string.Empty).Result;
+            var notFoundResponse = _tableStorageHelper.QueryEntitiesAsync<GroupInvitationEntity>(AppConstants.GroupInvitationsTable, string.Empty).Result;
 
             if (notFoundResponse.Any()) {
                 List<GroupInvitationEntity> notFoundEntities = notFoundResponse.ToList();

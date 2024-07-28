@@ -17,6 +17,7 @@
         public double Score { get; set; }
         public int ProjectedWin { get; set; }
         public int ProjectedLoss { get; set; }
+        public DateTimeOffset LastUpdated { get; set; }
 
         public static IEnumerable<TeamStats> CorrectStanding(IEnumerable<TeamStats> team)
         {

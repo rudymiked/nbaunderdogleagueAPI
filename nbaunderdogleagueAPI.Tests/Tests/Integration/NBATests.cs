@@ -62,12 +62,12 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void NBAScoreboard()
         {
             if (_nbaService != null) {
-                List<Scoreboard> scoreboard = _nbaService.NBAScoreboard(AppConstants.Group_2022.ToString());
+                List<Scoreboard> scoreboard = _nbaService.NBAScoreboard();
 
                 Assert.AreNotEqual(0, scoreboard.Count);
             } else {
                 Assert.Fail();
-            }
+            }   
         }
 
         //[TestMethod]
@@ -92,6 +92,21 @@ namespace nbaunderdogleagueAPI.Tests.Integration
 
                     Assert.IsTrue(true);
                 } catch (Exception) {
+                    Assert.Fail();
+                }
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void UpdatePlayoffDataTest()
+        {
+            if (_nbaService != null) {
+                try {
+                    List<TeamStats> updatedData = _nbaService.UpdatePlayoffData();
+                } catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
                     Assert.Fail();
                 }
             } else {

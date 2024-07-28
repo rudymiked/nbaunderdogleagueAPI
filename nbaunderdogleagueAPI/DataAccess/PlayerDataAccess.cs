@@ -247,13 +247,13 @@ namespace nbaunderdogleagueAPI.DataAccess
                 List<PlayerStatisticsEntity> players = GetCompiledPlayerStatistics(teamId, season);
                 // replace current players in table storage
                 if (players.Count > 0) {
-                    List<PlayerStatisticsEntity> currentPlayerStatistics = _tableStorageHelper.QueryEntities<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable)
+                    List<PlayerStatisticsEntity> currentPlayerStatistics = _tableStorageHelper.QueryEntitiesAsync<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable)
                                                             .Result
                                                             .ToList();
 
                     _tableStorageHelper.DeleteAllEntities(currentPlayerStatistics.ToList(), AppConstants.PlayerStatisticsTable);
 
-                    var updateGamesResponse = _tableStorageHelper.UpsertEntities(players, AppConstants.PlayerStatisticsTable).Result;
+                    var updateGamesResponse = _tableStorageHelper.UpsertEntitiesAsync(players, AppConstants.PlayerStatisticsTable).Result;
 
                     return (updateGamesResponse == AppConstants.Success) ? players : new List<PlayerStatisticsEntity>();
                 } else {
@@ -275,7 +275,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     playerFilter = TableClient.CreateQueryFilter(filterExpression);
                 }
 
-                return _tableStorageHelper.QueryEntities<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable, WhereFilter: playerFilter).Result.ToList();
+                return _tableStorageHelper.QueryEntitiesAsync<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable, WhereFilter: playerFilter).Result.ToList();
 
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);

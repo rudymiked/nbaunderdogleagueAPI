@@ -17,24 +17,24 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [Authorize(Policy = AppConstants.AudiencePolicy)]
-        [HttpGet("TeamStats")]
-        public ActionResult<IEnumerable<TeamStats>> TeamStats()
+        [HttpGet("TeamStatsDictionaryFromJSON")]
+        public ActionResult<IEnumerable<TeamStats>> TeamStatsDictionaryFromJSON()
         {
-            return Ok(_teamService.TeamStatsList(0));
+            return Ok(_teamService.TeamStatsDictionaryFromJSON());
         }
 
-        [HttpGet("TeamStatsV1")]
-        public ActionResult<IEnumerable<TeamStats>> TeamStatsV1()
+        [HttpGet("TeamStatsListFromNBAdotCom")]
+        public ActionResult<IEnumerable<TeamStats>> TeamStatsListFromNBAdotCom()
         {
-            return Ok(_teamService.TeamStatsList(1));
+            return Ok(_teamService.TeamStatsListFromNBAdotCom());
         }
 
         //[Authorize(Policy = AppConstants.DefaultAuthPolicy)]
         //[Authorize(Policy = AppConstants.AudiencePolicy)]
-        [HttpGet("TeamStatsV2")]
-        public ActionResult<IEnumerable<TeamStats>> TeamStatsV2()
+        [HttpGet("TeamStatsListFromStorage")]
+        public ActionResult<IEnumerable<TeamStats>> TeamStatsListFromStorage()
         {
-            return Ok(_teamService.TeamStatsList(2));
+            return Ok(_teamService.TeamStatsListFromStorage());
         }
 
         [HttpGet("UpdateTeamStatsManually")]

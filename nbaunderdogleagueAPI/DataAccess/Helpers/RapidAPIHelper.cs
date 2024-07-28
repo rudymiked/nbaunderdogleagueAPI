@@ -34,7 +34,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
                 Timestamp = DateTime.Now
             };
 
-            Response response = _tableStorageHelper.UpsertEntity(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
+            Response response = _tableStorageHelper.UpsertEntityAsync(rapidAPITimeout, AppConstants.SystemConfigurationTable).Result;
 
             return (response != null && !response.IsError);
         }
@@ -43,7 +43,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         {
             string filter = TableClient.CreateQueryFilter<TimeoutEntity>((group) => group.PartitionKey == AppConstants.SysConfig_RapidAPITimeout);
 
-            var response = _tableStorageHelper.QueryEntities<TimeoutEntity>(AppConstants.SystemConfigurationTable, filter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<TimeoutEntity>(AppConstants.SystemConfigurationTable, filter).Result;
 
             TimeoutEntity timeoutEntity = response.OrderBy(x => x.NextTimeAvailableDateTime).FirstOrDefault();
 

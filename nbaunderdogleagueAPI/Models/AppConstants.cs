@@ -76,8 +76,10 @@
         // Dates
         public static readonly DateTime CurrentDate = DateTime.Now;
         public static readonly DateTime NBAStartDate = new(CurrentDate.Year, 10, 18); // nba start date
+        public static readonly DateTime NBAEndDate = new(CurrentDate.Year, 4, 19); // nba regular season date
         public static readonly int CurrentNBASeasonYear = CurrentDate.Month < 7 ? CurrentDate.Year - 1 : CurrentDate.Year;
         public static readonly int OldestAzureYear = 1601;
         public static readonly DateTime OldestAzureDate = DateTime.MinValue.Date.AddYears(OldestAzureYear);
+        public static readonly bool PlayoffsStarted = CurrentDate >= NBAEndDate && CurrentDate.Year - 1 == CurrentNBASeasonYear;
     }
 }

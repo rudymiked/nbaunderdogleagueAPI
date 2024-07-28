@@ -7,9 +7,13 @@ namespace nbaunderdogleagueAPI.Business
     {
         List<TeamEntity> GetTeams();
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> TeamStatsList(int version);
+        List<TeamStats> TeamStatsListFromStorage();
+        List<TeamStats> TeamStatsListFromJSON();
+        List<TeamStats> TeamStatsListFromNBAdotCom();
         List<TeamStats> UpdateTeamStatsManually();
-        Dictionary<string, TeamStats> TeamStatsDictionary(int version);
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom();
         string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
 
@@ -31,24 +35,34 @@ namespace nbaunderdogleagueAPI.Business
             return _teamDataAccess.AddTeams(teamsEntities);
         }
 
-        public List<TeamStats> TeamStatsList(int version)
+        public List<TeamStats> TeamStatsListFromStorage()
         {
-            return version switch {
-                0 => _teamDataAccess.GetTeamStats().Values.OrderByDescending(team => team.Wins).ToList(),
-                1 => _teamDataAccess.GetTeamStatsV1().Result.Values.OrderByDescending(team => team.Wins).ToList(),
-                2 => _teamDataAccess.GetTeamStatsV2().Values.OrderByDescending(team => team.Wins).ToList(),
-                _ => _teamDataAccess.GetTeamStatsV2().Values.OrderByDescending(team => team.Wins).ToList(),
-            };
+            return _teamDataAccess.GetTeamStatsFromStorage().Values.OrderByDescending(team => team.Wins).ToList();
         }
 
-        public Dictionary<string, TeamStats> TeamStatsDictionary(int version)
+        public List<TeamStats> TeamStatsListFromJSON()
         {
-            return version switch {
-                0 => _teamDataAccess.GetTeamStats(),
-                1 => _teamDataAccess.GetTeamStatsV1().Result,
-                2 => _teamDataAccess.GetTeamStatsV2(),
-                _ => _teamDataAccess.GetTeamStatsV2(),
-            };
+            return _teamDataAccess.GetTeamStatsFromJSON().Result.Values.OrderByDescending(team => team.Wins).ToList();
+        }
+
+        public List<TeamStats> TeamStatsListFromNBAdotCom()
+        {
+            return _teamDataAccess.GetTeamStatsFromNBAdotCom().Values.OrderByDescending(team => team.Wins).ToList();
+        }
+
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage()
+        {
+            return _teamDataAccess.GetTeamStatsFromStorage();
+        }        
+        
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON()
+        {
+            return _teamDataAccess.GetTeamStatsFromJSON().Result;
+        }  
+        
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom()
+        {
+            return _teamDataAccess.GetTeamStatsFromNBAdotCom();
         }
 
         public List<TeamStats> UpdateTeamStatsManually()

@@ -4,6 +4,7 @@ using nbaunderdogleagueAPI.DataAccess.Helpers;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
 using Newtonsoft.Json;
+using System.Linq;
 using static nbaunderdogleagueAPI.Models.RapidAPI_NBA.RapidAPI_NBA;
 
 namespace nbaunderdogleagueAPI.DataAccess
@@ -15,6 +16,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date);
         List<TeamStats> UpdateTeamStatsFromRapidAPI();
         List<Scoreboard> NBAScoreboard(string groupId);
+        List<TeamStats> UpdatePlayoffData();
     }
     public class NBADataAccess : INBADataAccess
     {
@@ -24,6 +26,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         private readonly IUserService _userService;
         private readonly ITeamService _teamService;
         private readonly AppConfig _appConfig;
+
         public NBADataAccess(IOptions<AppConfig> appConfig, ILogger<NBADataAccess> logger, ITableStorageHelper tableStorageHelper, IUserService userService, IRapidAPIHelper rapidAPIHelper, ITeamService teamService)
         {
             _logger = logger;
@@ -95,7 +98,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Timestamp = DateTime.Now
                     }));
 
-                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
                     return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                 } else {
@@ -126,11 +129,82 @@ namespace nbaunderdogleagueAPI.DataAccess
                             Timestamp = DateTime.Now
                         }));
 
-                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntities(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
 
                         return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                     }
                 }
+            }
+
+            return new List<TeamStats>();
+        }
+
+        // Use the downloaded game data to update playoff games
+        // standings data does not include playoff data
+        public List<TeamStats> UpdatePlayoffData()
+        {
+            // 1. read game data from score board
+            // only start doing this after playoffs begin (although, this could realistically replace the standings endpoint)
+
+            // 2. Update ManualTeamStats table with new game data (win/loss)
+
+            try {
+                // Current nba season and after playoffs start
+                if (AppConstants.PlayoffsStarted) {
+                    List<NBAGameEntity> nbaGameEntities = NBAGamesOnScoreboard();
+
+                    IEnumerable<NBAGameEntity> todaysGames = nbaGameEntities.Where(x => x.Timestamp.Value.DayOfYear == AppConstants.CurrentDate.DayOfYear);
+
+                    Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromStorage();
+
+                    List<TeamStats> teamsWithGamesTodayWhoWon = new();
+
+                    foreach (NBAGameEntity game in todaysGames) {
+                        teamsWithGamesTodayWhoWon.AddRange(teamStatsDict
+                               .Where(x => (x.Key == game.HomeTeam && game.HomeScore > game.VisitorsScore) || (x.Key == game.VisitorsTeam && game.VisitorsScore > game.HomeScore))
+                                .Select(kvp => kvp.Value)
+                                .ToList());
+                    }
+
+                    List<ManualTeamStatsEntity> updatedTeamStatsEntites = new();
+
+                    for(int i=0;i<teamsWithGamesTodayWhoWon.Count; i++) {
+                        TeamStats teamData = teamsWithGamesTodayWhoWon[i];
+
+                        if (teamData.LastUpdated.DayOfYear >= AppConstants.CurrentDate.DayOfYear) {
+                            // game already updated today
+                            break;
+                        }
+
+                        int newWin = teamsWithGamesTodayWhoWon.Any(x => x.TeamName == teamData.TeamName) ? 1 : 0;
+                        int playoffWins = (int)(teamData.PlayoffWins + newWin);
+
+                        updatedTeamStatsEntites.Add(new ManualTeamStatsEntity() {
+                            PartitionKey = "TeamStats",
+                            RowKey = teamData.TeamName,
+                            TeamID = teamData.TeamID,
+                            TeamCity = teamData.TeamCity,
+                            TeamName = teamData.TeamName,
+                            Conference = teamData.Conference,
+                            Wins = teamData.Wins,
+                            PlayoffWins = playoffWins,
+                            Losses = teamData.Losses,
+                            Standing = teamData.Standing,
+                            Ratio = teamData.Ratio,
+                            Streak = teamData.Streak,
+                            ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                            Logo = teamData.Logo,
+                            ETag = ETag.All,
+                            Timestamp = DateTime.UtcNow
+                        });
+                    }
+
+                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(updatedTeamStatsEntites, AppConstants.ManualTeamStats).Result;
+
+                    return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamsWithGamesTodayWhoWon : new List<TeamStats>();
+                }
+            } catch (Exception ex) {
+                _logger.LogError(ex, nameof(UpdatePlayoffData));
             }
 
             return new List<TeamStats>();
@@ -155,7 +229,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 //  otherwise, keep most recent games
                 // keep 10 most recent games for scoreboard
                 if (games.Count > 0) {
-                    List<NBAGameEntity> currentScoreboard = _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
+                    List<NBAGameEntity> currentScoreboard = _tableStorageHelper.QueryEntitiesAsync<NBAGameEntity>(AppConstants.ScoreboardTable)
                                                             .Result
                                                             .OrderBy(x => x.Timestamp) // oldest dates first
                                                             .ToList();
@@ -177,7 +251,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         Timestamp = DateTime.Now
                     }));
 
-                    var updateGamesResponse = _tableStorageHelper.UpsertEntities(nbaGameEntities, AppConstants.ScoreboardTable).Result;
+                    var updateGamesResponse = _tableStorageHelper.UpsertEntitiesAsync(nbaGameEntities, AppConstants.ScoreboardTable).Result;
 
                     return (updateGamesResponse == AppConstants.Success) ? nbaGameEntities : new List<NBAGameEntity>();
                 } else {
@@ -237,13 +311,18 @@ namespace nbaunderdogleagueAPI.DataAccess
             return null;
         }
 
+        private List<NBAGameEntity> NBAGamesOnScoreboard()
+        {
+            return _tableStorageHelper.QueryEntitiesAsync<NBAGameEntity>(AppConstants.ScoreboardTable)
+                            .Result
+                            .OrderBy(x => x.Timestamp) // oldest dates first
+                            .ToList();
+        }
+
         public List<Scoreboard> NBAScoreboard(string groupId = null)
         {
             try {
-                List<NBAGameEntity> nbaGameEntities = _tableStorageHelper.QueryEntities<NBAGameEntity>(AppConstants.ScoreboardTable)
-                                            .Result
-                                            .OrderBy(x => x.Timestamp) // oldest dates first
-                                            .ToList();
+                List<NBAGameEntity> nbaGameEntities = NBAGamesOnScoreboard();
 
                 List<Scoreboard> scoreboard = new();
                 Dictionary<string, UserEntity> teamUserDict = new();

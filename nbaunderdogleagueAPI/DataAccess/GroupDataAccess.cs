@@ -49,7 +49,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<GroupStandings> standings = new();
 
             // 1. Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionary(version);
+            Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromStorage();
 
             // something went wrong.
             if (teamStatsDict.Count == 0) {
@@ -142,7 +142,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             string userGroupFilter = TableClient.CreateQueryFilter<UserEntity>((user) => user.Email == email);
 
-            var userRsponse = _tableStorageHelper.QueryEntities<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
+            var userRsponse = _tableStorageHelper.QueryEntitiesAsync<UserEntity>(AppConstants.UsersTable, userGroupFilter).Result;
 
             if (!userRsponse.Any()) {
                 return new List<GroupEntity>();
@@ -172,7 +172,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
         private List<GroupEntity> QueryGroupTable(string filter = "")
         {
-            var response = _tableStorageHelper.QueryEntities<GroupEntity>(AppConstants.GroupsTable, string.IsNullOrWhiteSpace(filter) ? null : filter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<GroupEntity>(AppConstants.GroupsTable, string.IsNullOrWhiteSpace(filter) ? null : filter).Result;
 
             return response.Any() ? response.ToList() : new List<GroupEntity>();
         }
@@ -220,7 +220,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 ETag = ETag.All
             };
 
-            Response response = _tableStorageHelper.UpsertEntity(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
+            Response response = _tableStorageHelper.UpsertEntityAsync(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
 
             return (response != null && !response.IsError) ? AppConstants.Success : AppConstants.JoinGroupError + "email: " + joinGroupRequest.Email + " group: " + joinGroupRequest.GroupId;
         }
@@ -253,7 +253,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             string filter = TableClient.CreateQueryFilter<DraftEntity>((draft) => draft.Email == leaveGroupRequest.Email && draft.GroupId == Guid.Parse(leaveGroupRequest.GroupId));
 
-            DraftEntity userInDraft = _tableStorageHelper.QueryEntities<DraftEntity>(AppConstants.DraftTable, filter).Result.FirstOrDefault();
+            DraftEntity userInDraft = _tableStorageHelper.QueryEntitiesAsync<DraftEntity>(AppConstants.DraftTable, filter).Result.FirstOrDefault();
 
             if (userInGroup == null) {
                 return AppConstants.SomethingWentWrong;
@@ -261,7 +261,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // delete user from group 
             if (userInGroup != null) {
-                var userDeleteResponse = _tableStorageHelper.DeleteEntity(userInGroup, AppConstants.UsersTable).Result;
+                var userDeleteResponse = _tableStorageHelper.DeleteEntityAsync(userInGroup, AppConstants.UsersTable).Result;
                 return (userDeleteResponse != null && !userDeleteResponse.IsError) ?
                     AppConstants.Success :
                     AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
@@ -269,7 +269,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
             // delete user from group's draft
             if (userInDraft != null) {
-                var draftDeleteResponse = _tableStorageHelper.DeleteEntity(userInDraft, AppConstants.DraftTable).Result;
+                var draftDeleteResponse = _tableStorageHelper.DeleteEntityAsync(userInDraft, AppConstants.DraftTable).Result;
             }
 
             return AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
@@ -314,7 +314,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Timestamp = DateTime.Now,
             };
 
-            Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
+            Response response = _tableStorageHelper.UpsertEntityAsync(groupEntity, AppConstants.GroupsTable).Result;
 
             if (response == null || response.IsError) {
                 return new GroupEntity() {
@@ -352,7 +352,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Timestamp = DateTime.Now,
                 };
 
-                Response response = _tableStorageHelper.UpsertEntity(groupEntity, AppConstants.GroupsTable).Result;
+                Response response = _tableStorageHelper.UpsertEntityAsync(groupEntity, AppConstants.GroupsTable).Result;
 
                 return (response != null && !response.IsError) ? group : new GroupEntity();
             }
@@ -420,7 +420,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 Timestamp = DateTime.Now
             };
 
-            Response upsertUserResponse = _tableStorageHelper.UpsertEntity(userEntity, AppConstants.UsersTable).Result;
+            Response upsertUserResponse = _tableStorageHelper.UpsertEntityAsync(userEntity, AppConstants.UsersTable).Result;
 
             if (upsertUserResponse == null || upsertUserResponse.IsError) {
                 return AppConstants.UsersCouldNotBeUpdated + "email: " + approveUserRequest.Email + " group: " + approveUserRequest.GroupId;
@@ -436,7 +436,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 ETag = ETag.All
             };
 
-            Response deleteResponse = _tableStorageHelper.DeleteEntity(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
+            Response deleteResponse = _tableStorageHelper.DeleteEntityAsync(joinGroupRequestEntity, AppConstants.JoinGroupRequestsTable).Result;
 
             if (deleteResponse == null || deleteResponse.IsError) {
                 return AppConstants.JoinGroupError + "email: " + approveUserRequest.Email + " group: " + approveUserRequest.GroupId;
@@ -449,7 +449,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         {
             string groupFilter = TableClient.CreateQueryFilter<JoinGroupRequestEntity>((group) => group.GroupId == groupId && group.OwnerEmail == ownerEmail);
 
-            var response = _tableStorageHelper.QueryEntities<JoinGroupRequestEntity>(AppConstants.JoinGroupRequestsTable, groupFilter).Result;
+            var response = _tableStorageHelper.QueryEntitiesAsync<JoinGroupRequestEntity>(AppConstants.JoinGroupRequestsTable, groupFilter).Result;
 
             return response.Any() ? response.ToList() : new List<JoinGroupRequestEntity>();
         }

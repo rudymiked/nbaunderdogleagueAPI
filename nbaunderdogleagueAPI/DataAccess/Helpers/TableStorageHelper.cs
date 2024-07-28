@@ -8,11 +8,11 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
     public interface ITableStorageHelper
     {
-        Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
-        Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new();
-        Task<string> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
-        Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new();
-        Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new();
+        Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
+        Task<Response> UpsertEntityAsync<T>(T entity, string table) where T : ITableEntity, new();
+        Task<string> UpsertEntitiesAsync<T>(List<T> entities, string table) where T : ITableEntity, new();
+        Task<Response> UpdateEntityAsync<T>(T entity, string table) where T : ITableEntity, new();
+        Task<Response> DeleteEntityAsync<T>(T entity, string table) where T : ITableEntity, new();
         Task DeleteAllEntities<T>(List<T> entities, string table) where T : ITableEntity, new();
     }
 
@@ -26,7 +26,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             _logger = logger;
         }
 
-        public async Task<Response> DeleteEntity<T>(T entity, string table) where T : ITableEntity, new()
+        public async Task<Response> DeleteEntityAsync<T>(T entity, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
@@ -44,7 +44,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         {
             foreach (T entity in entities) {
                 try {
-                    var deleteEntity = DeleteEntity(entity, table);
+                    var deleteEntity = DeleteEntityAsync(entity, table);
                 } catch (Exception ex) {
                     _logger.LogError(ex, ex.Message);
                 }
@@ -53,7 +53,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             return Task.CompletedTask;
         }
 
-        public async Task<Response> UpdateEntity<T>(T entity, string table) where T : ITableEntity, new()
+        public async Task<Response> UpdateEntityAsync<T>(T entity, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
@@ -67,7 +67,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             return null;
         }
 
-        public async Task<Response> UpsertEntity<T>(T entity, string table) where T : ITableEntity, new()
+        public async Task<Response> UpsertEntityAsync<T>(T entity, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
@@ -81,7 +81,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
             return null;
         }
 
-        public async Task<string> UpsertEntities<T>(List<T> entities, string table) where T : ITableEntity, new()
+        public async Task<string> UpsertEntitiesAsync<T>(List<T> entities, string table) where T : ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
@@ -113,7 +113,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         }
 
 
-        public async Task<Pageable<T>> QueryEntities<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
+        public async Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
