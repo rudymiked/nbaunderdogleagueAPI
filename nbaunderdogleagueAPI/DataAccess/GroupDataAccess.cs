@@ -9,8 +9,8 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IGroupDataAccess
     {
-        List<GroupStandings> GetGroupStandings(string groupId, int version);
-        GroupEntity CreateGroup(string name, string ownerEmail);
+        List<GroupStandings> GetGroupStandings(string groupId);
+        CreateGroupResult CreateGroup(string name, string ownerEmail);
         GroupEntity UpsertGroup(GroupEntity group);
         GroupEntity GetGroup(string groupId);
         List<GroupEntity> GetAllGroupsByYear(int year);
@@ -44,7 +44,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
          */
 
-        public List<GroupStandings> GetGroupStandings(string groupId, int version)
+        public List<GroupStandings> GetGroupStandings(string groupId)
         {
             List<GroupStandings> standings = new();
 
@@ -275,11 +275,17 @@ namespace nbaunderdogleagueAPI.DataAccess
             return AppConstants.LeaveGroupError + "email: " + leaveGroupRequest.Email + " group: " + leaveGroupRequest.GroupId;
         }
 
-        public GroupEntity CreateGroup(string name, string ownerEmail)
+        public CreateGroupResult CreateGroup(string name, string ownerEmail)
         {
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(ownerEmail)) {
-                return new GroupEntity() {
-                    Id = Guid.Empty
+            if (string.IsNullOrWhiteSpace(name)) {
+                return new CreateGroupResult() {
+                    Status = "Name is blank"
+                };
+            }            
+            
+            if (string.IsNullOrWhiteSpace(ownerEmail)) {
+                return new CreateGroupResult() {
+                    Status = "Owner Email is blank"
                 };
             }
 
@@ -295,8 +301,8 @@ namespace nbaunderdogleagueAPI.DataAccess
             List<GroupEntity> currentGroups = currentGroupsResponse.ToList();
 
             if (currentGroups.Count > _appConfig.MaxGroupsPerOwner) {
-                return new GroupEntity() {
-                    Id = Guid.Empty
+                return new CreateGroupResult() {
+                    Status = $"Max number of groups created for user = {ownerEmail}"
                 };
             }
 
@@ -317,8 +323,8 @@ namespace nbaunderdogleagueAPI.DataAccess
             Response response = _tableStorageHelper.UpsertEntityAsync(groupEntity, AppConstants.GroupsTable).Result;
 
             if (response == null || response.IsError) {
-                return new GroupEntity() {
-                    Id = Guid.Empty
+                return new CreateGroupResult() {
+                    Status = response.ReasonPhrase
                 };
             }
 
@@ -331,10 +337,18 @@ namespace nbaunderdogleagueAPI.DataAccess
             User userResult = _userService.UpsertUser(owner);
 
             if (userResult.Email != owner.Email) {
-                _logger.LogError(AppConstants.SomethingWentWrong);
+                _logger.LogError($"Upsert owner ({owner.Email}) failed for group ({name}) creation.");
+
+                return new CreateGroupResult() {
+                    GroupEntity = groupEntity,
+                    Status = $"Upsert owner ({owner.Email}) failed."
+                };
             }
 
-            return groupEntity;
+            return new CreateGroupResult() {
+                GroupEntity = groupEntity,
+                Status = AppConstants.Success
+            }; ;
         }
 
         public GroupEntity UpsertGroup(GroupEntity group)

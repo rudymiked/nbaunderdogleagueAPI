@@ -8,7 +8,7 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
 {
     public interface ITableStorageHelper
     {
-        Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new();
+        Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string filter = null) where T : class, ITableEntity, new();
         Task<Response> UpsertEntityAsync<T>(T entity, string table) where T : ITableEntity, new();
         Task<string> UpsertEntitiesAsync<T>(List<T> entities, string table) where T : ITableEntity, new();
         Task<Response> UpdateEntityAsync<T>(T entity, string table) where T : ITableEntity, new();
@@ -113,13 +113,13 @@ namespace nbaunderdogleagueAPI.DataAccess.Helpers
         }
 
 
-        public async Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string WhereFilter = null) where T : class, ITableEntity, new()
+        public async Task<Pageable<T>> QueryEntitiesAsync<T>(string table, string Filter = null) where T : class, ITableEntity, new()
         {
             try {
                 TableClient tableClient = new(_appConfig.TableConnection, table);
                 await tableClient.CreateIfNotExistsAsync();
 
-                return tableClient.Query<T>(WhereFilter);
+                return tableClient.Query<T>(Filter);
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }

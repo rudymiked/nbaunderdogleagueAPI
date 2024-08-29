@@ -63,6 +63,7 @@
         public const int MaxBatchSizeAzureTableStorage = 99;
 
         // Groups
+        public static readonly Guid Group_2023 = Guid.Parse("27bfcda8-7328-4061-9b39-f1554395353a");
         public static readonly Guid Group_2022 = Guid.Parse("cee48957-9221-46b7-a80d-ba21b6ccb303");
         public static readonly Guid Group_2021 = Guid.Parse("b7c38436-42b8-4deb-b79d-14d4d5dc5533");
         public static readonly Guid Group_2020 = Guid.Parse("94c57d13-db05-4065-aaf9-8bd5eb81b2d6");

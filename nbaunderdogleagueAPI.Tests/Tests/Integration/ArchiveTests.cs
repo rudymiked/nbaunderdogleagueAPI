@@ -26,7 +26,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         [TestMethod]
         public void ArchiveCurrentSeason()
         {
-            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveCurrentSeason(AppConstants.Group_2022.ToString());
+            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveCurrentSeason(AppConstants.Group_2023.ToString());
 
             Assert.AreNotEqual(0, seasonArchiveEntities.Count);
         }

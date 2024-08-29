@@ -64,9 +64,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void CreateGroup()
         {
             if (_groupService != null) {
-                GroupEntity newGroup = _groupService.CreateGroup("Test Group " + DateTime.Now.ToShortDateString(), TestConstants.NBAEmail);
+                CreateGroupResult newGroup = _groupService.CreateGroup("Test Group " + DateTime.Now.ToShortDateString(), TestConstants.NBAEmail);
 
-                Assert.AreNotEqual(Guid.Empty, newGroup.Id);
+                Assert.AreNotEqual(Guid.Empty, newGroup.GroupEntity.Id);
             } else {
                 Assert.Fail();
             }

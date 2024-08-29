@@ -275,7 +275,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                     playerFilter = TableClient.CreateQueryFilter(filterExpression);
                 }
 
-                return _tableStorageHelper.QueryEntitiesAsync<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable, WhereFilter: playerFilter).Result.ToList();
+                return _tableStorageHelper.QueryEntitiesAsync<PlayerStatisticsEntity>(AppConstants.PlayerStatisticsTable, filter: playerFilter).Result.ToList();
 
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);

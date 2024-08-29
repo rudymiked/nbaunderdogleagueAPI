@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using nbaunderdogleagueAPI.Models;
 using nbaunderdogleagueAPI.Services;
+using Newtonsoft.Json;
+using Azure;
 
 namespace nbaunderdogleagueAPI.Tests.Integration
 {
@@ -113,37 +115,37 @@ namespace nbaunderdogleagueAPI.Tests.Integration
             }
         }
 
-        //[TestMethod]
-        //public void AddTeams()
-        //{
-        //    if (_teamService != null) {
-        //        List<TeamEntity> teamsEntities = new();
-        //        StreamReader r = new StreamReader(@"C:\Users\rudym\source\repos\nbaunderdogleagueAPI\nbaunderdogleagueAPI\Data\NBA2023ODDS.json");
+        [TestMethod]
+        public void AddTeams()
+        {
+            if (_teamService != null) {
+                List<TeamEntity> teamsEntities = new();
+                StreamReader r = new StreamReader(@"C:\Users\rudym\source\repos\nbaunderdogleagueAPI\nbaunderdogleagueAPI\Data\NBA2023ODDS.json");
 
-        //        string jsonString = r.ReadToEnd();
+                string jsonString = r.ReadToEnd();
 
-        //        List<ImportTeam> data = JsonConvert.DeserializeObject<List<ImportTeam>>(jsonString);
+                List<ImportTeam> data = JsonConvert.DeserializeObject<List<ImportTeam>>(jsonString);
 
-        //        for(int i = 0; i < data.Count; i++) {
-        //            teamsEntities.Add(new TeamEntity() {
-        //                PartitionKey = data[i].PartitionKey,
-        //                RowKey = data[i].RowKey,
-        //                ID = 0,
-        //                City = data[i].City,
-        //                Name = data[i].Name,
-        //                ProjectedLoss = data[i].ProjectedLoss,
-        //                ProjectedWin = data[i].ProjectedWin,
-        //                Timestamp = data[i].Timestamp,
-        //                ETag = ETag.All
-        //            });
-        //        }
+                for (int i = 0; i < data.Count; i++) {
+                    teamsEntities.Add(new TeamEntity() {
+                        PartitionKey = data[i].PartitionKey,
+                        RowKey = data[i].RowKey,
+                        ID = 0,
+                        City = data[i].City,
+                        Name = data[i].Name,
+                        ProjectedLoss = data[i].ProjectedLoss,
+                        ProjectedWin = data[i].ProjectedWin,
+                        Timestamp = data[i].Timestamp,
+                        ETag = ETag.All
+                    });
+                }
 
-        //        List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
+                List<TeamEntity> teams = _teamService.AddTeams(teamsEntities);
 
-        //        Assert.AreNotEqual(0, teams.Count);
-        //    } else {
-        //        Assert.Fail();
-        //    }
-        //}
+                Assert.AreNotEqual(0, teams.Count);
+            } else {
+                Assert.Fail();
+            }
+        }
     }
 }
