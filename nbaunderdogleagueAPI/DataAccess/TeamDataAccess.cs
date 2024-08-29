@@ -45,7 +45,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             try {
                 string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((team) => team.PartitionKey == AppConstants.CurrentNBASeasonYear.ToString());
                     
-                return _tableStorageHelper.QueryEntitiesAsync<TeamEntity>(AppConstants.TeamsTable, "").Result.ToList();
+                return _tableStorageHelper.QueryEntitiesAsync<TeamEntity>(AppConstants.TeamsTable, filter).Result.ToList();
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
             }
