@@ -23,7 +23,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<string, TeamStats> GetTeamStatsFromNBAdotCom();
         Task<Dictionary<string, TeamStats>> GetTeamStatsFromJSON();
         Dictionary<string, TeamStats> GetTeamStatsFromStorage();
-        List<TeamEntity> GetTeams();
+        List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> UpdateTeamStatsManually();
         string UpdateTeamPlayoffWins(TeamStats teamStats);
@@ -40,10 +40,10 @@ namespace nbaunderdogleagueAPI.DataAccess
             _tableStorageHelper = tableStorageHelper;
         }
 
-        public List<TeamEntity> GetTeams()
+        public List<TeamEntity> GetTeams(string Year = "")
         {
             try {
-                string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((team) => team.PartitionKey == AppConstants.CurrentNBASeasonYear.ToString());
+                string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((team) => team.PartitionKey == (string.IsNullOrWhiteSpace(Year) ? AppConstants.CurrentNBASeasonYear.ToString() : Year));
                     
                 return _tableStorageHelper.QueryEntitiesAsync<TeamEntity>(AppConstants.TeamsTable, filter).Result.ToList();
             } catch (Exception ex) {

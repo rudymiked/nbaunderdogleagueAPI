@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IGroupDataAccess
     {
-        List<GroupStandings> GetGroupStandings(string groupId);
+        List<GroupStandings> GetGroupStandings(string groupId, string Year = "");
         CreateGroupResult CreateGroup(string name, string ownerEmail);
         GroupEntity UpsertGroup(GroupEntity group);
         GroupEntity GetGroup(string groupId);
@@ -44,7 +44,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
          */
 
-        public List<GroupStandings> GetGroupStandings(string groupId)
+        public List<GroupStandings> GetGroupStandings(string groupId, string Year = "")
         {
             List<GroupStandings> standings = new();
 
@@ -58,7 +58,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             // 2. Get Projected Data (from storage)
-            List<TeamEntity> teamsEntities = _teamService.GetTeams();
+            List<TeamEntity> teamsEntities = _teamService.GetTeams(Year);
 
             // 3. Get Group Info
             GroupEntity group = GetGroup(groupId);

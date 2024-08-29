@@ -44,9 +44,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("TeamsTable")]
-        public ActionResult<IEnumerable<TeamEntity>> TeamsTable()
+        public ActionResult<IEnumerable<TeamEntity>> TeamsTable(string year)
         {
-            return Ok(_teamService.GetTeams());
+            return Ok(_teamService.GetTeams(year));
         }
 
         [HttpPost("AddTeams")]

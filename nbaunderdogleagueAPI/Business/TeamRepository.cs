@@ -5,7 +5,7 @@ namespace nbaunderdogleagueAPI.Business
 {
     public interface ITeamRepository
     {
-        List<TeamEntity> GetTeams();
+        List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> TeamStatsListFromStorage();
         List<TeamStats> TeamStatsListFromJSON();
@@ -25,9 +25,9 @@ namespace nbaunderdogleagueAPI.Business
             _teamDataAccess = teamDataAccess;
         }
 
-        public List<TeamEntity> GetTeams()
+        public List<TeamEntity> GetTeams(string Year = "")
         {
-            return _teamDataAccess.GetTeams();
+            return _teamDataAccess.GetTeams(Year);
         }
 
         public List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities)
