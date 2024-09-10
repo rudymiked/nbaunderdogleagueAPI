@@ -24,9 +24,9 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void ArchiveCurrentSeason()
+        public void ArchiveGroup()
         {
-            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveCurrentSeason(AppConstants.Group_2023.ToString());
+            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.ArchiveGroup(AppConstants.Group_2023.ToString());
 
             Assert.AreNotEqual(0, seasonArchiveEntities.Count);
         }
@@ -61,7 +61,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         [TestMethod]
         public void GetSeasonArchive()
         {
-            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.GetSeasonArchive(AppConstants.Group_2019.ToString());
+            List<SeasonArchiveEntity> seasonArchiveEntities = _archiveService.GetSeasonArchive(AppConstants.Group_2022.ToString());
 
             Assert.AreNotEqual(0, seasonArchiveEntities.Count);
         }

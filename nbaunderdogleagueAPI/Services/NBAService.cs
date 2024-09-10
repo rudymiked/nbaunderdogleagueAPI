@@ -5,10 +5,11 @@ namespace nbaunderdogleagueAPI.Services
 {
     public interface INBAService
     {
-        List<TeamStats> UpdateTeamStatsFromRapidAPI();
-        List<NBAGameEntity> UpdateGamesFromRapidAPI();
+        List<TeamStats> UpdateTeamStatsFromRapidAPI(string Year = "");
+        List<NBAGameEntity> UpdateScoreboardFromRapidAPI();
         List<Scoreboard> NBAScoreboard(string groupId = null);
-        List<TeamStats> UpdatePlayoffData();
+        List<PlayoffData> UpdatePlayoffData();
+        Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> GetPlayoffData(string season);
     }
     public class NBAService : INBAService
     {
@@ -17,21 +18,25 @@ namespace nbaunderdogleagueAPI.Services
         {
             _nbaRespository = nbaRespository;
         }
-        public List<TeamStats> UpdateTeamStatsFromRapidAPI()
+        public List<TeamStats> UpdateTeamStatsFromRapidAPI(string Year = "")
         {
-            return _nbaRespository.UpdateTeamStatsFromRapidAPI();
+            return _nbaRespository.UpdateTeamStatsFromRapidAPI(Year);
         }
-        public List<NBAGameEntity> UpdateGamesFromRapidAPI()
+        public List<NBAGameEntity> UpdateScoreboardFromRapidAPI()
         {
-            return _nbaRespository.UpdateGamesFromRapidAPI();
+            return _nbaRespository.UpdateScoreboardFromRapidAPI();
         }
         public List<Scoreboard> NBAScoreboard(string groupId = null)
         {
             return _nbaRespository.NBAScoreboard(groupId);
         }        
-        public List<TeamStats> UpdatePlayoffData()
+        public List<PlayoffData> UpdatePlayoffData()
         {
             return _nbaRespository.UpdatePlayoffData();
+        }        
+        public Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> GetPlayoffData(string season)
+        {
+            return _nbaRespository.GetPlayoffData(season);
         }
     }
 }

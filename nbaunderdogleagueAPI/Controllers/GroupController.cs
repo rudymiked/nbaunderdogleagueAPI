@@ -28,19 +28,7 @@ namespace nbaunderdogleagueAPI.Controllers
         [HttpGet("GroupStandings")]
         public ActionResult<List<GroupStandings>> GroupStandings(string groupId)
         {
-            return (!string.IsNullOrEmpty(groupId)) ? Ok(_groupService.GetGroupStandings(groupId, 0)) : NoContent();
-        }
-
-        [HttpGet("GroupStandingsV1")]
-        public ActionResult<List<GroupStandings>> GroupStandingsV1(string groupId)
-        {
-            return (!string.IsNullOrEmpty(groupId)) ? Ok(_groupService.GetGroupStandings(groupId, 1)) : NoContent();
-        }
-
-        [HttpGet("GroupStandingsV2")]
-        public ActionResult<List<GroupStandings>> GroupStandingsV2(string groupId)
-        {
-            return !string.IsNullOrEmpty(groupId) ? Ok(_groupService.GetGroupStandings(groupId, 2)) : NoContent();
+            return (!string.IsNullOrEmpty(groupId)) ? Ok(_groupService.GetGroupStandings(groupId)) : NoContent();
         }
 
         [HttpPost("CreateGroup")]

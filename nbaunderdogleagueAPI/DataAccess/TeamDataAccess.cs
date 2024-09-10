@@ -15,14 +15,14 @@ namespace nbaunderdogleagueAPI.DataAccess
         TeamStats:
         version 0: https://stats.nba.com/, DEPRECATED.
         version 1: https://data.nba.net/prod/v1/current/standings_all.json, does not work after deploying to Azure
-        version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
+        version 2: teamStats, populated by RapidAPI every 30 mins. 
     */
 
     public interface ITeamDataAccess
     {
         Dictionary<string, TeamStats> GetTeamStatsFromNBAdotCom();
         Task<Dictionary<string, TeamStats>> GetTeamStatsFromJSON();
-        Dictionary<string, TeamStats> GetTeamStatsFromStorage();
+        Dictionary<string, TeamStats> GetTeamStatsFromStorage(string Year = "");
         List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
         List<TeamStats> UpdateTeamStatsManually();
@@ -43,7 +43,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         public List<TeamEntity> GetTeams(string Year = "")
         {
             try {
-                string filter = TableClient.CreateQueryFilter<SeasonArchiveEntity>((team) => team.PartitionKey == (string.IsNullOrWhiteSpace(Year) ? AppConstants.CurrentNBASeasonYear.ToString() : Year));
+                string filter = TableClient.CreateQueryFilter<TeamEntity>((team) => team.PartitionKey == (string.IsNullOrWhiteSpace(Year) ? AppConstants.CurrentNBASeasonYear.ToString() : Year));
                     
                 return _tableStorageHelper.QueryEntitiesAsync<TeamEntity>(AppConstants.TeamsTable, filter).Result.ToList();
             } catch (Exception ex) {
@@ -56,7 +56,12 @@ namespace nbaunderdogleagueAPI.DataAccess
         public List<TeamEntity> AddTeams(List<TeamEntity> teamEntities)
         {
             // query for team ID
-            Dictionary<string, TeamStats> teamStats = GetTeamStatsFromStorage(); // V2 is manual data
+
+            if (teamEntities == null || teamEntities.Count == 0) {
+                return [];
+            }
+
+            Dictionary<string, TeamStats> teamStats = GetTeamStatsFromStorage(teamEntities.FirstOrDefault().PartitionKey);
 
             for (int i = 0; i < teamEntities.Count; i++) {
                 teamEntities[i].ID = teamStats[teamEntities[i].Name].TeamID;
@@ -182,17 +187,19 @@ namespace nbaunderdogleagueAPI.DataAccess
             return currentNBAStandingsDict;
         }
 
-        public Dictionary<string, TeamStats> GetTeamStatsFromStorage()
+        public Dictionary<string, TeamStats> GetTeamStatsFromStorage(string Year = "")
         {
-            var response = _tableStorageHelper.QueryEntitiesAsync<ManualTeamStatsEntity>(AppConstants.ManualTeamStats).Result;
+            string yearFilter = TableClient.CreateQueryFilter<TeamStatsEntity>((team) => team.PartitionKey == (string.IsNullOrWhiteSpace(Year) ? AppConstants.CurrentNBASeasonYear.ToString() : Year));
+            var response = _tableStorageHelper.QueryEntitiesAsync<TeamStatsEntity>(AppConstants.TeamStatsTable, yearFilter).Result;
 
-            List<TeamEntity> teams = GetTeams();
+            List<TeamEntity> teams = GetTeams(Year);
 
-            List<ManualTeamStatsEntity> manualTeamStats = response.ToList();
+            List<TeamStatsEntity> storageTeamStats = response.ToList();
             List<TeamStats> teamStats = new();
 
-            foreach (ManualTeamStatsEntity teamData in manualTeamStats) {
-                TeamEntity currentTeam = teams.First(t => t.RowKey == teamData.RowKey);
+            foreach (TeamStatsEntity teamData in storageTeamStats) {
+
+                TeamEntity currentTeam = teams.FirstOrDefault(t => t.RowKey == teamData.RowKey);
 
                 teamStats.Add(new TeamStats() {
                     TeamID = teamData.TeamID,
@@ -206,10 +213,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                     Ratio = teamData.Ratio,
                     Streak = teamData.Streak,
                     ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
-                    ProjectedWin = currentTeam.ProjectedWin,
-                    ProjectedLoss = currentTeam.ProjectedLoss,
-                    Score = TeamUtils.CalculateTeamScore(currentTeam.ProjectedWin, currentTeam.ProjectedLoss, teamData.Wins, teamData.Losses, teamData.PlayoffWins),
-                    LastUpdated = (DateTimeOffset)currentTeam.Timestamp
+                    ProjectedWin = currentTeam == null ? 0 : currentTeam.ProjectedWin,
+                    ProjectedLoss = currentTeam == null ? 0 : currentTeam.ProjectedLoss,
+                    Score = currentTeam == null ? 0 : TeamUtils.CalculateTeamScore(currentTeam.ProjectedWin, currentTeam.ProjectedLoss, teamData.Wins, teamData.Losses, teamData.PlayoffWins),
+                    LastUpdated = DateTimeOffset.Now,
                 });
             }
 
@@ -219,9 +226,9 @@ namespace nbaunderdogleagueAPI.DataAccess
         public List<TeamStats> UpdateTeamStatsManually()
         {
             List<TeamStats> teamStats = GetTeamStatsFromNBAdotCom().Values.OrderByDescending(team => team.Wins).ToList();
-            List<ManualTeamStatsEntity> manualTeamStats = new();
+            List<TeamStatsEntity> teamStatsEntity = new();
 
-            teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+            teamStats.ForEach(teamData => teamStatsEntity.Add(new TeamStatsEntity() {
                 PartitionKey = "TeamStats",
                 RowKey = teamData.TeamName,
                 TeamID = teamData.TeamID,
@@ -240,7 +247,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }));
 
             if (teamStats.Count != 0) {
-                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
 
                 return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
             } else {
@@ -248,14 +255,51 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
         }
 
+        public List<TeamStatsEntity> UpdateTeamStats(string Year = "")
+        {
+            Dictionary<string, TeamStats> teamStatsDict = GetTeamStatsFromStorage(Year);
+            List<TeamStatsEntity> teamStats = new();
+
+            int updateYear = string.IsNullOrWhiteSpace(Year) ? AppConstants.CurrentNBASeasonYear : int.TryParse(Year, out int n) ? n : AppConstants.CurrentNBASeasonYear;
+
+            foreach (TeamStats teamData in teamStatsDict.Values) {
+                teamStats.Add(new TeamStatsEntity() {
+                    PartitionKey = updateYear.ToString(),
+                    RowKey = teamData.TeamName,
+                    TeamID = teamData.TeamID,
+                    TeamCity = teamData.TeamCity,
+                    TeamName = teamData.TeamName,
+                    Conference = teamData.Conference,
+                    Wins = teamData.Wins,
+                    PlayoffWins = teamData.PlayoffWins,
+                    Losses = teamData.Losses,
+                    Standing = teamData.Standing,
+                    Ratio = teamData.Ratio,
+                    Streak = teamData.Streak,
+                    ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth,
+                    Year = updateYear,
+                    ETag = ETag.All,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            if (teamStats.Count != 0) {
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStats, AppConstants.TeamStatsTable).Result;
+
+                return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStatsEntity>();
+            } else {
+                return new List<TeamStatsEntity>();
+            }
+        }
+
         public string UpdateTeamPlayoffWins(TeamStats teamStats)
         {
             try {
-                var response = _tableStorageHelper.QueryEntitiesAsync<ManualTeamStatsEntity>(AppConstants.ManualTeamStats).Result;
+                var response = _tableStorageHelper.QueryEntitiesAsync<TeamStatsEntity>(AppConstants.TeamStatsTable).Result;
 
-                List<ManualTeamStatsEntity> manualTeamStats = response.ToList();
+                List<TeamStatsEntity> teamStatsEntity = response.ToList();
 
-                ManualTeamStatsEntity currentTeam = manualTeamStats.Find(x => x.TeamName == teamStats.TeamName);
+                TeamStatsEntity currentTeam = teamStatsEntity.Find(x => x.TeamName == teamStats.TeamName);
 
                 if (currentTeam == null || string.IsNullOrWhiteSpace(currentTeam.TeamName)) {
                     return "Team: " + teamStats.TeamName + " does not exist";
@@ -264,7 +308,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                 currentTeam.ClinchedPlayoffBirth = 1;
                 currentTeam.PlayoffWins = teamStats.PlayoffWins;
 
-                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
 
                 return updateTeamStatsManuallyResponse;
             } catch (Exception ex) {

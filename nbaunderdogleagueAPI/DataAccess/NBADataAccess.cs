@@ -11,12 +11,12 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface INBADataAccess
     {
-        GameResponse GetGamesFromRapidAPI();
-        List<NBAGameEntity> UpdateGamesFromRapidAPI();
-        Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date);
-        List<TeamStats> UpdateTeamStatsFromRapidAPI();
+        List<NBAGameEntity> UpdateScoreboardFromRapidAPI();
+        Task<RapidAPIContent> GetNBAGamesDataFromRapidAPIBySeason(string season);
+        List<TeamStats> UpdateTeamStatsFromRapidAPI(string Year = "");
         List<Scoreboard> NBAScoreboard(string groupId);
-        List<TeamStats> UpdatePlayoffData();
+        List<PlayoffData> UpdatePlayoffData();
+        Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> GetPlayoffData(string season);
     }
     public class NBADataAccess : INBADataAccess
     {
@@ -37,15 +37,12 @@ namespace nbaunderdogleagueAPI.DataAccess
             _teamService = teamService;
         }
 
-        public GameResponse GetGamesFromRapidAPI()
+        public GameResponse GetGamesFromRapidAPI(string season)
         {
             try {
-                DateTime now = DateTime.UtcNow;
-                DateTime dayBefore = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).AddDays(-1); // get yesterday's games
-
                 Game.Root output;
 
-                RapidAPIContent content = GetNBAGamesDataFromRapidAPI(dayBefore).Result;
+                RapidAPIContent content = GetNBAGamesDataFromRapidAPIBySeason(season).Result;
 
                 if (string.IsNullOrEmpty(content.Content)) {
                     return new GameResponse();
@@ -66,39 +63,81 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new GameResponse();
         }
 
-        public List<TeamStats> UpdateTeamStatsFromRapidAPI()
+        public GameResponse GetYesterdaysGamesFromRapidAPI()
+        {
+            try {
+                DateTime now = DateTime.UtcNow;
+                DateTime dayBefore = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).AddDays(-1); // get yesterday's games
+
+                Game.Root output;
+
+                RapidAPIContent content = GetNBAGamesDataFromRapidAPIByDate(dayBefore).Result;
+
+                if (string.IsNullOrEmpty(content.Content)) {
+                    return new GameResponse();
+                }
+
+                output = JsonConvert.DeserializeObject<Game.Root>(content.Content);
+
+                List<Game.Response> games = output.response;
+
+                return new GameResponse() {
+                    Games = games,
+                    RequestsRemaining = content.RequestsRemaining
+                };
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return new GameResponse();
+        }
+
+        public List<TeamStats> UpdateTeamStatsFromRapidAPI(string Year = "")
         {
             if (!_rapidAPIHelper.IsRapidAPIAvailable()) {
                 return new List<TeamStats>();
             }
 
-            TeamStatsResponse teamStatsResponse = GetTeamStatsFromRapidAPI();
+            // season starts in October, switch season on site in September
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            string season = now.Month >= 9 ? now.Year.ToString() : (now.Year - 1).ToString();
+
+            season = string.IsNullOrWhiteSpace(Year) ? season : Year;
+
+            TeamStatsResponse teamStatsResponse = GetTeamStatsFromRapidAPI(season);
             List<TeamStats> teamStats = teamStatsResponse.TeamStats.OrderByDescending(team => team.Wins).ToList();
 
+            Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> playoffDict = GetPlayoffData(season);
+
             if (teamStats.Count != 0) {
-                List<ManualTeamStatsEntity> manualTeamStats = new();
+                List<TeamStatsEntity> teamStatsData = new();
 
                 if (teamStats.Count == 30) {
-                    teamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
-                        PartitionKey = "TeamStats",
-                        RowKey = teamData.TeamName,
-                        TeamID = teamData.TeamID,
-                        TeamCity = teamData.TeamCity,
-                        TeamName = teamData.TeamName,
-                        Conference = teamData.Conference,
-                        Wins = teamData.Wins,
-                        //PlayoffWins = teamData.PlayoffWins, // need to update manually, missing from API endpoint
-                        Losses = teamData.Losses,
-                        Standing = teamData.Standing,
-                        Ratio = teamData.Ratio,
-                        Streak = teamData.Streak,
-                        //ClinchedPlayoffBirth = teamData.ClinchedPlayoffBirth, // need to update manually, missing from API endpoint
-                        Logo = teamData.Logo,
-                        ETag = ETag.All,
-                        Timestamp = DateTime.Now
-                    }));
+                    foreach (TeamStats teamData in teamStats) {
+                        bool teamInplayoffs = playoffDict.TryGetValue($"{teamData.TeamCity} {teamData.TeamName}", out (int PlayoffWins, int ClinchedPlayoffBirth) playoffData);
 
-                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                        teamStatsData.Add(new TeamStatsEntity() {
+                            PartitionKey = season,
+                            RowKey = teamData.TeamName,
+                            TeamID = teamData.TeamID,
+                            TeamCity = teamData.TeamCity,
+                            TeamName = teamData.TeamName,
+                            Conference = teamData.Conference,
+                            Wins = teamData.Wins,
+                            PlayoffWins = teamInplayoffs ? playoffData.PlayoffWins : 0,
+                            Losses = teamData.Losses,
+                            Standing = teamData.Standing,
+                            Ratio = teamData.Ratio,
+                            Streak = teamData.Streak,
+                            ClinchedPlayoffBirth = teamInplayoffs ? playoffData.ClinchedPlayoffBirth : 0,
+                            Logo = teamData.Logo,
+                            Year = int.TryParse(season, out int n) ? n : 0,
+                            ETag = ETag.All,
+                            Timestamp = DateTime.Now
+                        });
+                    }
+
+                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsData, AppConstants.TeamStatsTable).Result;
 
                     return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                 } else {
@@ -112,10 +151,10 @@ namespace nbaunderdogleagueAPI.DataAccess
                 if (AppConstants.CurrentDate.Month >= 8) {
                     List<TeamEntity> currentTeamStats = _teamService.GetTeams();
 
-                    List<ManualTeamStatsEntity> manualTeamStats = new();
+                    List<TeamStatsEntity> teamStatsEntity = new();
 
                     if (currentTeamStats.Count == 30) {
-                        currentTeamStats.ForEach(teamData => manualTeamStats.Add(new ManualTeamStatsEntity() {
+                        currentTeamStats.ForEach(teamData => teamStatsEntity.Add(new TeamStatsEntity() {
                             PartitionKey = "TeamStats",
                             RowKey = teamData.Name,
                             Wins = 0,
@@ -129,7 +168,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                             Timestamp = DateTime.Now
                         }));
 
-                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(manualTeamStats, AppConstants.ManualTeamStats).Result;
+                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
 
                         return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                     }
@@ -139,14 +178,78 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new List<TeamStats>();
         }
 
+        public List<PlayoffData> UpdatePlayoffData()
+        {
+            return [];
+        }
+
+        public Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> GetPlayoffData(string season)
+        {
+            try {
+
+                DateTime seasonDateTime = new(int.Parse(season), 1, 1);
+
+                // playoffs have not started
+                if (int.Parse(season) == AppConstants.CurrentNBASeasonYear) {
+                    return [];
+                }
+
+                // playoffs have not started
+                if (int.Parse(season) == AppConstants.CurrentNBASeasonYear + 1 && DateTime.Now.DayOfYear < AppConstants.NBAEndDate.DayOfYear) {
+                    return [];
+                }
+
+                // collect all game data per season
+                GameResponse gameResponse = GetGamesFromRapidAPI(season);
+
+                // filter out games that are only after the playoffs start
+                List<Game.Response> games = gameResponse.Games.Where(g => g.date.start.DayOfYear >= AppConstants.NBAEndDate.DayOfYear && g.date.start.Year == seasonDateTime.Year + 1).ToList();
+                Dictionary<string, int> teamWins = new();
+
+                PlayoffData.PlayoffDataDict = new();
+
+                foreach(Game.Response game in games) {
+                    string winningTeam = game.teams.home.points > game.teams.visitors.points ? game.teams.home.name : game.teams.visitors.name;
+
+                    if (teamWins.ContainsKey(winningTeam)) {
+                        teamWins[winningTeam]++;
+                    } else {
+                        teamWins.Add(winningTeam, 1);
+                    }
+
+                    PlayoffData playoffData = new() {
+                        TeamName = winningTeam,
+                        ClinchedPlayoffBirth = 1,
+                        PlayoffWins = teamWins[winningTeam]
+                    };
+
+                    PlayoffData.AddToDictionary(playoffData);
+                }
+
+                /*
+                collect wins for each team
+                if a team wins, ClinchedPlayoffs = 1
+
+                return playoff data
+                 
+                 */
+
+                return PlayoffData.PlayoffDataDict;
+            } catch (Exception ex) {
+                _logger.LogError(ex, nameof(GetPlayoffData));
+            }
+
+            return [];
+        }
+
         // Use the downloaded game data to update playoff games
         // standings data does not include playoff data
-        public List<TeamStats> UpdatePlayoffData()
+        public List<TeamStats> UpdatePlayoffDataUsingTodaysGames()
         {
             // 1. read game data from score board
             // only start doing this after playoffs begin (although, this could realistically replace the standings endpoint)
 
-            // 2. Update ManualTeamStats table with new game data (win/loss)
+            // 2. Update teamStats table with new game data (win/loss)
 
             try {
                 // Current nba season and after playoffs start
@@ -166,7 +269,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                                 .ToList());
                     }
 
-                    List<ManualTeamStatsEntity> updatedTeamStatsEntites = new();
+                    List<TeamStatsEntity> updatedTeamStatsEntites = new();
 
                     for(int i=0;i<teamsWithGamesTodayWhoWon.Count; i++) {
                         TeamStats teamData = teamsWithGamesTodayWhoWon[i];
@@ -179,7 +282,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         int newWin = teamsWithGamesTodayWhoWon.Any(x => x.TeamName == teamData.TeamName) ? 1 : 0;
                         int playoffWins = (int)(teamData.PlayoffWins + newWin);
 
-                        updatedTeamStatsEntites.Add(new ManualTeamStatsEntity() {
+                        updatedTeamStatsEntites.Add(new TeamStatsEntity() {
                             PartitionKey = "TeamStats",
                             RowKey = teamData.TeamName,
                             TeamID = teamData.TeamID,
@@ -199,12 +302,12 @@ namespace nbaunderdogleagueAPI.DataAccess
                         });
                     }
 
-                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(updatedTeamStatsEntites, AppConstants.ManualTeamStats).Result;
+                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(updatedTeamStatsEntites, AppConstants.TeamStatsTable).Result;
 
                     return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamsWithGamesTodayWhoWon : new List<TeamStats>();
                 }
             } catch (Exception ex) {
-                _logger.LogError(ex, nameof(UpdatePlayoffData));
+                _logger.LogError(ex, nameof(UpdatePlayoffDataUsingTodaysGames));
             }
 
             return new List<TeamStats>();
@@ -213,7 +316,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         // Only save games from the previous day
         // if there are no games that do, do not overwrite 
         // this data is just for the scoreboard on the UI
-        public List<NBAGameEntity> UpdateGamesFromRapidAPI()
+        public List<NBAGameEntity> UpdateScoreboardFromRapidAPI()
         {
             // Rapid API request limit has been met
             // do not update
@@ -222,7 +325,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             try {
-                GameResponse gameResponse = GetGamesFromRapidAPI();
+                GameResponse gameResponse = GetYesterdaysGamesFromRapidAPI();
                 List<Game.Response> games = gameResponse.Games;
 
                 // replace current games in scoreboard if there are new games
@@ -264,13 +367,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new List<NBAGameEntity>();
         }
 
-        private TeamStatsResponse GetTeamStatsFromRapidAPI()
+        private TeamStatsResponse GetTeamStatsFromRapidAPI(string season)
         {
             try {
-                // season starts in October, switch season on site in September
-                DateTimeOffset now = DateTimeOffset.UtcNow;
-                string season = now.Month >= 9 ? now.Year.ToString() : (now.Year - 1).ToString();
-
                 string apiURL = "https://api-nba-v1.p.rapidapi.com/standings";
                 string parameterString = "?league=standard&season=" + season;
 
@@ -295,13 +394,27 @@ namespace nbaunderdogleagueAPI.DataAccess
             return new TeamStatsResponse();
         }
 
-        public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPI(DateTime date)
+        public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPIByDate(DateTime date)
         {
             try {
                 string dateString = date.ToString("yyyy-MM-dd");
 
                 string apiURL = "https://api-nba-v1.p.rapidapi.com/games";
                 string parameterString = "?date=" + dateString;
+
+                return await _rapidAPIHelper.QueryRapidAPI(apiURL, parameterString);
+            } catch (Exception ex) {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+        }
+
+        public async Task<RapidAPIContent> GetNBAGamesDataFromRapidAPIBySeason(string season)
+        {
+            try {
+                string apiURL = "https://api-nba-v1.p.rapidapi.com/games";
+                string parameterString = "?season=" + season;
 
                 return await _rapidAPIHelper.QueryRapidAPI(apiURL, parameterString);
             } catch (Exception ex) {

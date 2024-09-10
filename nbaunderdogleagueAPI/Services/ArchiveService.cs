@@ -5,7 +5,7 @@ namespace nbaunderdogleagueAPI.Services
 {
     public interface IArchiveService
     {
-        List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId);
+        List<SeasonArchiveEntity> ArchiveGroup(string groupId);
         List<SeasonArchiveEntity> GetSeasonArchive(string groupId);
         SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive);
         List<ArchiveSummary> GetArchiveSummary(string email);
@@ -18,9 +18,9 @@ namespace nbaunderdogleagueAPI.Services
         {
             _archiveRepository = archiveRepository;
         }
-        public List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId)
+        public List<SeasonArchiveEntity> ArchiveGroup(string groupId)
         {
-            return _archiveRepository.ArchiveCurrentSeason(groupId);
+            return _archiveRepository.ArchiveGroup(groupId);
         }
         public List<SeasonArchiveEntity> GetSeasonArchive(string groupId)
         {

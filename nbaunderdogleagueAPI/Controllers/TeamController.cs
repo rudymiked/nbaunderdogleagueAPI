@@ -32,9 +32,9 @@ namespace nbaunderdogleagueAPI.Controllers
         //[Authorize(Policy = AppConstants.DefaultAuthPolicy)]
         //[Authorize(Policy = AppConstants.AudiencePolicy)]
         [HttpGet("TeamStatsListFromStorage")]
-        public ActionResult<IEnumerable<TeamStats>> TeamStatsListFromStorage()
+        public ActionResult<IEnumerable<TeamStats>> TeamStatsListFromStorage(string year)
         {
-            return Ok(_teamService.TeamStatsListFromStorage());
+            return Ok(_teamService.TeamStatsListFromStorage(year));
         }
 
         [HttpGet("UpdateTeamStatsManually")]

@@ -8,7 +8,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IArchiveDataAccess
     {
-        List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId);
+        List<SeasonArchiveEntity> ArchiveGroup(string groupId);
         List<SeasonArchiveEntity> GetSeasonArchive(string groupId);
         List<SeasonArchiveEntity> UpdateArchives();
         SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity userArchive);
@@ -28,18 +28,32 @@ namespace nbaunderdogleagueAPI.DataAccess
             _teamService = teamService;
             _logger = logger;
         }
-        public List<SeasonArchiveEntity> ArchiveCurrentSeason(string groupId)
+        public List<SeasonArchiveEntity> ArchiveGroup(string groupId)
         {
-            int version = 2; // 2 is manual data
-
             try {
+                // 0. Get Group Info
+
+                GroupEntity groupInfo = _groupService.GetGroup(groupId);
+
+                if (groupInfo?.Id == null) {
+                    return [];
+                }
+
                 // 1. Query current season data
 
-                List<GroupStandings> groupStandings = _groupService.GetGroupStandings(groupId, version);
+                List<GroupStandings> groupStandings = _groupService.GetGroupStandings(groupId);
+
+                if (groupStandings?.Count == 0) {
+                    return [];
+                }
 
                 // Query team data (to collect team ID)
 
-                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage();
+                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage(groupInfo.Year.ToString());
+
+                if (teamEntities?.Count == 0) {
+                    return [];
+                }
 
                 // 2. Upsert Archive data
 
@@ -101,10 +115,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         public SeasonArchiveEntity ArchiveUser(SeasonArchiveEntity seasonArchiveEntity)
         {
             try {
-                int version = 2; // manual data
-                                 // Query team data (to collect team ID)
-
-                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage();
+                List<TeamStats> teamEntities = _teamService.TeamStatsListFromStorage(seasonArchiveEntity.Year.ToString());
 
                 TeamStats teamStats = teamEntities.FirstOrDefault(team => team.TeamName == seasonArchiveEntity.TeamName);
 
@@ -186,7 +197,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         int losses = seasonArchiveEntities[i].Losses;
                         int projectedWins = seasonArchiveEntities[i].ProjectedWin;
                         int projectedLosses = seasonArchiveEntities[i].ProjectedLoss;
-                        int? playoffWins = seasonArchiveEntities[i].PlayoffWins;
+                        int playoffWins = seasonArchiveEntities[i].PlayoffWins;
 
                         seasonArchiveEntities[i].Year = group.Year;
                         seasonArchiveEntities[i].GroupId = group.Id.ToString();

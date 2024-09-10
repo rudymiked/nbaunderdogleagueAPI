@@ -9,7 +9,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 {
     public interface IGroupDataAccess
     {
-        List<GroupStandings> GetGroupStandings(string groupId, string Year = "");
+        List<GroupStandings> GetGroupStandings(string groupId);
         CreateGroupResult CreateGroup(string name, string ownerEmail);
         GroupEntity UpsertGroup(GroupEntity group);
         GroupEntity GetGroup(string groupId);
@@ -41,30 +41,31 @@ namespace nbaunderdogleagueAPI.DataAccess
             GroupStandings:
             version 0: https://stats.nba.com/, DEPRECATED.
             version 1: https://data.nba.net/prod/v1/current/standings_all.json, does not work after deploying to Azure.
-            version 2: ManualTeamStats, populated by RapidAPI every 30 mins. 
+            version 2: teamStatsEntity, populated by RapidAPI every 30 mins. 
          */
 
-        public List<GroupStandings> GetGroupStandings(string groupId, string Year = "")
+        public List<GroupStandings> GetGroupStandings(string groupId)
         {
-            List<GroupStandings> standings = new();
+            // 1. Get Group Info
+            GroupEntity group = GetGroup(groupId);
 
-            // 1. Get Current NBA Standings Data (from NBA stats)
-            Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromStorage();
+            // 2. Get Current NBA Standings Data (from NBA stats)
+
+            Dictionary<string, TeamStats> teamStatsDict = _teamService.TeamStatsDictionaryFromStorage(group.Year.ToString());
 
             // something went wrong.
-            if (teamStatsDict.Count == 0) {
+            if (teamStatsDict?.Count == 0) {
                 _logger.LogError(AppConstants.EmptyTeamStats);
                 return new List<GroupStandings>();
             }
 
-            // 2. Get Projected Data (from storage)
-            List<TeamEntity> teamsEntities = _teamService.GetTeams(Year);
-
-            // 3. Get Group Info
-            GroupEntity group = GetGroup(groupId);
+            // 3. Get Projected Data (from storage)
+            List<TeamEntity> teamsEntities = _teamService.GetTeams(group.Year.ToString());
 
             // 4. Get Users and their teams
             List<UserEntity> userEntities = _userService.GetUsers(groupId);
+
+            List<GroupStandings> standings = new();
 
             if (group.DraftDate > DateTimeOffset.UtcNow || group.DraftDate == DateTimeOffset.MinValue) {
                 // draft either hasn't started or hasn't been setup
@@ -294,7 +295,7 @@ namespace nbaunderdogleagueAPI.DataAccess
             // Create group if validations pass
             // Create user entity for group owner
 
-            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Owner == ownerEmail);
+            string filter = TableClient.CreateQueryFilter<GroupEntity>((group) => group.Owner == ownerEmail && group.Year == AppConstants.CurrentNBASeasonYear);
 
             var currentGroupsResponse = QueryGroupTable(filter);
 

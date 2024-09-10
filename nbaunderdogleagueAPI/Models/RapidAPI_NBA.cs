@@ -47,13 +47,13 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Home
             {
-                public int id { get; set; }
+                public int? id { get; set; }
                 public string name { get; set; }
                 public string nickname { get; set; }
                 public string code { get; set; }
                 public string logo { get; set; }
-                public int win { get; set; }
-                public int loss { get; set; }
+                public int? win { get; set; }
+                public int? loss { get; set; }
                 public Series series { get; set; }
                 public List<string> linescore { get; set; }
                 public int? points { get; set; }
@@ -66,18 +66,18 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Periods
             {
-                public int current { get; set; }
-                public int total { get; set; }
-                public bool endOfPeriod { get; set; }
+                public int? current { get; set; }
+                public int? total { get; set; }
+                public bool? endOfPeriod { get; set; }
             }
 
             public class Response
             {
                 public int id { get; set; }
                 public string league { get; set; }
-                public int season { get; set; }
+                public int? season { get; set; }
                 public Date date { get; set; }
-                public int stage { get; set; }
+                public int? stage { get; set; }
                 public Status status { get; set; }
                 public Periods periods { get; set; }
                 public Arena arena { get; set; }
@@ -94,7 +94,7 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
                 public string get { get; set; }
                 public Parameters parameters { get; set; }
                 public List<object> errors { get; set; }
-                public int results { get; set; }
+                public int? results { get; set; }
                 public List<Response> response { get; set; }
             }
 
@@ -106,15 +106,15 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Series
             {
-                public int win { get; set; }
-                public int loss { get; set; }
+                public int? win { get; set; }
+                public int? loss { get; set; }
             }
 
             public class Status
             {
                 public object clock { get; set; }
-                public bool halftime { get; set; }
-                public int @short { get; set; }
+                public bool? halftime { get; set; }
+                public int? @short { get; set; }
                 public string @long { get; set; }
             }
 
@@ -126,13 +126,13 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Visitors
             {
-                public int id { get; set; }
+                public int? id { get; set; }
                 public string name { get; set; }
                 public string nickname { get; set; }
                 public string code { get; set; }
                 public string logo { get; set; }
-                public int win { get; set; }
-                public int loss { get; set; }
+                public int? win { get; set; }
+                public int? loss { get; set; }
                 public Series series { get; set; }
                 public List<string> linescore { get; set; }
                 public int? points { get; set; }
@@ -144,27 +144,27 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
             public class Conference
             {
                 public string name { get; set; }
-                public int rank { get; set; }
-                public int win { get; set; }
-                public int loss { get; set; }
+                public int? rank { get; set; }
+                public int? win { get; set; }
+                public int? loss { get; set; }
             }
 
             public class Division
             {
                 public string name { get; set; }
-                public int rank { get; set; }
-                public int win { get; set; }
-                public int loss { get; set; }
+                public int? rank { get; set; }
+                public int? win { get; set; }
+                public int? loss { get; set; }
                 public string gamesBehind { get; set; }
             }
 
             public class Loss
             {
-                public int home { get; set; }
-                public int away { get; set; }
-                public int total { get; set; }
+                public int? home { get; set; }
+                public int? away { get; set; }
+                public int? total { get; set; }
                 public string percentage { get; set; }
-                public int lastTen { get; set; }
+                public int? lastTen { get; set; }
             }
 
             public class Parameters
@@ -176,15 +176,15 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
             public class Response
             {
                 public string league { get; set; }
-                public int season { get; set; }
+                public int? season { get; set; }
                 public Team team { get; set; }
                 public Conference conference { get; set; }
                 public Division division { get; set; }
                 public Win win { get; set; }
                 public Loss loss { get; set; }
                 public string gamesBehind { get; set; }
-                public int streak { get; set; }
-                public bool winStreak { get; set; }
+                public int? streak { get; set; }
+                public bool? winStreak { get; set; }
                 public object tieBreakerPoints { get; set; }
             }
 
@@ -193,7 +193,7 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
                 public string get { get; set; }
                 public Parameters parameters { get; set; }
                 public List<object> errors { get; set; }
-                public int results { get; set; }
+                public int? results { get; set; }
                 public List<Response> response { get; set; }
                 public List<TeamStats> ExtractTeamStats(ILogger logger)
                 {
@@ -205,13 +205,13 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
                         int i = 1;
                         output = orderedResponse.Select(r => new TeamStats() {
-                            TeamID = r.team.id,
+                            TeamID = r.team.id ?? 0,
                             TeamName = r.team.nickname,
                             TeamCity = r.team.name.Replace(r.team.nickname, "").Trim(),
                             Conference = r.conference.name,
                             Standing = i++,
-                            Wins = r.win.total,
-                            Losses = r.loss.total,
+                            Wins = r.win.total ?? 0,
+                            Losses = r.loss.total ?? 0,
                             Ratio = double.Parse(r.win.percentage),
                             Streak = r.streak,
                             //ClinchedPlayoffBirth = 0, // not in Rapid API endpoint
@@ -230,7 +230,7 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Team
             {
-                public int id { get; set; }
+                public int? id { get; set; }
                 public string name { get; set; }
                 public string nickname { get; set; }
                 public string code { get; set; }
@@ -239,11 +239,11 @@ namespace nbaunderdogleagueAPI.Models.RapidAPI_NBA
 
             public class Win
             {
-                public int home { get; set; }
-                public int away { get; set; }
-                public int total { get; set; }
+                public int? home { get; set; }
+                public int? away { get; set; }
+                public int? total { get; set; }
                 public string percentage { get; set; }
-                public int lastTen { get; set; }
+                public int? lastTen { get; set; }
             }
         }
     }

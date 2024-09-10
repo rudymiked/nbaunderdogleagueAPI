@@ -30,7 +30,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void UpdateTeamStatsFromRapidAPI()
         {
             if (_nbaService != null && _rapidAPIHelper != null) {
-                List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI();
+                List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI("2023");
 
                 if (_rapidAPIHelper.IsRapidAPIAvailable()) {
                     Assert.AreNotEqual(0, teamStats.Count);
@@ -43,10 +43,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void UpdateGamesFromRapidAPI()
+        public void UpdateScoreboardFromRapidAPI()
         {
             if (_nbaService != null && _rapidAPIHelper != null) {
-                List<NBAGameEntity> gameData = _nbaService.UpdateGamesFromRapidAPI();
+                List<NBAGameEntity> gameData = _nbaService.UpdateScoreboardFromRapidAPI();
 
                 if (_rapidAPIHelper.IsRapidAPIAvailable()) {
                     Assert.AreNotEqual(0, gameData.Count);
@@ -104,7 +104,24 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         {
             if (_nbaService != null) {
                 try {
-                    List<TeamStats> updatedData = _nbaService.UpdatePlayoffData();
+                    List<PlayoffData> updatedData = _nbaService.UpdatePlayoffData();
+                } catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
+                    Assert.Fail();
+                }
+            } else {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetPlayoffDataTest()
+        {
+            if (_nbaService != null) {
+                try {
+                    Dictionary<string, (int PlayoffWins, int ClinchedPlayoffBirth)> updatedData = _nbaService.GetPlayoffData("2023");
+
+                    Assert.IsTrue(updatedData.Count > 0);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.Message);
                     Assert.Fail();

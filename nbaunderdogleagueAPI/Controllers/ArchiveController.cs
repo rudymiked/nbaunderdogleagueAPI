@@ -31,10 +31,10 @@ namespace nbaunderdogleagueAPI.Controllers
             return !string.IsNullOrEmpty(email) ? Ok(_archiveService.GetArchiveSummary(email)) : NoContent();
         }
 
-        [HttpPost("ArchiveCurrentSeason")]
-        public ActionResult<List<SeasonArchiveEntity>> ArchiveCurrentSeason(string groupId)
+        [HttpPost("ArchiveGroup")]
+        public ActionResult<List<SeasonArchiveEntity>> ArchiveGroup(string groupId)
         {
-            return !string.IsNullOrEmpty(groupId) ? Ok(_archiveService.ArchiveCurrentSeason(groupId)) : NoContent();
+            return !string.IsNullOrEmpty(groupId) ? Ok(_archiveService.ArchiveGroup(groupId)) : NoContent();
         }
     }
 }

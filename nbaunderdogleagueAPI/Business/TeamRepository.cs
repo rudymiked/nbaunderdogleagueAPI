@@ -7,11 +7,11 @@ namespace nbaunderdogleagueAPI.Business
     {
         List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> TeamStatsListFromStorage();
+        List<TeamStats> TeamStatsListFromStorage(string Year = "");
         List<TeamStats> TeamStatsListFromJSON();
         List<TeamStats> TeamStatsListFromNBAdotCom();
         List<TeamStats> UpdateTeamStatsManually();
-        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage(string Year = "");
         Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON();
         Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom();
         string UpdateTeamPlayoffWins(TeamStats teamStats);
@@ -35,9 +35,9 @@ namespace nbaunderdogleagueAPI.Business
             return _teamDataAccess.AddTeams(teamsEntities);
         }
 
-        public List<TeamStats> TeamStatsListFromStorage()
+        public List<TeamStats> TeamStatsListFromStorage(string Year = "")
         {
-            return _teamDataAccess.GetTeamStatsFromStorage().Values.OrderByDescending(team => team.Wins).ToList();
+            return _teamDataAccess.GetTeamStatsFromStorage(Year).Values.OrderByDescending(team => team.Wins).ToList();
         }
 
         public List<TeamStats> TeamStatsListFromJSON()
@@ -50,9 +50,9 @@ namespace nbaunderdogleagueAPI.Business
             return _teamDataAccess.GetTeamStatsFromNBAdotCom().Values.OrderByDescending(team => team.Wins).ToList();
         }
 
-        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage()
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage(string Year = "")
         {
-            return _teamDataAccess.GetTeamStatsFromStorage();
+            return _teamDataAccess.GetTeamStatsFromStorage(Year);
         }        
         
         public Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON()

@@ -13,6 +13,7 @@
         public const string UIUrl = "https://nbaunderdogleague.azurewebsites.net";
         public const string AdminEmail = "rudymiked@gmail.com";
         public const string CurrentNBAStandingsJSON = "https://data.nba.net/prod/v1/current/standings_all.json";
+        public const string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
 
         // Storage Tables
         public const string TeamsTable = "Teams";
@@ -23,8 +24,8 @@
         public const string DraftTable = "Drafts";
         public const string SystemConfigurationTable = "SystemConfiguration";
         public const string ScoreboardTable = "Scoreboard";
-        public const string SysConfig_RapidAPITimeout = "RapidAPI_Timeout";
-        public const string ManualTeamStats = "ManualTeamStats";
+        public const string ManualTeamStatsTable = "ManualTeamStats";
+        public const string TeamStatsTable = "TeamStats";
         public const string PlayerStatisticsTable = "PlayerStatistics";
         public const string JoinGroupRequestsTable = "JoinGroupRequests";
 

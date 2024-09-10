@@ -25,34 +25,10 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         }
 
         [TestMethod]
-        public void GetGroupStandingsTestV0()
+        public void GetGroupStandings()
         {
             if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 0);
-
-                Assert.AreNotEqual(0, standings.Count);
-            } else {
-                Assert.Fail();
-            }
-        }
-
-        //[TestMethod]
-        //public void GetGroupStandingsTestV1()
-        //{
-        //    if (_groupService != null) {
-        //        List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString(), 1);
-
-        //        Assert.AreNotEqual(0, standings.Count);
-        //    } else {
-        //        Assert.Fail();
-        //    }
-        //}
-
-        [TestMethod]
-        public void GetGroupStandingsTestV2()
-        {
-            if (_groupService != null) {
-                List<GroupStandings> standings = _groupService.GetGroupStandings("938d60e2-0144-436d-ae6a-5357df703aa4", 2);
+                List<GroupStandings> standings = _groupService.GetGroupStandings(AppConstants.Group_2022.ToString());
 
                 Assert.AreNotEqual(0, standings.Count);
             } else {

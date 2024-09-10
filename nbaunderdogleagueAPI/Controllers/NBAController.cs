@@ -23,10 +23,10 @@ namespace nbaunderdogleagueAPI.Controllers
             return Ok(_nbaService.UpdateTeamStatsFromRapidAPI());
         }
 
-        [HttpGet("UpdateGamesFromRapidAPI")]
-        public ActionResult<IEnumerable<NBAGameEntity>> UpdateGamesFromRapidAPI()
+        [HttpGet("UpdateScoreboardFromRapidAPI")]
+        public ActionResult<IEnumerable<NBAGameEntity>> UpdateScoreboardFromRapidAPI()
         {
-            return Ok(_nbaService.UpdateGamesFromRapidAPI());
+            return Ok(_nbaService.UpdateScoreboardFromRapidAPI());
         }
 
         [HttpGet("NBAScoreboard")]

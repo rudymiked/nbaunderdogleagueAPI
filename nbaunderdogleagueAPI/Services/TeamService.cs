@@ -7,10 +7,10 @@ namespace nbaunderdogleagueAPI.Services
     {
         List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> TeamStatsListFromStorage();
+        List<TeamStats> TeamStatsListFromStorage(string Year = "");
         List<TeamStats> TeamStatsListFromJSON();
         List<TeamStats> TeamStatsListFromNBAdotCom();
-        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage();
+        Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage(string Year = "");
         Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON();
         Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom();
         List<TeamStats> UpdateTeamStatsManually();
@@ -34,9 +34,9 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.AddTeams(teamsEntities);
         }
 
-        public List<TeamStats> TeamStatsListFromStorage()
+        public List<TeamStats> TeamStatsListFromStorage(string Year = "")
         {
-            return _teamRepository.TeamStatsListFromStorage();
+            return _teamRepository.TeamStatsListFromStorage(Year);
         }       
 
         public List<TeamStats> TeamStatsListFromJSON()
@@ -49,9 +49,9 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.TeamStatsListFromNBAdotCom();
         }
 
-        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage()
+        public Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage(string Year = "")
         {
-            return _teamRepository.TeamStatsDictionaryFromStorage();
+            return _teamRepository.TeamStatsDictionaryFromStorage(Year);
         }       
         
         public Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON()
