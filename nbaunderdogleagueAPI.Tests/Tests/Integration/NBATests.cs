@@ -30,7 +30,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void UpdateTeamStatsFromRapidAPI()
         {
             if (_nbaService != null && _rapidAPIHelper != null) {
-                List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI("2023");
+                List<TeamStats> teamStats = _nbaService.UpdateTeamStatsFromRapidAPI("2024");
 
                 if (_rapidAPIHelper.IsRapidAPIAvailable()) {
                     Assert.AreNotEqual(0, teamStats.Count);

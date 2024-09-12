@@ -13,7 +13,7 @@ namespace nbaunderdogleagueAPI.Services
         Dictionary<string, TeamStats> TeamStatsDictionaryFromStorage(string Year = "");
         Dictionary<string, TeamStats> TeamStatsDictionaryFromJSON();
         Dictionary<string, TeamStats> TeamStatsDictionaryFromNBAdotCom();
-        List<TeamStats> UpdateTeamStatsManually();
+        List<TeamStats> UpdateTeamStatsManually(string season);
         string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
     public class TeamService : ITeamService
@@ -64,9 +64,9 @@ namespace nbaunderdogleagueAPI.Services
             return _teamRepository.TeamStatsDictionaryFromNBAdotCom();
         }
 
-        public List<TeamStats> UpdateTeamStatsManually()
+        public List<TeamStats> UpdateTeamStatsManually(string season)
         {
-            return _teamRepository.UpdateTeamStatsManually();
+            return _teamRepository.UpdateTeamStatsManually(season);
         }
 
         public string UpdateTeamPlayoffWins(TeamStats teamStats)

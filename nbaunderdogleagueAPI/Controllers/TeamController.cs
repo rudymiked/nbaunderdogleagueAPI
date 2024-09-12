@@ -38,9 +38,9 @@ namespace nbaunderdogleagueAPI.Controllers
         }
 
         [HttpGet("UpdateTeamStatsManually")]
-        public ActionResult<IEnumerable<TeamStats>> UpdateTeamStatsManually()
+        public ActionResult<IEnumerable<TeamStats>> UpdateTeamStatsManually(string season)
         {
-            return Ok(_teamService.UpdateTeamStatsManually());
+            return Ok(_teamService.UpdateTeamStatsManually(season));
         }
 
         [HttpGet("TeamsTable")]

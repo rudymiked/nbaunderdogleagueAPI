@@ -25,7 +25,7 @@ namespace nbaunderdogleagueAPI.DataAccess
         Dictionary<string, TeamStats> GetTeamStatsFromStorage(string Year = "");
         List<TeamEntity> GetTeams(string Year = "");
         List<TeamEntity> AddTeams(List<TeamEntity> teamsEntities);
-        List<TeamStats> UpdateTeamStatsManually();
+        List<TeamStats> UpdateTeamStatsManually(string season);
         string UpdateTeamPlayoffWins(TeamStats teamStats);
     }
     public class TeamDataAccess : ITeamDataAccess
@@ -223,13 +223,13 @@ namespace nbaunderdogleagueAPI.DataAccess
             return teamStats.ToDictionary(team => team.TeamName);
         }
 
-        public List<TeamStats> UpdateTeamStatsManually()
+        public List<TeamStats> UpdateTeamStatsManually(string season)
         {
             List<TeamStats> teamStats = GetTeamStatsFromNBAdotCom().Values.OrderByDescending(team => team.Wins).ToList();
             List<TeamStatsEntity> teamStatsEntity = new();
 
             teamStats.ForEach(teamData => teamStatsEntity.Add(new TeamStatsEntity() {
-                PartitionKey = "TeamStats",
+                PartitionKey = season,
                 RowKey = teamData.TeamName,
                 TeamID = teamData.TeamID,
                 TeamCity = teamData.TeamCity,
@@ -284,9 +284,9 @@ namespace nbaunderdogleagueAPI.DataAccess
             }
 
             if (teamStats.Count != 0) {
-                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStats, AppConstants.TeamStatsTable).Result;
+                var updateTeamStatsResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStats, AppConstants.TeamStatsTable).Result;
 
-                return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStatsEntity>();
+                return (updateTeamStatsResponse == AppConstants.Success) ? teamStats : new List<TeamStatsEntity>();
             } else {
                 return new List<TeamStatsEntity>();
             }
@@ -308,9 +308,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                 currentTeam.ClinchedPlayoffBirth = 1;
                 currentTeam.PlayoffWins = teamStats.PlayoffWins;
 
-                var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
+                var updateTeamStatsResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
 
-                return updateTeamStatsManuallyResponse;
+                return updateTeamStatsResponse;
             } catch (Exception ex) {
                 _logger.LogError(ex, ex.Message);
                 return null;

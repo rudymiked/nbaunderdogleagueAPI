@@ -137,9 +137,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                         });
                     }
 
-                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsData, AppConstants.TeamStatsTable).Result;
+                    var updateTeamStatsResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsData, AppConstants.TeamStatsTable).Result;
 
-                    return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
+                    return (updateTeamStatsResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                 } else {
                     _logger.LogError("Team Stats not fetched for all teams, count: " + teamStats.Count);
                 }
@@ -155,7 +155,7 @@ namespace nbaunderdogleagueAPI.DataAccess
 
                     if (currentTeamStats.Count == 30) {
                         currentTeamStats.ForEach(teamData => teamStatsEntity.Add(new TeamStatsEntity() {
-                            PartitionKey = "TeamStats",
+                            PartitionKey = season,
                             RowKey = teamData.Name,
                             Wins = 0,
                             PlayoffWins = 0,
@@ -168,9 +168,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                             Timestamp = DateTime.Now
                         }));
 
-                        var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
+                        var updateTeamStatsResponse = _tableStorageHelper.UpsertEntitiesAsync(teamStatsEntity, AppConstants.TeamStatsTable).Result;
 
-                        return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
+                        return (updateTeamStatsResponse == AppConstants.Success) ? teamStats : new List<TeamStats>();
                     }
                 }
             }
@@ -283,7 +283,7 @@ namespace nbaunderdogleagueAPI.DataAccess
                         int playoffWins = (int)(teamData.PlayoffWins + newWin);
 
                         updatedTeamStatsEntites.Add(new TeamStatsEntity() {
-                            PartitionKey = "TeamStats",
+                            PartitionKey = AppConstants.CurrentNBASeasonYear.ToString(),
                             RowKey = teamData.TeamName,
                             TeamID = teamData.TeamID,
                             TeamCity = teamData.TeamCity,
@@ -302,9 +302,9 @@ namespace nbaunderdogleagueAPI.DataAccess
                         });
                     }
 
-                    var updateTeamStatsManuallyResponse = _tableStorageHelper.UpsertEntitiesAsync(updatedTeamStatsEntites, AppConstants.TeamStatsTable).Result;
+                    var updateTeamStatsResponse = _tableStorageHelper.UpsertEntitiesAsync(updatedTeamStatsEntites, AppConstants.TeamStatsTable).Result;
 
-                    return (updateTeamStatsManuallyResponse == AppConstants.Success) ? teamsWithGamesTodayWhoWon : new List<TeamStats>();
+                    return (updateTeamStatsResponse == AppConstants.Success) ? teamsWithGamesTodayWhoWon : new List<TeamStats>();
                 }
             } catch (Exception ex) {
                 _logger.LogError(ex, nameof(UpdatePlayoffDataUsingTodaysGames));

@@ -92,7 +92,7 @@ namespace nbaunderdogleagueAPI.Tests.Integration
         public void UpdateTeamStatsManually()
         {
             if (_teamService != null) {
-                List<TeamStats> teamStats = _teamService.UpdateTeamStatsManually();
+                List<TeamStats> teamStats = _teamService.UpdateTeamStatsManually("2024");
 
                 Assert.AreNotEqual(0, teamStats.Count);
             } else {
